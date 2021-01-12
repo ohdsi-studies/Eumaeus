@@ -1,5 +1,5 @@
-Evaluation of methods for vaccine surveillance using observational data
-=======================================================================
+Evaluation of Methods for Vaccine Surveillance
+==============================================
 
 <img src="https://img.shields.io/badge/Study%20Status-Started-blue.svg" alt="Study Status: Started">
 
