@@ -88,3 +88,10 @@ loadExposuresofInterest <- function() {
            historyEndDate = as.Date(.data$historyEndDate, format = "%d-%m-%Y"))
   return(exposuresOfInterest)
 }
+
+loadEstimates <- function(fileName) {
+  estimates <- readr::read_csv(fileName, col_types = c(exposureId = "c", outcomeId = "c")) %>%
+    mutate(exposureId = bit64::as.integer64(.data$exposureId), 
+           outcomeId = bit64::as.integer64(.data$outcomeId))
+  return(estimates)
+}

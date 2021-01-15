@@ -25,7 +25,7 @@ runHistoricalComparator <- function(connectionDetails,
   if (!file.exists(hcFolder))
     dir.create(hcFolder)
   
-  hcSummaryFile <- file.path(outputFolder, "hcSummary.rds")
+  hcSummaryFile <- file.path(outputFolder, "hcSummary.csv")
   if (!file.exists(hcSummaryFile)) {
     allControls <- loadAllControls(outputFolder)
     # controls <- allControls
@@ -51,12 +51,13 @@ runHistoricalComparator <- function(connectionDetails,
       
     }
     timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
+    allEstimates <- list()
     # i <- 1
     for (i in 1:nrow(timePeriods)) {
       periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
       if (!file.exists(periodEstimatesFile)) {
         ParallelLogger::logInfo(sprintf("Computing historical comparator estimates for exposure %s and period: %s", exposureId, timePeriods$label[i]))
-        # periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d.csv", timePeriods$seqId[i]))
+        periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d", timePeriods$seqId[i]))
         estimates <- computeHistoricalComparatorEstimates(connectionDetails = connectionDetails,
                                                           cdmDatabaseSchema = cdmDatabaseSchema,
                                                           cohortDatabaseSchema = cohortDatabaseSchema,
@@ -65,16 +66,27 @@ runHistoricalComparator <- function(connectionDetails,
                                                           endDate = timePeriods$endDate[i],
                                                           exposureId = exposureId,
                                                           outcomeIds = controls$outcomeId,
-                                                          ratesFile = historicRatesFile)
+                                                          ratesFile = historicRatesFile,
+                                                          periodFolder = periodFolder)
         readr::write_csv(estimates, periodEstimatesFile)
+      } else {
+        estimates <- readr::read_csv(periodEstimatesFile, col_types = readr::cols())
       }
+      estimates$seqId <- timePeriods$seqId[i]
+      estimates$period <- timePeriods$label[i]
+      allEstimates[[length(allEstimates) + 1]] <- estimates
     }
+    allEstimates <- bind_rows(allEstimates)  
+    readr::write_csv(allEstimates, hcSummaryFile)
   }
-  
   delta <- Sys.time() - start
   writeLines(paste("Completed historical comparator analyses in", signif(delta, 3), attr(delta, "units")))
   
-  
+  analysisDesc <- tibble(analysisId = c(1, 
+                                        2),
+                         description = c("Unadjusted historical comparator",
+                                         "Age + sex adjusted historical comparator"))
+  readr::write_csv(analysisDesc, file.path(outputFolder, "hcAnalysisDesc.csv"))
   
   # estimates <- readr::read_csv(periodEstimatesFile) %>%
   #   mutate(exposureId = bit64::as.integer64(.data$exposureId),
@@ -146,34 +158,55 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                                                  endDate,
                                                  exposureId,
                                                  outcomeIds,
-                                                 ratesFile) {
+                                                 ratesFile,
+                                                 periodFolder) {
   start <- Sys.time()
   historicRates <- readRDS(ratesFile)
   
-  connection <- DatabaseConnector::connect(connectionDetails)
-  on.exit(DatabaseConnector::disconnect(connection))
+  if (!file.exists(periodFolder)) {
+    dir.create(periodFolder)
+  }
   
-  ParallelLogger::logInfo("Fetching incidence rates during exposure")
-  sql <- SqlRender::loadRenderTranslateSql("ComputeIncidenceRatesExposed.sql",
-                                           "VaccineSurveillanceMethodEvaluation",
-                                           dbms = connectionDetails$dbms,
-                                           cdm_database_schema = cdmDatabaseSchema,
-                                           cohort_database_schema = cohortDatabaseSchema,
-                                           cohort_table = cohortTable,
-                                           exposure_id = exposureId,
-                                           outcome_ids = outcomeIds,
-                                           start_date = format(startDate, "%Y%m%d"),
-                                           end_date = format(endDate, "%Y%m%d"),
-                                           washout_period = 365,
-                                           first_occurrence_only = TRUE,
-                                           time_at_risk_end = 30)
-  DatabaseConnector::executeSql(connection, sql)
-  numerator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #numerator;", snakeCaseToCamelCase = TRUE)
-  denominator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #denominator;", snakeCaseToCamelCase = TRUE)
-  sql <- "TRUNCATE TABLE #numerator; DROP TABLE #numerator; TRUNCATE TABLE #denominator; DROP TABLE #denominator;"
-  DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  numeratorFile <- file.path(periodFolder, "numerator.rds")
+  denominatorFile <- file.path(periodFolder, "denominator.rds")
+  if (file.exists(numeratorFile) && file.exists(denominatorFile)) {
+    numerator <- readRDS(numeratorFile)
+    denominator <- readRDS(denominatorFile)
+  } else {
+    connection <- DatabaseConnector::connect(connectionDetails)
+    on.exit(DatabaseConnector::disconnect(connection))
+    
+    ParallelLogger::logInfo("Fetching incidence rates during exposure")
+    sql <- SqlRender::loadRenderTranslateSql("ComputeIncidenceRatesExposed.sql",
+                                             "VaccineSurveillanceMethodEvaluation",
+                                             dbms = connectionDetails$dbms,
+                                             cdm_database_schema = cdmDatabaseSchema,
+                                             cohort_database_schema = cohortDatabaseSchema,
+                                             cohort_table = cohortTable,
+                                             exposure_id = exposureId,
+                                             outcome_ids = outcomeIds,
+                                             start_date = format(startDate, "%Y%m%d"),
+                                             end_date = format(endDate, "%Y%m%d"),
+                                             washout_period = 365,
+                                             first_occurrence_only = TRUE,
+                                             time_at_risk_end = 30)
+    DatabaseConnector::executeSql(connection, sql)
+    numerator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #numerator;", snakeCaseToCamelCase = TRUE)
+    denominator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #denominator;", snakeCaseToCamelCase = TRUE)
+    sql <- "TRUNCATE TABLE #numerator; DROP TABLE #numerator; TRUNCATE TABLE #denominator; DROP TABLE #denominator;"
+    DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+    saveRDS(numerator, numeratorFile)
+    saveRDS(denominator, denominatorFile)
+  }
   
-  # Unadjusted rates -----------------------------------------------
+  llr <- function(observed, expected) {
+    if (observed >= expected) {
+      return((expected - observed) + observed * log(observed / expected))
+    } else {
+      return(0)
+    }
+  }
+  
   # outcomeId <- 10003
   computeIrr <- function(outcomeId, adjusted = FALSE) {
     targetOutcomes <- numerator %>%
@@ -189,6 +222,8 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                 comparatorYears = sum(personYears)) %>%
       mutate(targetOutcomes = targetOutcomes,
              targetYears = targetYears)
+    
+    estimateRow$expectedOutcomes <- estimateRow$targetYears * (estimateRow$comparatorOutcomes / estimateRow$comparatorYears)
     
     if (estimateRow$targetOutcomes == 0) {
       estimateRow$irr <- NA
@@ -216,6 +251,16 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
         cyclopsData <- Cyclops::createCyclopsData(outcomes ~ exposed + strata(stratumId) + offset(log(years)), 
                                                   data = data, 
                                                   modelType = "cpr")
+        
+        estimateRow$expectedOutcomes <- dataComparator %>%
+          mutate(comparatorRate = .data$outcomes / .data$years) %>%
+          select(.data$comparatorRate, .data$stratumId) %>%
+          inner_join(dataTarget, by = "stratumId") %>%
+          mutate(expectedOutcomes = years * comparatorRate) %>%
+          summarize(expectedOutcomes = sum(expectedOutcomes)) %>%
+          pull()
+        
+        
       } else {
         data <- tibble(outcomes = c(estimateRow$targetOutcomes, estimateRow$comparatorOutcomes),
                        years = c(estimateRow$targetYears, estimateRow$comparatorYears),
@@ -223,9 +268,6 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
         cyclopsData <- Cyclops::createCyclopsData(outcomes ~ exposed + offset(log(years)), 
                                                   data = data, 
                                                   modelType = "pr")
-        
-        
-        
       }
       fit <- Cyclops::fitCyclopsModel(cyclopsData)
       beta <- coef(fit)["exposed"]
@@ -236,6 +278,7 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
       estimateRow$logRr <- beta
       estimateRow$seLogRr <- (ci[3] - ci[2]) / (qnorm(0.975) * 2)
     }
+    estimateRow$llr <- llr(estimateRow$targetOutcomes, estimateRow$expectedOutcomes)
     estimateRow <- estimateRow %>%
       mutate(exposureId = exposureId,
              outcomeId = outcomeId,
