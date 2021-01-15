@@ -88,23 +88,25 @@ synthesizePositiveControls <- function(connectionDetails,
     readr::write_csv(result, synthesisSummaryFile)
   } 
   ParallelLogger::logTrace("Merging positive with negative controls ")
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
-  negativeControls <- readr::read_csv(pathToCsv, col_types = readr::cols())
+  negativeControls <- loadNegativeControls()
   
-  synthesisSummary <- readr::read_csv(synthesisSummaryFile, col_types = readr::cols())
+  synthesisSummary <- loadSynthesisSummary(synthesisSummaryFile)
   synthesisSummary$targetId <- synthesisSummary$exposureId
-  synthesisSummary <- merge(synthesisSummary, negativeControls)
-  synthesisSummary <- synthesisSummary[synthesisSummary$trueEffectSize != 0, ]
-  synthesisSummary$outcomeName <- paste0(synthesisSummary$OutcomeName, ", RR=", synthesisSummary$targetEffectSize)
-  synthesisSummary$oldOutcomeId <- synthesisSummary$outcomeId
-  synthesisSummary$outcomeId <- synthesisSummary$newOutcomeId
+  synthesisSummary <- synthesisSummary %>%
+    inner_join(negativeControls, by = c("exposureId", "outcomeId")) %>%
+    mutate(outcomeName = paste0(.data$outcomeName, ", RR=", .data$targetEffectSize),
+           oldOutcomeId = .data$outcomeId) %>%
+    mutate(outcomeId = .data$newOutcomeId)
   
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "SkeletonComparativeEffectStudy")
-  negativeControls <- read.csv(pathToCsv)
   negativeControls$targetEffectSize <- 1
   negativeControls$trueEffectSize <- 1
   negativeControls$trueEffectSizeFirstExposure <- 1
   negativeControls$oldOutcomeId <- negativeControls$outcomeId
-  allControls <- rbind(negativeControls, synthesisSummary[, names(negativeControls)])
-  write.csv(allControls, file.path(outputFolder, "AllControls.csv"), row.names = FALSE)
+  allControls <- bind_rows(negativeControls, synthesisSummary[, names(negativeControls)])
+  
+  exposuresOfInterest <- loadExposuresofInterest()
+  allControls <- allControls %>%
+    inner_join(exposuresOfInterest %>% select(-.data$exposureName ), by = "exposureId")
+  
+  readr::write_csv(allControls, file.path(outputFolder, "AllControls.csv"))
 }

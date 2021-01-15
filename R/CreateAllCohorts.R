@@ -50,38 +50,3 @@ createCohorts <- function(connectionDetails,
   counts <- addCohortNames(counts)
   readr::write_csv(x = counts, file = file.path(outputFolder, "CohortCounts.csv"))
 }
-
-addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumnName = "cohortName") {
-  cohortsToCreate <- loadCohortsToCreate()
-  negativeControls <- loadNegativeControls()
-  idToName <- tibble(cohortId = c(cohortsToCreate$cohortId,
-                                  negativeControls$outcomeId),
-                     cohortName = c(as.character(cohortsToCreate$name),
-                                    as.character(negativeControls$outcomeName))) %>%
-    distinct(.data$cohortId, .data$cohortName)
-  colnames(idToName)[1] <- IdColumnName
-  colnames(idToName)[2] <- nameColumnName
-  data <- data %>%
-    left_join(idToName, by = IdColumnName)
-    
-  # Change order of columns:
-  idCol <- which(colnames(data) == IdColumnName)
-  if (idCol < ncol(data) - 1) {
-    data <- data[, c(1:idCol, ncol(data) , (idCol+1):(ncol(data)-1))]
-  }
-  return(data)
-}
-
-loadCohortsToCreate <- function() {
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "VaccineSurveillanceMethodEvaluation")
-  cohortsToCreate <- readr::read_csv(pathToCsv, col_types = c(cohortId = "c")) %>%
-    mutate(cohortId = bit64::as.integer64(.data$cohortId))
-  return(cohortsToCreate)
-}
-
-loadNegativeControls <- function() {
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "VaccineSurveillanceMethodEvaluation")
-  negativeControls <- readr::read_csv(pathToCsv, col_types = c(exposureId = "c", outcomeId = "c")) %>%
-    mutate(exposureId = bit64::as.integer64(.data$exposureId), outcomeId = bit64::as.integer64(.data$outcomeId))
-  return(negativeControls)
-}

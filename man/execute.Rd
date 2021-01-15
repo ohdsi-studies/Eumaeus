@@ -14,7 +14,6 @@ execute(
   maxCores = 1,
   cdmVersion = "5",
   createNegativeControlCohorts = TRUE,
-  imputeExposureLengthForPanther = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,
   runSelfControlledCaseSeries = TRUE,
@@ -47,8 +46,6 @@ this can speed up the analyses.}
 \item{cdmVersion}{Version of the Common Data Model used. Currently only version 5 is supported.}
 
 \item{createNegativeControlCohorts}{Create the negative control outcome and nesting cohorts?}
-
-\item{imputeExposureLengthForPanther}{For PanTher only: impute exposure length?}
 
 \item{synthesizePositiveControls}{Should positive controls be synthesized?}
 
@@ -89,6 +86,8 @@ include both the database and schema name, for example 'cdm_data.dbo'.}
 \item{nestingCohortTable}{The name of the table that will be created in the nestingCohortDatabaseSchema
 This table will hold the nesting cohorts used in this
 study.}
+
+\item{imputeExposureLengthForPanther}{For PanTher only: impute exposure length?}
 }
 \description{
 Execute the Study

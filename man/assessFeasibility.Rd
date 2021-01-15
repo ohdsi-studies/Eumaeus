@@ -39,7 +39,7 @@ performance.}
 \item{createNegativeControlCohorts}{Create the negative control outcome and nesting cohorts?}
 
 \item{outcomeDatabaseSchema}{Schema name where outcome data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
+write privileges in this schema. Note that for SQL Server, this should
 include both the database and schema name, for example 'cdm_data.dbo'.}
 
 \item{outcomeTable}{The name of the table that will be created in the outcomeDatabaseSchema.
