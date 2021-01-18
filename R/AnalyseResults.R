@@ -43,6 +43,9 @@ analyseResults <- function(outputFolder) {
     
     fileName <- file.path(resultsFolder, sprintf("llr_e%s_a%s_events.png", exposureId, analysisId))
     plotLrr(subset = subset, title = title, scale = "events", fileName = fileName)
+    
+    fileName <- file.path(resultsFolder, sprintf("auc_e%s_a%s.png", exposureId, analysisId))
+    plotAuc(subset = subset, title = title, fileName = fileName)
   }
   purrr::map(unique(estimates$analysisId), analyseAnalysis)
 }
@@ -81,5 +84,47 @@ plotLrr <- function(subset, title, scale = "time", fileName) {
       ggplot2::ggtitle(title) +
       ggplot2::theme(legend.title = ggplot2::element_blank())
   }
+  ggplot2::ggsave(filename = fileName, plot = plot, width = 10, height = 10, dpi = 300)
+}
+
+plotAuc <- function(subset, title, fileName) {
+  
+  ncs <- subset %>%
+    filter(.data$targetEffectSize == 1) %>%
+    mutate(treatment = 0)
+  
+  pcs <- subset %>%
+    filter(.data$targetEffectSize != 1) %>%
+    mutate(treatment = 1)
+  
+  # data <- split(pcs, paste(pcs$seqId, pcs$targetEffectSize))[[1]]
+  computeAuc <- function(data) {
+    data <- bind_rows(data, filter(ncs, .data$seqId == data$seqId[1])) %>%
+      mutate(propensityScore = .data$llr)
+    aucs <- CohortMethod::computePsAuc(data, confidenceIntervals = TRUE)
+    return(tibble(auc = aucs$auc,
+                  aucLb95ci = aucs$aucLb95ci,
+                  aucUb95ci = aucs$aucUb95ci,
+                  seqId = data$seqId[1],
+                  effectSize = max(data$targetEffectSize)))
+  }
+  aucs <- purrr::map_dfr(split(pcs, paste(pcs$seqId, pcs$targetEffectSize)), computeAuc)
+  aucs$effectSize <- as.factor(aucs$effectSize)
+  periods <- subset %>%
+    distinct(.data$seqId, .data$period)
+  
+  plot <- ggplot2::ggplot(aucs, ggplot2::aes(x = .data$seqId, 
+                                     y = .data$auc, 
+                                     ymin = .data$aucLb95ci, 
+                                     ymax = .data$aucUb95ci, 
+                                     color = .data$'True effect size', 
+                                     fill = .data$'True effect size', 
+                                     group = .data$'True effect size')) +
+    ggplot2::geom_ribbon(alpha = 0.2, color = rgb(0, 0, 0, alpha = 0)) +
+    ggplot2::geom_line(alpha = 0.8) +
+    ggplot2::scale_x_continuous("Accumulated time", breaks = periods$seqId, labels = periods$period) +
+    ggplot2::scale_y_continuous("AUC") +
+    ggplot2::coord_cartesian(ylim = c(0.5, 1)) +
+    ggplot2::ggtitle(title) 
   ggplot2::ggsave(filename = fileName, plot = plot, width = 10, height = 10, dpi = 300)
 }
