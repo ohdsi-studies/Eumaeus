@@ -35,7 +35,7 @@ connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift
                                                                 connectionString = keyring::key_get("redShiftConnectionStringMdcd"),
                                                                 user = keyring::key_get("redShiftUserName"),
                                                                 password = keyring::key_get("redShiftPassword"))
-outputFolder <- "s:/VacSurvEval/mdcd"
+outputFolder <- "r:/VacSurvEval/mdcd"
 cdmDatabaseSchema <- "cdm"
 cohortDatabaseSchema <- "scratch_mschuemi2"
 cohortTable <- "mschuemi_vac_surv_mdcd"

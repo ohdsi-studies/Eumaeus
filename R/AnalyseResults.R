@@ -23,12 +23,32 @@ analyseResults <- function(outputFolder) {
   method <- "HistComp"
   estimates <- loadEstimates(file.path(outputFolder, "hcSummary.csv"))
   analysisDesc <- readr::read_csv(file.path(outputFolder, "hcAnalysisDesc.csv"), col_types = readr::cols())
+  analyseMethodResults(method = method,
+                       estimates = estimates, 
+                       analysisDesc = analysisDesc,
+                       aucVariable = "llr")
   
+  method <- "CohortMethod"
+  estimates <- loadEstimates(file.path(outputFolder, "cmSummary.csv"))
+  analysisDesc <- readr::read_csv(file.path(outputFolder, "cmAnalysisDesc.csv"), col_types = readr::cols())
+  analyseMethodResults(method = method,
+                       estimates = estimates, 
+                       analysisDesc = analysisDesc,
+                       aucVariable = "logRr")
+  
+  
+}
+
+analyseMethodResults <- function(method,
+                                 estimates,
+                                 analysisDesc,
+                                 aucVariable) {
   allControls <- loadAllControls(outputFolder)
-  estimates <- estimates %>%
-    inner_join(select(allControls, .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize), by = c("exposureId", "outcomeId"))
   
-  # analysisId <- 1
+  estimates <-   select(allControls, .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
+    left_join(estimates, by = c("exposureId", "outcomeId"))
+  
+  # analysisId <- 2
   analyseAnalysis <- function(analysisId) {
     subset <- estimates %>%
       filter(.data$analysisId == !!analysisId)
@@ -38,14 +58,26 @@ analyseResults <- function(outputFolder) {
     exposureId <- subset$exposureId[1]
     title <-  sprintf("Analysis %d: %s", analysisId, description)
     
-    fileName <- file.path(resultsFolder, sprintf("llr_e%s_a%s_time.png", exposureId, analysisId))
-    plotLrr(subset = subset, title = title, scale = "time", fileName = fileName)
+    if ("llr" %in% colnames(subset)) {
+      fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_time.png", method, exposureId, analysisId))
+      plotLrr(subset = subset, title = title, scale = "time", fileName = fileName)
+      
+      fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_events.png", method, exposureId, analysisId))
+      plotLrr(subset = subset, title = title, scale = "events", fileName = fileName)
+      
+      fileName <- file.path(resultsFolder, sprintf("sensSpec_m%s_e%s_a%s.png", method, exposureId, analysisId))
+      plotSensSpec(subset = subset, title = title, fileName = fileName)
+      
+    }
+    fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s.png", method, exposureId, analysisId))
+    plotAuc(subset = subset, title = title, aucVariable = aucVariable, fileName = fileName)
     
-    fileName <- file.path(resultsFolder, sprintf("llr_e%s_a%s_events.png", exposureId, analysisId))
-    plotLrr(subset = subset, title = title, scale = "events", fileName = fileName)
+    fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s_llr.png", method, exposureId, analysisId))
+    plotAuc(subset = subset, title = title, aucVariable = "llr", fileName = fileName)
     
-    fileName <- file.path(resultsFolder, sprintf("auc_e%s_a%s.png", exposureId, analysisId))
-    plotAuc(subset = subset, title = title, fileName = fileName)
+    
+    fileName <- file.path(resultsFolder, sprintf("bias_m%s_e%s_a%s.png", method, exposureId, analysisId))
+    plotNcs(subset = subset, title = title, fileName = fileName)
   }
   purrr::map(unique(estimates$analysisId), analyseAnalysis)
 }
@@ -74,6 +106,9 @@ plotLrr <- function(subset, title, scale = "time", fileName) {
       ggplot2::ggtitle(title) +
       ggplot2::theme(legend.title = ggplot2::element_blank())
   } else {
+    if ("eventsTarget" %in% colnames(subset)) {
+      subset$targetOutcomes <- subset$eventsTarget
+    }
     plot <- ggplot2::ggplot(subset, ggplot2::aes(x = .data$targetOutcomes, y = .data$llr, color = .data$label, group = .data$outcomeId)) +
       ggplot2::geom_line(alpha = 0.8) +
       ggplot2::geom_hline(yintercept = threshold, linetype = "dashed") +
@@ -87,7 +122,50 @@ plotLrr <- function(subset, title, scale = "time", fileName) {
   ggplot2::ggsave(filename = fileName, plot = plot, width = 10, height = 10, dpi = 300)
 }
 
-plotAuc <- function(subset, title, fileName) {
+plotSensSpec <- function(subset = subset, title = title, fileName = fileName) {
+  periods <- subset %>%
+    distinct(.data$seqId, .data$period)
+  
+  threshold <- computeThreshold(alpha = 0.01, beta = 0.20)
+  
+  counts <- subset %>%
+    mutate(groundTruth = .data$trueEffectSize > 1,
+           system = !is.na(.data$llr) & .data$llr > threshold) %>%
+    group_by(.data$groundTruth, .data$system, .data$seqId) %>%
+    summarise(count = n(), .groups = "drop")
+  
+  # confusionMatrix <- split(counts, counts$seqId)[[1]]
+  computeSensSpec <- function(confusionMatrix) {
+    tp <- sum(confusionMatrix$count[confusionMatrix$groundTruth == 1 & confusionMatrix$system == 1])
+    fp <- sum(confusionMatrix$count[confusionMatrix$groundTruth == 0 & confusionMatrix$system == 1])
+    tn <- sum(confusionMatrix$count[confusionMatrix$groundTruth == 0 & confusionMatrix$system == 0])
+    fn <- sum(confusionMatrix$count[confusionMatrix$groundTruth == 1 & confusionMatrix$system == 0])
+    sensitivity = tp / (tp + fn)
+    specificity = tn / (fp + tn)
+    return(tibble(seqId = rep(confusionMatrix$seqId[1], 2),
+                  metric = c("Sensitivity", "Specificity"),
+                  value = c(sensitivity, specificity)))
+  }
+  results <- purrr::map_dfr(split(counts, counts$seqId), computeSensSpec)
+  nominal <- tibble(x = rep(1, 2),
+                    y = c(0.99, 0.80),
+                    metric = c("Specificity", "Sensitivity"),
+                    label = c("Nominal specificity", "Nominal sensitivity"))
+  
+  plot <- ggplot2::ggplot(results, ggplot2::aes(x = .data$seqId, y = .data$value, color = .data$metric, group = .data$metric)) +
+    ggplot2::geom_line(alpha = 0.8) +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = y, color = .data$metric), data = nominal, linetype = "dashed") +
+    ggplot2::geom_label(ggplot2::aes(y = .data$y, x = .data$x, label = .data$label), data = nominal, hjust = 0, color = "black", fill = rgb(1, 1, 1, alpha = 0.9)) +
+    ggplot2::scale_x_continuous("Accumulated time", breaks = periods$seqId, labels = periods$period) +
+    ggplot2::scale_y_continuous("Sensitivity or specificity") +
+    ggplot2::scale_color_manual(values = c(rgb(0, 0, 0.8), rgb(0.8, 0, 0))) +
+    ggplot2::coord_cartesian(ylim = c(0, 1)) +
+    ggplot2::ggtitle(title) +
+    ggplot2::theme(legend.title = ggplot2::element_blank())
+  ggplot2::ggsave(filename = fileName, plot = plot, width = 7, height = 5, dpi = 300)
+}
+
+plotAuc <- function(subset, title, aucVariable, fileName) {
   
   ncs <- subset %>%
     filter(.data$targetEffectSize == 1) %>%
@@ -97,10 +175,11 @@ plotAuc <- function(subset, title, fileName) {
     filter(.data$targetEffectSize != 1) %>%
     mutate(treatment = 1)
   
-  # data <- split(pcs, paste(pcs$seqId, pcs$targetEffectSize))[[1]]
+  # data <- split(pcs, paste(pcs$seqId, pcs$targetEffectSize))[[20]]
   computeAuc <- function(data) {
-    data <- bind_rows(data, filter(ncs, .data$seqId == data$seqId[1])) %>%
-      mutate(propensityScore = .data$llr)
+    data <- bind_rows(data, filter(ncs, .data$seqId == data$seqId[1]))
+    data$propensityScore <- pull(data, aucVariable)
+    data$propensityScore[is.na(data$propensityScore)] <- 0
     aucs <- CohortMethod::computePsAuc(data, confidenceIntervals = TRUE)
     return(tibble(auc = aucs$auc,
                   aucLb95ci = aucs$aucLb95ci,
@@ -110,16 +189,17 @@ plotAuc <- function(subset, title, fileName) {
   }
   aucs <- purrr::map_dfr(split(pcs, paste(pcs$seqId, pcs$targetEffectSize)), computeAuc)
   aucs$effectSize <- as.factor(aucs$effectSize)
+  colnames(aucs)[colnames(aucs) == "effectSize"] <- "True effect size"
   periods <- subset %>%
     distinct(.data$seqId, .data$period)
   
   plot <- ggplot2::ggplot(aucs, ggplot2::aes(x = .data$seqId, 
-                                     y = .data$auc, 
-                                     ymin = .data$aucLb95ci, 
-                                     ymax = .data$aucUb95ci, 
-                                     color = .data$'True effect size', 
-                                     fill = .data$'True effect size', 
-                                     group = .data$'True effect size')) +
+                                             y = .data$auc, 
+                                             ymin = .data$aucLb95ci, 
+                                             ymax = .data$aucUb95ci, 
+                                             color = .data$`True effect size`,
+                                             fill = .data$`True effect size`, 
+                                             group = .data$`True effect size`)) +
     ggplot2::geom_ribbon(alpha = 0.2, color = rgb(0, 0, 0, alpha = 0)) +
     ggplot2::geom_line(alpha = 0.8) +
     ggplot2::scale_x_continuous("Accumulated time", breaks = periods$seqId, labels = periods$period) +
@@ -127,4 +207,23 @@ plotAuc <- function(subset, title, fileName) {
     ggplot2::coord_cartesian(ylim = c(0.5, 1)) +
     ggplot2::ggtitle(title) 
   ggplot2::ggsave(filename = fileName, plot = plot, width = 10, height = 10, dpi = 300)
+}
+
+plotNcs <- function(subset = subset, title = title, fileName = fileName) {
+  ncs <- subset %>%
+    filter(.data$targetEffectSize == 1) %>%
+    mutate(treatment = 0)
+  
+  plot <- EvidenceSynthesis::plotEmpiricalNulls(logRr = ncs$logRr,
+                                        seLogRr = ncs$seLogRr,
+                                        labels = ncs$period,
+                                        showCis = TRUE)
+  
+  ggplot2::ggsave(fileName,
+                  plot,
+                  width = 10,
+                  height = 1 + length(unique(ncs$period)) * 0.2,
+                  dpi = 400)
+  
+  
 }

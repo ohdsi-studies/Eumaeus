@@ -28,6 +28,7 @@ runHistoricalComparator <- function(connectionDetails,
   hcSummaryFile <- file.path(outputFolder, "hcSummary.csv")
   if (!file.exists(hcSummaryFile)) {
     allControls <- loadAllControls(outputFolder)
+    allEstimates <- list()
     # controls <- allControls
     for (controls in split(allControls, allControls$exposureId)) {
       exposureId <- controls$exposureId[1]
@@ -49,9 +50,8 @@ runHistoricalComparator <- function(connectionDetails,
                              ratesFile = historicRatesFile)
       }
       
-    }
     timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-    allEstimates <- list()
+
     # i <- 1
     for (i in 1:nrow(timePeriods)) {
       periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
@@ -76,6 +76,7 @@ runHistoricalComparator <- function(connectionDetails,
       estimates$period <- timePeriods$label[i]
       allEstimates[[length(allEstimates) + 1]] <- estimates
     }
+    }
     allEstimates <- bind_rows(allEstimates)  
     readr::write_csv(allEstimates, hcSummaryFile)
   }
@@ -87,20 +88,6 @@ runHistoricalComparator <- function(connectionDetails,
                          description = c("Unadjusted historical comparator",
                                          "Age + sex adjusted historical comparator"))
   readr::write_csv(analysisDesc, file.path(outputFolder, "hcAnalysisDesc.csv"))
-  
-  # estimates <- readr::read_csv(periodEstimatesFile) %>%
-  #   mutate(exposureId = bit64::as.integer64(.data$exposureId),
-  #          outcomeId = bit64::as.integer64(.data$outcomeId))
-  # combi <- estimates %>% 
-  #   inner_join(allControls, by = c("exposureId", "outcomeId")) %>%
-  #   filter(analysisId == 2)
-  # ncs <- combi %>%
-  #   filter(.data$trueEffectSize == 1)
-  # EmpiricalCalibration::plotCalibrationEffect(logRrNegatives = ncs$logRr,
-  #                                             seLogRrNegatives = ncs$seLogRr)
-  # EmpiricalCalibration::plotCiCalibrationEffect(logRr = combi$logRr,
-  #                                               seLogRr = combi$seLogRr,
-  #                                               trueLogRr = log(combi$targetEffectSize))
 }
 
 computeHistoricRates <- function(connectionDetails,
@@ -150,6 +137,19 @@ computeHistoricRates <- function(connectionDetails,
   ParallelLogger::logInfo(paste("Completed historical rates took", signif(delta, 3), attr(delta, "units")))
 }
 
+llr <- function(observed, expected) {
+  result <- rep(0, length(observed))
+  idx <- observed >= expected
+  result[idx] <- (expected[idx] - observed[idx]) + observed[idx] * log(observed[idx] / expected[idx])
+  return(result)
+
+  # if (observed >= expected) {
+  #   return((expected - observed) + observed * log(observed / expected))
+  # } else {
+  #   return(0)
+  # }
+}
+
 computeHistoricalComparatorEstimates <- function(connectionDetails,
                                                  cdmDatabaseSchema,
                                                  cohortDatabaseSchema,
@@ -197,14 +197,6 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
     DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
     saveRDS(numerator, numeratorFile)
     saveRDS(denominator, denominatorFile)
-  }
-  
-  llr <- function(observed, expected) {
-    if (observed >= expected) {
-      return((expected - observed) + observed * log(observed / expected))
-    } else {
-      return(0)
-    }
   }
   
   # outcomeId <- 10003

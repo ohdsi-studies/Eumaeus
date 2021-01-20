@@ -1,2 +1,2 @@
-exposureId,exposureName,startDate,endDate,historyStartDate,historyEndDate
-20345,H1N1 vaccine,01-09-2009,01-06-2010,01-01-2008,31-12-2008
+exposureId,exposureName,startDate,endDate,historyStartDate,historyEndDate,conceptIdsToExclude
+20345,H1N1 vaccine,01-09-2009,01-06-2010,01-01-2008,31-12-2008,40213187;46275993;44784283
