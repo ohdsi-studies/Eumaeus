@@ -4,11 +4,11 @@
 		"CriteriaList" : [
 			{
 				"DrugExposure" : {
-					"CodesetId" : 1,
+					"CodesetId" : 2,
 					"OccurrenceStartDate" : {
-						"Value" : "2009-09-01",
+						"Value" : "2017-01-01",
 						"Op" : "bt",
-						"Extent" : "2010-06-01"
+						"Extent" : "2020-01-01"
 					},
 					"DrugTypeExclude" : false
 				}
@@ -19,27 +19,27 @@
 			"PostDays" : 0
 		},
 		"PrimaryCriteriaLimit" : {
-			"Type" : "First"
+			"Type" : "All"
 		}
 	},
 	"ConceptSets" : [
 		{
-			"id" : 1,
-			"name" : "H1N1 vaccine",
+			"id" : 2,
+			"name" : "zoster vaccines",
 			"expression" : {
 				"items" : [
 					{
 						"concept" : {
-							"CONCEPT_ID" : 46275993,
-							"CONCEPT_NAME" : "influenza A virus (H1N1) antigen",
+							"CONCEPT_ID" : 40213260,
+							"CONCEPT_NAME" : "zoster vaccine, live",
 							"STANDARD_CONCEPT" : "S",
 							"STANDARD_CONCEPT_CAPTION" : "Standard",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "1657128",
+							"CONCEPT_CODE" : "121",
 							"DOMAIN_ID" : "Drug",
-							"VOCABULARY_ID" : "RxNorm",
-							"CONCEPT_CLASS_ID" : "Ingredient"
+							"VOCABULARY_ID" : "CVX",
+							"CONCEPT_CLASS_ID" : "CVX"
 						},
 						"isExcluded" : false,
 						"includeDescendants" : true,
@@ -47,13 +47,13 @@
 					},
 					{
 						"concept" : {
-							"CONCEPT_ID" : 40213187,
-							"CONCEPT_NAME" : "Novel influenza-H1N1-09, all formulations",
+							"CONCEPT_ID" : 706103,
+							"CONCEPT_NAME" : "zoster vaccine recombinant",
 							"STANDARD_CONCEPT" : "S",
 							"STANDARD_CONCEPT_CAPTION" : "Standard",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "128",
+							"CONCEPT_CODE" : "187",
 							"DOMAIN_ID" : "Drug",
 							"VOCABULARY_ID" : "CVX",
 							"CONCEPT_CLASS_ID" : "CVX"
@@ -70,7 +70,7 @@
 		"Type" : "First"
 	},
 	"ExpressionLimit" : {
-		"Type" : "First"
+		"Type" : "All"
 	},
 	"InclusionRules" : [],
 	"EndStrategy" : {

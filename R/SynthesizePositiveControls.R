@@ -29,7 +29,8 @@ synthesizePositiveControls <- function(connectionDetails,
   synthesisSummaryFile <- file.path(outputFolder, "SynthesisSummary.csv")
   if (!file.exists(synthesisSummaryFile)) {
     exposureOutcomePairs <- loadNegativeControls() %>%
-      distinct(.data$exposureId, .data$outcomeId)
+      distinct(.data$outcomeId) %>%
+      inner_join(loadExposuresofInterest() %>% distinct(.data$exposureId), by = character(0))
     
     prior <- Cyclops::createPrior("laplace", exclude = 0, useCrossValidation = TRUE)
     
@@ -88,7 +89,9 @@ synthesizePositiveControls <- function(connectionDetails,
     readr::write_csv(result, synthesisSummaryFile)
   } 
   ParallelLogger::logTrace("Merging positive with negative controls ")
-  negativeControls <- loadNegativeControls()
+  negativeControls <- loadNegativeControls() %>%
+    distinct(.data$outcomeId, .data$outcomeName) %>%
+    inner_join(loadExposuresofInterest() %>% distinct(.data$exposureId), by = character(0))
   
   synthesisSummary <- loadSynthesisSummary(synthesisSummaryFile)
   synthesisSummary$targetId <- synthesisSummary$exposureId

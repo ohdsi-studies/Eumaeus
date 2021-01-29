@@ -32,7 +32,7 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
   negativeControls <- loadNegativeControls()
   idToName <- tibble(cohortId = c(cohortsToCreate$cohortId,
                                   negativeControls$outcomeId),
-                     cohortName = c(as.character(cohortsToCreate$name),
+                     cohortName = c(as.character(cohortsToCreate$atlasName),
                                     as.character(negativeControls$outcomeName))) %>%
     distinct(.data$cohortId, .data$cohortName)
   colnames(idToName)[1] <- IdColumnName
@@ -57,8 +57,8 @@ loadCohortsToCreate <- function() {
 
 loadNegativeControls <- function() {
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "VaccineSurveillanceMethodEvaluation")
-  negativeControls <- readr::read_csv(pathToCsv, col_types = c(exposureId = "c", outcomeId = "c")) %>%
-    mutate(exposureId = bit64::as.integer64(.data$exposureId), outcomeId = bit64::as.integer64(.data$outcomeId))
+  negativeControls <- readr::read_csv(pathToCsv, col_types = c(outcomeId = "c")) %>%
+    mutate(outcomeId = bit64::as.integer64(.data$outcomeId))
   return(negativeControls)
 }
 

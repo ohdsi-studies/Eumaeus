@@ -29,7 +29,7 @@ runHistoricalComparator <- function(connectionDetails,
   if (!file.exists(hcSummaryFile)) {
     allControls <- loadAllControls(outputFolder)
     allEstimates <- list()
-    # controls <- allControls
+    # controls <- allControls[allControls$exposureId == allControls$exposureId[1], ]
     for (controls in split(allControls, allControls$exposureId)) {
       exposureId <- controls$exposureId[1]
       exposureFolder <- file.path(hcFolder, sprintf("e_%s", exposureId))
@@ -70,7 +70,7 @@ runHistoricalComparator <- function(connectionDetails,
                                                           periodFolder = periodFolder)
         readr::write_csv(estimates, periodEstimatesFile)
       } else {
-        estimates <- readr::read_csv(periodEstimatesFile, col_types = readr::cols())
+        estimates <- loadEstimates(periodEstimatesFile)
       }
       estimates$seqId <- timePeriods$seqId[i]
       estimates$period <- timePeriods$label[i]
@@ -199,8 +199,9 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
     saveRDS(denominator, denominatorFile)
   }
   
-  # outcomeId <- 10003
+  # outcomeId <- 4194207
   computeIrr <- function(outcomeId, adjusted = FALSE) {
+    # print(outcomeId)
     targetOutcomes <- numerator %>%
       filter(outcomeId == !!outcomeId) %>%
       summarize(count = as.numeric(sum(outcomeEvents))) %>%
@@ -217,7 +218,7 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
     
     estimateRow$expectedOutcomes <- estimateRow$targetYears * (estimateRow$comparatorOutcomes / estimateRow$comparatorYears)
     
-    if (estimateRow$targetOutcomes == 0) {
+    if (estimateRow$targetOutcomes == 0 || estimateRow$comparatorOutcomes == 0) {
       estimateRow$irr <- NA
       estimateRow$lb95Ci <- NA
       estimateRow$ub95Ci <- NA
@@ -262,8 +263,13 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                                                   modelType = "pr")
       }
       fit <- Cyclops::fitCyclopsModel(cyclopsData)
-      beta <- coef(fit)["exposed"]
-      ci <- confint(fit, "exposed") 
+      if (fit$return_flag == "SUCCESS") {
+        beta <- coef(fit)["exposed"]
+        ci <- confint(fit, "exposed") 
+      } else {
+        beta <- NA
+        ci <- c(NA, NA)
+      }
       estimateRow$irr <- exp(beta)
       estimateRow$lb95Ci <- exp(ci[2])
       estimateRow$ub95Ci <- exp(ci[3])

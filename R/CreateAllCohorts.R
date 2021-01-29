@@ -41,7 +41,11 @@ createCohorts <- function(connectionDetails,
   
   # Check number of subjects per cohort:
   ParallelLogger::logInfo("Counting cohorts")
-  sql <- "SELECT cohort_definition_id, COUNT(*) AS count FROM @cohort_database_schema.@cohort_table GROUP BY cohort_definition_id"
+  sql <- "SELECT cohort_definition_id, 
+    COUNT(*) AS entry_count, 
+    COUNT(DISTINCT subject_id) AS subject_count 
+  FROM @cohort_database_schema.@cohort_table 
+  GROUP BY cohort_definition_id"
   sql <- SqlRender::render(sql,
                            cohort_database_schema = cohortDatabaseSchema,
                            cohort_table = cohortTable)

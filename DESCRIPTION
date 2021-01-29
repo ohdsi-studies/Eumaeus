@@ -24,7 +24,8 @@ Imports:
     SqlRender,
     ggplot2,
     gridExtra,
-    bit64
+    bit64,
+    Sequential
 Suggests:
     testthat
 License: Apache License 2.0
