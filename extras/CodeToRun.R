@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # library(dplyr)
-library(VaccineSurveillanceMethodEvaluation)
+library(Eumaeus)
 options(andromedaTempFolder = "s:/andromedaTemp")
 options(sqlRenderTempEmulationSchema = NULL)
 

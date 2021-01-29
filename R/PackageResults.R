@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ packageResults <- function(outputFolder,
                             ci95Lb = estimates$ci95lb,
                             ci95Ub = estimates$ci95ub)
 
-    cmAnalysisListFile <- system.file("settings", "cmAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+    cmAnalysisListFile <- system.file("settings", "cmAnalysisSettings.txt", package = "Eumaeus")
     cmAnalysisList <- CohortMethod::loadCmAnalysisList(cmAnalysisListFile)
     analysisId <- unlist(ParallelLogger::selectFromList(cmAnalysisList, "analysisId"))
     description <- unlist(ParallelLogger::selectFromList(cmAnalysisList, "description"))
@@ -72,7 +72,7 @@ packageResults <- function(outputFolder,
                             ci95Lb = estimates$ci95lb,
                             ci95Ub = estimates$ci95ub)
 
-    ccAnalysisListFile <- system.file("settings", "ccAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+    ccAnalysisListFile <- system.file("settings", "ccAnalysisSettings.txt", package = "Eumaeus")
     ccAnalysisList <- CaseControl::loadCcAnalysisList(ccAnalysisListFile)
     analysisId <- unlist(ParallelLogger::selectFromList(ccAnalysisList, "analysisId"))
     description <- unlist(ParallelLogger::selectFromList(ccAnalysisList, "description"))
@@ -103,7 +103,7 @@ packageResults <- function(outputFolder,
                             ci95Lb = estimates$irrLb95,
                             ci95Ub = estimates$irrUb95)
 
-    sccAnalysisListFile <- system.file("settings", "sccAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+    sccAnalysisListFile <- system.file("settings", "sccAnalysisSettings.txt", package = "Eumaeus")
     sccAnalysisList <- SelfControlledCohort::loadSccAnalysisList(sccAnalysisListFile)
     analysisId <- unlist(ParallelLogger::selectFromList(sccAnalysisList, "analysisId"))
     description <- unlist(ParallelLogger::selectFromList(sccAnalysisList, "description"))
@@ -133,7 +133,7 @@ packageResults <- function(outputFolder,
                             ci95Lb = estimates$ci95lb,
                             ci95Ub = estimates$ci95ub)
 
-    ccrAnalysisListFile <- system.file("settings", "ccrAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+    ccrAnalysisListFile <- system.file("settings", "ccrAnalysisSettings.txt", package = "Eumaeus")
     ccrAnalysisList <- CaseControl::loadCcAnalysisList(ccrAnalysisListFile)
     analysisId <- unlist(ParallelLogger::selectFromList(ccrAnalysisList, "analysisId"))
     description <- unlist(ParallelLogger::selectFromList(ccrAnalysisList, "description"))
@@ -165,7 +165,7 @@ packageResults <- function(outputFolder,
                             ci95Lb = estimates$`ci95lb(Exposure of interest)`,
                             ci95Ub = estimates$`ci95ub(Exposure of interest)`)
 
-    sccsAnalysisListFile <- system.file("settings", "sccsAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+    sccsAnalysisListFile <- system.file("settings", "sccsAnalysisSettings.txt", package = "Eumaeus")
     sccsAnalysisList <- SelfControlledCaseSeries::loadSccsAnalysisList(sccsAnalysisListFile)
     analysisId <- unlist(ParallelLogger::selectFromList(sccsAnalysisList, "analysisId"))
     description <- unlist(ParallelLogger::selectFromList(sccsAnalysisList, "description"))

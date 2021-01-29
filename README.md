@@ -1,5 +1,5 @@
-Evaluation of Methods for Vaccine Surveillance
-==============================================
+Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)
+=============================================================================
 
 <img src="https://img.shields.io/badge/Study%20Status-Started-blue.svg" alt="Study Status: Started">
 

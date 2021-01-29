@@ -2,7 +2,7 @@
 #
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ runSelfControlledCohort <- function(connectionDetails,
             eoList[[length(eoList) + 1]] <- SelfControlledCohort::createExposureOutcome(exposureId = allControls$targetId[i],
                                                                                       outcomeId = allControls$outcomeId[i])
         }
-        sccAnalysisListFile <- system.file("settings", "sccAnalysisSettings.txt", package = "VaccineSurveillanceMethodEvaluation")
+        sccAnalysisListFile <- system.file("settings", "sccAnalysisSettings.txt", package = "Eumaeus")
         sccAnalysisList <- SelfControlledCohort::loadSccAnalysisList(sccAnalysisListFile)
 
         sccResult <- SelfControlledCohort::runSccAnalyses(connectionDetails = connectionDetails,

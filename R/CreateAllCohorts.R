@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ createCohorts <- function(connectionDetails,
   
   ParallelLogger::logInfo("Creating negative control outcome cohorts")
   sql <- SqlRender::loadRenderTranslateSql("NegativeControlOutcomes.sql",
-                                           "VaccineSurveillanceMethodEvaluation",
+                                           "Eumaeus",
                                            dbms = connectionDetails$dbms,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            cohort_database_schema = cohortDatabaseSchema,

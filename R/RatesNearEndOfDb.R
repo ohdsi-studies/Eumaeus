@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ computeRatesNearEndOfObs <- function(cdmDatabaseSchema,
   computeIr <- function(outcomeId) {
     ParallelLogger::logInfo("- Computing population incidence rates for outcome ", outcomeId)
     sql <- SqlRender::loadRenderTranslateSql("ComputeIncidenceRatesNearDbEnd.sql",
-                                             "VaccineSurveillanceMethodEvaluation",
+                                             "Eumaeus",
                                              dbms = connectionDetails$dbms,
                                              cdm_database_schema = cdmDatabaseSchema,
                                              cohort_database_schema = cohortDatabaseSchema,

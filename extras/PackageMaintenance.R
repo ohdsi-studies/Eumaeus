@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 # Format and check code
 OhdsiRTools::formatRFolder()
-OhdsiRTools::checkUsagePackage("VaccineSurveillanceMethodEvaluation")
+OhdsiRTools::checkUsagePackage("Eumaeus")
 OhdsiRTools::updateCopyrightYearFolder()
 
 # Insert cohort definitions into package
@@ -25,13 +25,13 @@ ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "inst/settings/Cohor
                                                  insertTableSql = TRUE,
                                                  insertCohortCreationR = TRUE,
                                                  generateStats = FALSE,
-                                                 packageName = "VaccineSurveillanceMethodEvaluation")
+                                                 packageName = "Eumaeus")
 
 
 # Create analysis details
-VaccineSurveillanceMethodEvaluation::createCohortMethodSettings(fileName = "inst/settings/cmAnalysisSettings.txt")
-VaccineSurveillanceMethodEvaluation::createSccsSettings(fileName = "inst/settings/sccsAnalysisSettings.txt")
-VaccineSurveillanceMethodEvaluation::createSelfControlledCohortSettings(fileName = "inst/settings/sccAnalysisSettings.txt")
+Eumaeus::createCohortMethodSettings(fileName = "inst/settings/cmAnalysisSettings.txt")
+Eumaeus::createSccsSettings(fileName = "inst/settings/sccsAnalysisSettings.txt")
+Eumaeus::createSelfControlledCohortSettings(fileName = "inst/settings/sccAnalysisSettings.txt")
 
 
 

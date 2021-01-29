@@ -2,7 +2,7 @@
 #
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ sampleComparatorCohort <- function(connectionDetails,
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
     sql <- SqlRender::loadRenderTranslateSql("SampleControls.sql",
-                                             "VaccineSurveillanceMethodEvaluation",
+                                             "Eumaeus",
                                              dbms = connectionDetails$dbms,
                                              cdm_database_schema = cdmDatabaseSchema,
                                              cohort_database_schema = cohortDatabaseSchema,

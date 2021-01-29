@@ -1,6 +1,6 @@
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
-# This file is part of VaccineSurveillanceMethodEvaluation
+# This file is part of Eumaeus
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,14 +49,14 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
 }
 
 loadCohortsToCreate <- function() {
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "VaccineSurveillanceMethodEvaluation")
+  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "Eumaeus")
   cohortsToCreate <- readr::read_csv(pathToCsv, col_types = c(cohortId = "c")) %>%
     mutate(cohortId = bit64::as.integer64(.data$cohortId))
   return(cohortsToCreate)
 }
 
 loadNegativeControls <- function() {
-  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "VaccineSurveillanceMethodEvaluation")
+  pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Eumaeus")
   negativeControls <- readr::read_csv(pathToCsv, col_types = c(outcomeId = "c")) %>%
     mutate(outcomeId = bit64::as.integer64(.data$outcomeId))
   return(negativeControls)
@@ -79,7 +79,7 @@ loadAllControls <- function(outputFolder) {
 }
 
 loadExposuresofInterest <- function() {
-  pathToCsv <- system.file("settings", "ExposuresOfInterest.csv", package = "VaccineSurveillanceMethodEvaluation")
+  pathToCsv <- system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus")
   exposuresOfInterest <- readr::read_csv(pathToCsv, col_types = c(exposureId = "c")) %>%
     mutate(exposureId = bit64::as.integer64(.data$exposureId),
            startDate = as.Date(.data$startDate, format = "%d-%m-%Y"),
