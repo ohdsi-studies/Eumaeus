@@ -8,7 +8,7 @@
 					"OccurrenceStartDate" : {
 						"Value" : "2017-06-01",
 						"Op" : "bt",
-						"Extent" : "2020-06-01"
+						"Extent" : "2018-05-31"
 					},
 					"DrugTypeExclude" : false
 				}

@@ -10,17 +10,14 @@ execute(
   cohortDatabaseSchema,
   cohortTable,
   outputFolder,
-  databaseName,
+  databaseId,
+  databaseName = databaseId,
+  databaseDescription = databaseId,
   maxCores = 1,
   cdmVersion = "5",
   createNegativeControlCohorts = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,
-  runSelfControlledCaseSeries = TRUE,
-  runSelfControlledCohort = TRUE,
-  runCaseControl = TRUE,
-  runCaseCrossover = TRUE,
-  createCharacterization = TRUE,
   packageResults = TRUE
 )
 }
@@ -51,16 +48,6 @@ this can speed up the analyses.}
 
 \item{runCohortMethod}{Perform the cohort method analyses?}
 
-\item{runSelfControlledCaseSeries}{Perform the SCCS analyses?}
-
-\item{runSelfControlledCohort}{Perform the SCC analyses?}
-
-\item{runCaseControl}{Perform the case-control analyses?}
-
-\item{runCaseCrossover}{Perform the case-crossover analyses?}
-
-\item{createCharacterization}{Create a general characterization of the database population?}
-
 \item{packageResults}{Should results be packaged for later sharing and viewing?}
 
 \item{outcomeDatabaseSchema}{Schema name where outcome data can be stored. You will need to have
@@ -88,6 +75,16 @@ This table will hold the nesting cohorts used in this
 study.}
 
 \item{imputeExposureLengthForPanther}{For PanTher only: impute exposure length?}
+
+\item{runSelfControlledCaseSeries}{Perform the SCCS analyses?}
+
+\item{runSelfControlledCohort}{Perform the SCC analyses?}
+
+\item{runCaseControl}{Perform the case-control analyses?}
+
+\item{runCaseCrossover}{Perform the case-crossover analyses?}
+
+\item{createCharacterization}{Create a general characterization of the database population?}
 }
 \description{
 Execute the Study

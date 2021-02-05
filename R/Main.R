@@ -71,17 +71,14 @@ execute <- function(connectionDetails,
                     cohortDatabaseSchema,
                     cohortTable,
                     outputFolder,
-                    databaseName,
+                    databaseId,
+                    databaseName = databaseId,
+                    databaseDescription = databaseId,
                     maxCores = 1,
                     cdmVersion = "5",
                     createNegativeControlCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runCohortMethod = TRUE,
-                    runSelfControlledCaseSeries = TRUE,
-                    runSelfControlledCohort = TRUE,
-                    runCaseControl = TRUE,
-                    runCaseCrossover = TRUE,
-                    createCharacterization = TRUE,
                     packageResults = TRUE) {
     if (!file.exists(outputFolder)) {
         dir.create(outputFolder, recursive = TRUE)
@@ -110,7 +107,8 @@ execute <- function(connectionDetails,
                                    cdmDatabaseSchema = cdmDatabaseSchema,
                                    cohortDatabaseSchema = cohortDatabaseSchema,
                                    cohortTable = cohortTable,
-                                   outputFolder = outputFolder)
+                                   outputFolder = outputFolder,
+                                   maxCores = maxCores)
     }
 
     # Run methods on negative and positive controls ----------------------------------------------------------
@@ -127,67 +125,7 @@ execute <- function(connectionDetails,
                         maxCores = maxCores)
     }
 
-    if (runSelfControlledCaseSeries) {
-        ParallelLogger::logInfo("Running SelfControlledCaseSeries")
-        runSelfControlledCaseSeries(connectionDetails = connectionDetails,
-                                    cdmDatabaseSchema = cdmDatabaseSchema,
-                                    oracleTempSchema = oracleTempSchema,
-                                    outcomeDatabaseSchema = outcomeDatabaseSchema,
-                                    outcomeTable = outcomeTable,
-                                    outputFolder = outputFolder,
-                                    cdmVersion = cdmVersion,
-                                    maxCores = maxCores)
-    }
-
-    if (runSelfControlledCohort) {
-        ParallelLogger::logInfo("Running SelfControlledCohort")
-        runSelfControlledCohort(connectionDetails = connectionDetails,
-                                cdmDatabaseSchema = cdmDatabaseSchema,
-                                oracleTempSchema = oracleTempSchema,
-                                outcomeDatabaseSchema = outcomeDatabaseSchema,
-                                outcomeTable = outcomeTable,
-                                outputFolder = outputFolder,
-                                cdmVersion = cdmVersion,
-                                maxCores = maxCores)
-    }
-
-    if (runCaseControl) {
-        ParallelLogger::logInfo("Running CaseControl")
-        runCaseControl(connectionDetails = connectionDetails,
-                       cdmDatabaseSchema = cdmDatabaseSchema,
-                       oracleTempSchema = oracleTempSchema,
-                       outcomeDatabaseSchema = outcomeDatabaseSchema,
-                       outcomeTable = outcomeTable,
-                       nestingCohortDatabaseSchema = nestingCohortDatabaseSchema,
-                       nestingCohortTable = nestingCohortTable,
-                       outputFolder = outputFolder,
-                       cdmVersion = cdmVersion,
-                       maxCores = maxCores)
-    }
-
-    if (runCaseCrossover) {
-        ParallelLogger::logInfo("Running CaseCrossover")
-        runCaseCrossover(connectionDetails = connectionDetails,
-                         cdmDatabaseSchema = cdmDatabaseSchema,
-                         oracleTempSchema = oracleTempSchema,
-                         outcomeDatabaseSchema = outcomeDatabaseSchema,
-                         outcomeTable = outcomeTable,
-                         nestingCohortDatabaseSchema = nestingCohortDatabaseSchema,
-                         nestingCohortTable = nestingCohortTable,
-                         outputFolder = outputFolder,
-                         cdmVersion = cdmVersion,
-                         maxCores = cdmVersion)
-    }
-
-    if (createCharacterization) {
-        ParallelLogger::logInfo("Creating characterization")
-        createGeneralCharacterization(connectionDetails = connectionDetails,
-                                      cdmDatabaseSchema = cdmDatabaseSchema,
-                                      oracleTempSchema = oracleTempSchema,
-                                      exportFolder = file.path(outputFolder, "export"),
-                                      databaseId = databaseName,
-                                      cdmVersion = cdmVersion)
-    }
+   
 
     if (packageResults) {
         ParallelLogger::logInfo("Packaging results")

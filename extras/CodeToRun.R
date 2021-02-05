@@ -95,10 +95,7 @@ execute(connectionDetails = connectionDetails,
         outputFolder = outputFolder,
         maxCores = maxCores,
         createNegativeControlCohorts = FALSE,
-        synthesizePositiveControls = FALSE,
+        synthesizePositiveControls = TRUE,
         runCohortMethod = FALSE,
-        runSelfControlledCaseSeries = FALSE,
-        runSelfControlledCohort = FALSE,
-        createCharacterization = TRUE,
         packageResults = FALSE)
 

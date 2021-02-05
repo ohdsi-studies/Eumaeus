@@ -81,8 +81,8 @@ analyseMethodResults <- function(method,
         plotSensSpec(subset = subset, title = title, fileName = fileName, resultsFolder = resultsFolder, maxCores = maxCores)
         
       }
-      # fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s.png", method, exposureId, analysisId))
-      # plotAuc(subset = subset, title = title, aucVariable = aucVariable, fileName = fileName)
+      fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s.png", method, exposureId, analysisId))
+      plotAuc(subset = subset, title = title, aucVariable = aucVariable, fileName = fileName)
       # 
       # fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s_llr.png", method, exposureId, analysisId))
       # plotAuc(subset = subset, title = title, aucVariable = "llr", fileName = fileName)

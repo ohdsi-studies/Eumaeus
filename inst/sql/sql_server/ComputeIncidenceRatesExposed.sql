@@ -1,6 +1,7 @@
 {DEFAULT @washout_period = 365}
 {DEFAULT @first_occurrence_only = TRUE}
-{DEFAULT @time_at_risk_end = 30}
+{DEFAULT @time_at_risk_start = 1}
+{DEFAULT @time_at_risk_end = 28}
 {DEFAULT @cdm_database_schema = CDM_jmdc_v1063.dbo}
 {DEFAULT @cohort_database_schema = scratch.dbo}
 {DEFAULT @cohort_table = mschuemi_temp}
@@ -13,23 +14,23 @@ IF OBJECT_ID('tempdb..#exposure', 'U') IS NOT NULL
   DROP TABLE #exposure;
   
 SELECT subject_id,
-	FLOOR((YEAR(cohort_start_date) - year_of_birth) / 10) AS age_group,
+	FLOOR((YEAR(tar_start_date) - year_of_birth) / 10) AS age_group,
 	gender_concept_id,
-	cohort_start_date,
+	tar_start_date,
 	CASE 
-			WHEN cohort_end_date > observation_period_end_date
-				THEN observation_period_end_date
-			ELSE cohort_end_date
-			END AS cohort_end_date
+		WHEN tar_end_date > observation_period_end_date
+			THEN observation_period_end_date
+		ELSE tar_end_date
+		END AS tar_end_date
 INTO #exposure
 FROM (
 	SELECT subject_id,
-		cohort_start_date,
+		DATEADD(DAY, @time_at_risk_start, cohort_start_date) AS tar_start_date,
 		CASE 
 			WHEN DATEADD(DAY, @time_at_risk_end, cohort_start_date) > CAST('@end_date' AS DATE)
 				THEN CAST('@end_date' AS DATE)
 			ELSE DATEADD(DAY, @time_at_risk_end, cohort_start_date)
-			END AS cohort_end_date
+			END AS tar_end_date
 	FROM @cohort_database_schema.@cohort_table
 	WHERE cohort_definition_id = @exposure_id
 		AND cohort_start_date >= CAST('@start_date' AS DATE)
@@ -39,8 +40,9 @@ INNER JOIN @cdm_database_schema.person
 	ON subject_id = person.person_id
 INNER JOIN @cdm_database_schema.observation_period
 	ON subject_id = observation_period.person_id
-		AND cohort_start_date >= DATEADD(DAY, @washout_period, observation_period_start_date)
-		AND cohort_start_date <= observation_period_end_date;
+		AND tar_start_date >= DATEADD(DAY, @washout_period, observation_period_start_date)
+		AND tar_start_date <= observation_period_end_date;
+
 
 IF OBJECT_ID('tempdb..#numerator', 'U') IS NOT NULL
   DROP TABLE #numerator;
@@ -72,8 +74,8 @@ INNER JOIN (
 	) outcome
 }
 	ON exposure.subject_id = outcome.subject_id
-		AND exposure.cohort_start_date <= outcome.cohort_start_date
-		AND exposure.cohort_end_date >= outcome.cohort_start_date
+		AND tar_start_date <= outcome.cohort_start_date
+		AND tar_end_date >= outcome.cohort_start_date
 GROUP BY age_group,
 	gender_concept_id,
 	outcome_id;
@@ -84,7 +86,7 @@ IF OBJECT_ID('tempdb..#denominator', 'U') IS NOT NULL
 SELECT age_group,
 	gender_concept_id,
 	concept_name AS gender,
-	SUM(DATEDIFF(DAY, cohort_start_date, cohort_end_date) + 1) AS days_at_risk,
+	SUM(DATEDIFF(DAY, tar_start_date, tar_end_date) + 1) AS days_at_risk,
 	COUNT(DISTINCT subject_id) AS exposed_subjects
 INTO #denominator
 FROM #exposure

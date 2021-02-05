@@ -189,7 +189,8 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                                              end_date = format(endDate, "%Y%m%d"),
                                              washout_period = 365,
                                              first_occurrence_only = TRUE,
-                                             time_at_risk_end = 30)
+                                             time_at_risk_start = 1,
+                                             time_at_risk_end = 28)
     DatabaseConnector::executeSql(connection, sql)
     numerator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #numerator;", snakeCaseToCamelCase = TRUE)
     denominator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #denominator;", snakeCaseToCamelCase = TRUE)

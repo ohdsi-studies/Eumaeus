@@ -40,7 +40,7 @@ from
 JOIN #Codesets codesets on ((de.drug_concept_id = codesets.concept_id and codesets.codeset_id = 3))
 ) C
 
-WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2017, 1, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2020, 1, 1))
+WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2017, 1, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2017, 12, 31))
 -- End Drug Exposure Criteria
 
   ) E
