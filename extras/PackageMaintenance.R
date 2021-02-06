@@ -34,7 +34,7 @@ Eumaeus::createSccsSettings(fileName = "inst/settings/sccsAnalysisSettings.txt")
 Eumaeus::createSelfControlledCohortSettings(fileName = "inst/settings/sccAnalysisSettings.txt")
 
 # Regenerate protocol
-rmarkdown::render("Documents/Protocol.rmd", output_format = "html_document", output_dir = "docs")
+rmarkdown::render("Documents/Protocol.rmd", output_dir = "docs")
 
 
 
