@@ -35,7 +35,7 @@
   # Instantiate cohorts:
   cohortsToCreate <- loadCohortsToCreate()
   for (i in 1:nrow(cohortsToCreate)) {
-    writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
+    ParallelLogger::logInfo(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
                                              packageName = "Eumaeus",
                                              dbms = connection@dbms,

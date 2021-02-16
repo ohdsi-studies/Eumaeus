@@ -100,8 +100,15 @@ assessFeasibility <- function(connectionDetails,
     
     if (runCohortDiagnostics) {
         ParallelLogger::logInfo("Running cohort diagnostics")
+        # tempFile <- tempfile(fileext = ".csv")
+        # exposureCohorts <- loadExposureCohorts(outputFolder) %>%
+        #     filter(.data$sampled == TRUE) %>%
+        #     transmute(cohortId = .data$exposureId,
+        #               name = .data$exposureName) %>%
+        #     readr::write_csv(file = tempFile)
+        
         CohortDiagnostics::runCohortDiagnostics(packageName = "Eumaeus",
-                                                cohortToCreateFile = "settings/CohortsToCreate.csv",
+                                                cohortToCreateFile = "settings/AllExposureCohorts.csv",
                                                 connectionDetails = connectionDetails,
                                                 cdmDatabaseSchema = cdmDatabaseSchema,
                                                 cohortDatabaseSchema = cohortDatabaseSchema,
@@ -111,14 +118,14 @@ assessFeasibility <- function(connectionDetails,
                                                 databaseName = databaseName,
                                                 databaseDescription = databaseDescription,
                                                 runInclusionStatistics = FALSE,
-                                                runBreakdownIndexEvents = TRUE,
+                                                runBreakdownIndexEvents = FALSE,
                                                 runCohortCharacterization = TRUE,
-                                                runIncludedSourceConcepts = TRUE,
+                                                runIncludedSourceConcepts = FALSE,
                                                 runCohortOverlap = FALSE,
                                                 runIncidenceRate = TRUE,
-                                                runOrphanConcepts = TRUE,
+                                                runOrphanConcepts = FALSE,
                                                 runTemporalCohortCharacterization = TRUE,
                                                 runTimeDistributions = TRUE,
-                                                runVisitContext = TRUE)
+                                                runVisitContext = FALSE)
     }
 }

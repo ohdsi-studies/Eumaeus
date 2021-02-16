@@ -137,19 +137,6 @@ computeHistoricRates <- function(connectionDetails,
   ParallelLogger::logInfo(paste("Completed historical rates took", signif(delta, 3), attr(delta, "units")))
 }
 
-llr <- function(observed, expected) {
-  result <- rep(0, length(observed))
-  idx <- observed >= expected
-  result[idx] <- (expected[idx] - observed[idx]) + observed[idx] * log(observed[idx] / expected[idx])
-  return(result)
-
-  # if (observed >= expected) {
-  #   return((expected - observed) + observed * log(observed / expected))
-  # } else {
-  #   return(0)
-  # }
-}
-
 computeHistoricalComparatorEstimates <- function(connectionDetails,
                                                  cdmDatabaseSchema,
                                                  cohortDatabaseSchema,

@@ -36,5 +36,22 @@ Eumaeus::createSelfControlledCohortSettings(fileName = "inst/settings/sccAnalysi
 # Regenerate protocol
 rmarkdown::render("Documents/Protocol.rmd", output_dir = "docs")
 
+rmarkdown::render("Documents/Protocol.rmd", output_format = "bookdown::pdf_document2")
 
+# Upload Rmd to GDocs
+gdrive_path <- "Eumaeus"
+rmdrive::upload_rmd(file = "Documents/Protocol",
+                    gfile = "Eumaeus_Protocol",
+                    path = gdrive_path)
+
+rmdrive::update_rmd(file = "Documents/Protocol",
+                    gfile = "Eumaeus_Protocol",
+                    path = gdrive_path)
+
+# Upload PDF to GDrive (note: will overwrite current document)
+path <- googledrive::drive_get(path = gdrive_path)
+googledrive::drive_upload(media = "Documents/Protocol.pdf",
+                          path = path,
+                          name = "rendered_LEGEND-T2DM_Protocol_rendered.pdf",
+                          overwrite = TRUE)
 

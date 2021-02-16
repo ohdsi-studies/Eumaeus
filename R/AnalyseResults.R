@@ -39,8 +39,6 @@ analyseResults <- function(outputFolder) {
                        aucVariable = "logRr",
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
-  
-  
 }
 
 analyseMethodResults <- function(method,
@@ -52,7 +50,7 @@ analyseMethodResults <- function(method,
   allControls <- loadAllControls(outputFolder)
   exposures <- loadExposuresofInterest()
   
-  estimates <-   select(allControls, .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
+  estimates <- select(allControls, .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
     left_join(estimates, by = c("exposureId", "outcomeId")) %>%
     inner_join(select(exposures, .data$exposureId, .data$exposureName), by = "exposureId")
   

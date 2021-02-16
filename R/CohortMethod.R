@@ -32,10 +32,17 @@ runCohortMethod <- function(connectionDetails,
     cmSummaryFile <- file.path(outputFolder, "cmSummary.csv")
     if (!file.exists(cmSummaryFile)) {
         allControls <- loadAllControls(outputFolder)
+        cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
+            filter(.data$sampled == TRUE)
+        comparisons <- inner_join(filter(cohortsToCompare, .data$comparator == FALSE),
+                                  filter(cohortsToCompare, .data$comparator == TRUE),
+                                  by = c("baseExposureId", "shot"),
+                                  suffix = c("1", "2"))
+        
         allEstimates <- list()
-        # controls <- allControls[allControls$exposureId == allControls$exposureId[2], ]
-        for (controls in split(allControls, allControls$exposureId)) {
-            exposureId <- controls$exposureId[1]
+        # comparison <- comparisons[1, ]
+        for (comparison in split(comparisons, 1:nrow(comparisons))) {
+            exposureId <- comparison$exposureId1[1]
             exposureFolder <- file.path(cmFolder, sprintf("e_%s", exposureId))
             if (!file.exists(exposureFolder))
                 dir.create(exposureFolder)
@@ -111,16 +118,31 @@ runCohortMethod <- function(connectionDetails,
                                                               periodFolder = periodFolder)
                     readr::write_csv(estimates, periodEstimatesFile)
                 } else {
-                    estimates <- readr::read_csv(periodEstimatesFile, col_types = readr::cols())
+                    estimates <- loadCmEstimates(periodEstimatesFile)
                 }
                 estimates$seqId <- timePeriods$seqId[i]
                 estimates$period <- timePeriods$label[i]
                 allEstimates[[length(allEstimates) + 1]] <- estimates
             }
+            
+            # Output last propensity model:
+            modelFile <- file.path(exposureFolder, "PsModel.csv")
+            if (!file.exists(modelFile)) {
+                if (is.null(bigCmData)) {
+                    bigCmData <- CohortMethod::loadCohortMethodData(bigCmDataFile)
+                }
+                omr <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), "outcomeModelReference.rds"))
+                ps <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$sharedPsFile[omr$sharedPsFile != ""][1]))
+                
+                # model <- CohortMethod::getPsModel(ps, bigCmData)
+                model <- getPsModel(ps, bigCmData)
+                readr::write_csv(model, modelFile)
+            }
         }
         allEstimates <- bind_rows(allEstimates)  
         allEstimates <- allEstimates %>%
-            mutate(exposureId = .data$targetId,
+            filter(.data$eventsComparator > 0) %>%
+            mutate(exposureId = bit64::as.integer64(.data$targetId/100),
                    expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) %>%
             mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
         readr::write_csv(allEstimates, cmSummaryFile)
