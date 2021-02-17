@@ -31,6 +31,15 @@ runCohortMethod <- function(connectionDetails,
     
     cmSummaryFile <- file.path(outputFolder, "cmSummary.csv")
     if (!file.exists(cmSummaryFile)) {
+        toExcludeFile <- file.path(outputFolder, "ToExclude.csv")
+        if (!file.exists(toExcludeFile)) {
+            compareCohorts(connectionDetails = connectionDetails,
+                           cdmDatabaseSchema = cdmDatabaseSchema,
+                           cohortDatabaseSchema = cohortDatabaseSchema,
+                           cohortTable = cohortTable,
+                           outputFolder = outputFolder)
+        }
+        
         allControls <- loadAllControls(outputFolder)
         cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
             filter(.data$sampled == TRUE)
@@ -40,38 +49,28 @@ runCohortMethod <- function(connectionDetails,
                                   suffix = c("1", "2"))
         
         allEstimates <- list()
-        # comparison <- comparisons[1, ]
+        # comparison <- comparisons[5, ]
         for (comparison in split(comparisons, 1:nrow(comparisons))) {
             exposureId <- comparison$exposureId1[1]
+            controls <- allControls %>%
+                filter(.data$exposureId == comparison$baseExposureId)
             exposureFolder <- file.path(cmFolder, sprintf("e_%s", exposureId))
             if (!file.exists(exposureFolder))
                 dir.create(exposureFolder)
-            
-            # Sample target and comparator cohorts -----------------------------------
-            cohortCountsFile <- file.path(exposureFolder, "cohortCounts.csv")
-            if (!file.exists(cohortCountsFile)) {
-                ParallelLogger::logInfo(sprintf("Sampling target and comparator cohorts for exposure %s", exposureId))
-                sampleCohorts(connectionDetails = connectionDetails,
-                              cdmDatabaseSchema = cdmDatabaseSchema,
-                              cohortDatabaseSchema = cohortDatabaseSchema,
-                              cohortTable = cohortTable,
-                              exposureId = exposureId,
-                              targetSampleCohortId = exposureId * 100 + 1,
-                              comparatorSampleCohortId = exposureId * 100 + 2,
-                              startDate = controls$startDate[1],
-                              endDate = controls$endDate[1],
-                              cohortCountsFile = cohortCountsFile)
-            }
             
             # Create one big CohortMethodData object ----------------------------
             bigCmDataFile <- file.path(exposureFolder, "CmData.zip")
             if (!file.exists(bigCmDataFile)) {
                 ParallelLogger::logInfo(sprintf("Constructing CohortMethodData object for exposure %s", exposureId))
                 excludedCovariateConceptIds <- loadExposuresofInterest() %>%
-                    filter(.data$exposureId == !!exposureId) %>%
+                    filter(.data$exposureId == !!comparison$baseExposureId) %>%
                     pull(.data$conceptIdsToExclude) %>%
                     strsplit(";")
                 excludedCovariateConceptIds <- as.numeric(excludedCovariateConceptIds[[1]])
+                additionalConceptToExclude <- loadAdditionalConceptsToExclude(outputFolder) %>%
+                    filter(.data$exposureId1 == exposureId) %>%
+                    pull(.data$conceptId)
+                excludedCovariateConceptIds <- unique(c(excludedCovariateConceptIds, additionalConceptToExclude))
                 
                 covariateSettings <- FeatureExtraction::createDefaultCovariateSettings(excludedCovariateConceptIds = excludedCovariateConceptIds,
                                                                                        addDescendantsToExclude = TRUE)
@@ -81,10 +80,10 @@ runCohortMethod <- function(connectionDetails,
                                                                  exposureTable = cohortTable,
                                                                  outcomeDatabaseSchema = cohortDatabaseSchema,
                                                                  outcomeTable = cohortTable,
-                                                                 targetId = exposureId * 100 + 1,
-                                                                 comparatorId = exposureId * 100 + 2,
+                                                                 targetId = comparison$exposureId1,
+                                                                 comparatorId = comparison$exposureId2,
                                                                  outcomeIds = controls$outcomeId,
-                                                                 firstExposureOnly = TRUE,
+                                                                 firstExposureOnly = FALSE,
                                                                  washoutPeriod = 365,
                                                                  covariateSettings = covariateSettings)
                 
@@ -92,7 +91,7 @@ runCohortMethod <- function(connectionDetails,
             } 
             bigCmData <- NULL
             timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-            # i <- 5
+            # i <- 11
             for (i in 1:nrow(timePeriods)) {
                 periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
                 if (!file.exists(periodEstimatesFile)) {
@@ -101,7 +100,7 @@ runCohortMethod <- function(connectionDetails,
                     if (!file.exists(periodFolder))
                         dir.create(periodFolder)
                     
-                    cmDataFile <- file.path(periodFolder, sprintf("CmData_l1_t%s_c%s.zip", exposureId * 100 + 1, exposureId * 100 + 2))
+                    cmDataFile <- file.path(periodFolder, sprintf("CmData_l1_t%s_c%s.zip", comparison$exposureId1, comparison$exposureId2))
                     if (!file.exists(cmDataFile)) {
                         ParallelLogger::logInfo("- Subsetting CohortMethodData to period")
                         if (is.null(bigCmData)) {
@@ -112,8 +111,8 @@ runCohortMethod <- function(connectionDetails,
                                      cmDataFile = cmDataFile)
                         
                     }
-                    estimates <- computeCohortMethodEstimates(targetId = exposureId * 100 + 1,
-                                                              comparatorId = exposureId * 100 + 2,
+                    estimates <- computeCohortMethodEstimates(targetId = comparison$exposureId1,
+                                                              comparatorId = comparison$exposureId2,
                                                               outcomeIds = controls$outcomeId,
                                                               periodFolder = periodFolder)
                     readr::write_csv(estimates, periodEstimatesFile)
@@ -133,9 +132,10 @@ runCohortMethod <- function(connectionDetails,
                 }
                 omr <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), "outcomeModelReference.rds"))
                 ps <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$sharedPsFile[omr$sharedPsFile != ""][1]))
+                # om <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$outcomeModelFile[omr$sharedPsFile != ""][1]))
                 
-                # model <- CohortMethod::getPsModel(ps, bigCmData)
-                model <- getPsModel(ps, bigCmData)
+                model <- CohortMethod::getPsModel(ps, bigCmData)
+                # model <- getPsModel(ps, bigCmData)
                 readr::write_csv(model, modelFile)
             }
         }
@@ -155,94 +155,6 @@ runCohortMethod <- function(connectionDetails,
                            description = c("Crude cohort method",
                                            "1-on-1 matching"))
     readr::write_csv(analysisDesc, file.path(outputFolder, "cmAnalysisDesc.csv"))
-}
-
-
-
-sampleCohorts <- function(connectionDetails,
-                          cdmDatabaseSchema,
-                          cohortDatabaseSchema,
-                          cohortTable,
-                          targetSampleCohortId,
-                          comparatorSampleCohortId,
-                          exposureId,
-                          startDate,
-                          endDate,
-                          cohortCountsFile) {
-    start <- Sys.time()
-    connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-    
-    # sql <- SqlRender::loadRenderTranslateSql("ComputeExposureCountPerMonth.sql",
-    #                                          "Eumaeus",
-    #                                          dbms = connectionDetails$dbms,
-    #                                          cdm_database_schema = cdmDatabaseSchema,
-    #                                          cohort_database_schema = cohortDatabaseSchema,
-    #                                          cohort_table = cohortTable,
-    #                                          exposure_id = exposureId,
-    #                                          start_date = format(startDate, "%Y%m%d"),
-    #                                          end_date = format(endDate, "%Y%m%d"),
-    #                                          washout_period = 365)
-    # counts <- DatabaseConnector::querySql(connection = connection,
-    #                                       sql = sql,
-    #                                       snakeCaseToCamelCase = TRUE)
-    # monthlySampleSize <- ceiling(quantile(counts$cohortCount, 0.9) / 10000) * 10000
-    # ParallelLogger::logInfo(sprintf("Sampling %d comparator subjects per month", monthlySampleSize))
-    
-    sql <- SqlRender::loadRenderTranslateSql("SampleComparators.sql",
-                                             "Eumaeus",
-                                             dbms = connectionDetails$dbms,
-                                             cdm_database_schema = cdmDatabaseSchema,
-                                             cohort_database_schema = cohortDatabaseSchema,
-                                             cohort_table = cohortTable,
-                                             exposure_id = exposureId,
-                                             target_sample_cohort_id = targetSampleCohortId,
-                                             comparator_sample_cohort_id = comparatorSampleCohortId,
-                                             start_date = format(startDate, "%Y%m%d"),
-                                             end_date = format(endDate, "%Y%m%d"),
-                                             washout_period = 365,
-                                             multiplier = 2,
-                                             max_target_per_month = 350000,
-                                             visit_concept_ids = c(9202))
-    # sql <- SqlRender::readSql("inst/sql/sql_server/SampleComparators.sql")
-    # sql <- SqlRender::render(sql, cdm_database_schema = cdmDatabaseSchema,
-    #                          cohort_database_schema = cohortDatabaseSchema,
-    #                          cohort_table = cohortTable,
-    #                          target_sample_cohort_id = targetSampleCohortId,
-    #                          comparator_sample_cohort_id = comparatorSampleCohortId,
-    #                          exposure_id = exposureId,
-    #                          start_date = format(startDate, "%Y%m%d"),
-    #                          end_date = format(endDate, "%Y%m%d"),
-    #                          washout_period = 365,
-    #                          multiplier = 2,
-    #                          max_target_per_month = 350000,
-    #                          visit_concept_ids = c(9202))
-    # sql <- SqlRender::translate(sql, connectionDetails$dbms)
-    
-    DatabaseConnector::executeSql(connection, sql)
-    
-    sql <- "SELECT cohort_definition_id,
-            COUNT(*) AS cohort_count,
-            YEAR(cohort_start_date) AS visit_year,
-            MONTH(cohort_start_date) AS visit_month
-        FROM @cohort_database_schema.@cohort_table
-        WHERE cohort_definition_id IN (@target_sample_cohort_id, @comparator_sample_cohort_id)
-        GROUP BY cohort_definition_id,
-            YEAR(cohort_start_date),
-            MONTH(cohort_start_date)
-        ORDER BY YEAR(cohort_start_date),
-            MONTH(cohort_start_date),
-            cohort_definition_id;"
-    cohortCounts <- DatabaseConnector::renderTranslateQuerySql(connection = connection, 
-                                                                         sql = sql, 
-                                                                         cohort_database_schema = cohortDatabaseSchema,
-                                                                         cohort_table = cohortTable,
-                                                                         target_sample_cohort_id = targetSampleCohortId,
-                                                                         comparator_sample_cohort_id = comparatorSampleCohortId,
-                                                                         snakeCaseToCamelCase = TRUE)
-    readr::write_csv(cohortCounts, cohortCountsFile)
-    delta <- Sys.time() - start
-    ParallelLogger::logInfo(paste("Sampling comparator cohort took", signif(delta, 3), attr(delta, "units")))
 }
 
 subsetCmData <- function(bigCmData,
