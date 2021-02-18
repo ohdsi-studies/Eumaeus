@@ -20,10 +20,19 @@ splitTimePeriod <- function(startDate, endDate) {
   splitDates <- seq(startDate, endDate, by = paste (1, "months"))
   n <- length(splitDates)
   periods <- tibble(startDate = startDate,
-                    endDate = splitDates[2:n],
+                    endDate = splitDates[2:n] - 1,
                     seqId = 1:(n-1),
                     label = sprintf("%d months", 1:(n-1)))
   periods$label[1] <- "1 month"
+  
+  lastPeriod <- periods[nrow(periods), ]
+  if (lastPeriod$endDate + 1 < endDate) {
+    periods <- bind_rows(periods, 
+              tibble(startDate = startDate,
+                     endDate = !!endDate,
+                     seqId = lastPeriod$seqId + 1,
+                     label = sprintf("%d months", lastPeriod$seqId + 1)))
+  }
   return(periods)
 }
 
@@ -54,8 +63,8 @@ loadCohortsToCreate <- function() {
   # cohortsToCreate <- readr::read_csv(pathToCsv, col_types = c(cohortId = "c")) %>%
   #   mutate(cohortId = bit64::as.integer64(.data$cohortId))
   cohortsToCreate <- readr::read_csv(pathToCsv, col_types = readr::cols()) %>%
-  
-  return(cohortsToCreate)
+    
+    return(cohortsToCreate)
 }
 
 loadExposureCohorts <- function(outputFolder) {
