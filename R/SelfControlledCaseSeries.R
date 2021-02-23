@@ -41,7 +41,7 @@ runSccs <- function(connectionDetails,
       pull()
     allEstimates <- list()
     # baseExposureId <- baseExposureIds[3]
-    for (baseExposureCohortId in baseExposureCohortIds) {
+    for (baseExposureCohortId in baseExposureIds) {
       exposures <- exposureCohorts %>%
         filter(.data$baseExposureId == !!baseExposureId) 
       
@@ -52,99 +52,93 @@ runSccs <- function(connectionDetails,
       if (!file.exists(exposureFolder))
         dir.create(exposureFolder)
       
-      # Create one big sccsData object ----------------------------
-      bigSccsDataFile <- file.path(exposureFolder, "SccsData.zip")
-      if (!file.exists(bigSccsDataFile)) {
-        ParallelLogger::logInfo(sprintf("Constructing SccsData object for exposure %s", baseExposureId))
+      # outcomeId <- 10536
+      for (outcomeId in controls$outcomeId) {
+        outcomeFolder <- file.path(exposureFolder, sprintf("o_%s", outcomeId))
+        if (!file.exists(outcomeFolder))
+          dir.create(outcomeFolder)
         
-        # Including all other exposures: (expensive)
-        # bigSccsData <- SelfControlledCaseSeries::getDbSccsData(connectionDetails = connectionDetails,
-        #                                                     cdmDatabaseSchema = cdmDatabaseSchema,
-        #                                                     outcomeDatabaseSchema = cohortDatabaseSchema,
-        #                                                     outcomeTable = cohortTable,
-        #                                                     outcomeIds = controls$outcomeId,
-        #                                                     customCovariateDatabaseSchema = cohortDatabaseSchema,
-        #                                                     customCovariateTable = cohortTable,
-        #                                                     customCovariateIds = exposures$exposureId,
-        #                                                     useCustomCovariates = TRUE,
-        #                                                     exposureDatabaseSchema = cdmDatabaseSchema,
-        #                                                     exposureTable = "drug_era",
-        #                                                     exposureIds = NULL,
-        #                                                     studyStartDate = format(controls$startDate[1], "%Y%m%d"),
-        #                                                     studyEndDate = format(controls$endDate[1], "%Y%m%d"),
-        #                                                     maxCasesPerOutcome = 250000)
-        bigSccsData <- SelfControlledCaseSeries::getDbSccsData(connectionDetails = connectionDetails,
-                                                               cdmDatabaseSchema = cdmDatabaseSchema,
-                                                               outcomeDatabaseSchema = cohortDatabaseSchema,
-                                                               outcomeTable = cohortTable,
-                                                               outcomeIds = controls$outcomeId,
-                                                               exposureDatabaseSchema = cohortDatabaseSchema,
-                                                               exposureTable = cohortTable,
-                                                               exposureIds = exposures$exposureId,
-                                                               studyStartDate = format(controls$startDate[1], "%Y%m%d"),
-                                                               studyEndDate = format(controls$endDate[1], "%Y%m%d"),
-                                                               maxCasesPerOutcome = 250000)
-        
-        SelfControlledCaseSeries::saveSccsData(bigSccsData, bigSccsDataFile)
-        
-      } 
-      bigSccsData <- NULL
-      timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-      # i <- 12
-      for (i in 1:nrow(timePeriods)) {
-        periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
-        if (!file.exists(periodEstimatesFile)) {
-          ParallelLogger::logInfo(sprintf("Executing SCCS for exposure %s and period: %s", baseExposureId, timePeriods$label[i]))
-          periodFolder <- file.path(exposureFolder, sprintf("sccsOutput_t%d", timePeriods$seqId[i]))
-          if (!file.exists(periodFolder))
-            dir.create(periodFolder)
+        # Create one big sccsData object per outcome ----------------------------
+        bigSccsDataFile <- file.path(outcomeFolder, "SccsData.zip")
+        if (!file.exists(bigSccsDataFile)) {
+          ParallelLogger::logInfo(sprintf("Constructing SccsData object for exposure %s and outcome %s", baseExposureId, outcomeId))
           
-          sccsDataFile <- file.path(periodFolder, "SccsData_l1.zip")
-          if (!file.exists(sccsDataFile)) {
-            ParallelLogger::logInfo("- Subsetting SccsData to period")
-            if (is.null(bigSccsData)) {
-              bigSccsData <- SelfControlledCaseSeries::loadSccsData(bigSccsDataFile)
-            }
-            subsetSccsData(bigSccsData = bigSccsData,
-                           endDate = timePeriods$endDate[i],
-                           sccsDataFile = sccsDataFile)
+          # Including all other exposures: (expensive)
+          # bigSccsData <- SelfControlledCaseSeries::getDbSccsData(connectionDetails = connectionDetails,
+          #                                                     cdmDatabaseSchema = cdmDatabaseSchema,
+          #                                                     outcomeDatabaseSchema = cohortDatabaseSchema,
+          #                                                     outcomeTable = cohortTable,
+          #                                                     outcomeIds = controls$outcomeId,
+          #                                                     customCovariateDatabaseSchema = cohortDatabaseSchema,
+          #                                                     customCovariateTable = cohortTable,
+          #                                                     customCovariateIds = exposures$exposureId,
+          #                                                     useCustomCovariates = TRUE,
+          #                                                     exposureDatabaseSchema = cdmDatabaseSchema,
+          #                                                     exposureTable = "drug_era",
+          #                                                     exposureIds = NULL,
+          #                                                     studyStartDate = format(controls$startDate[1], "%Y%m%d"),
+          #                                                     studyEndDate = format(controls$endDate[1], "%Y%m%d"),
+          #                                                     maxCasesPerOutcome = 250000)
+          bigSccsData <- SelfControlledCaseSeries::getDbSccsData(connectionDetails = connectionDetails,
+                                                                 cdmDatabaseSchema = cdmDatabaseSchema,
+                                                                 outcomeDatabaseSchema = cohortDatabaseSchema,
+                                                                 outcomeTable = cohortTable,
+                                                                 outcomeIds = outcomeId,
+                                                                 exposureDatabaseSchema = cohortDatabaseSchema,
+                                                                 exposureTable = cohortTable,
+                                                                 exposureIds = exposures$exposureId,
+                                                                 studyStartDate = format(controls$startDate[1], "%Y%m%d"),
+                                                                 studyEndDate = format(controls$endDate[1], "%Y%m%d"),
+                                                                 maxCasesPerOutcome = 250000,
+                                                                 deleteCovariatesSmallCount = 5)
+          
+          SelfControlledCaseSeries::saveSccsData(bigSccsData, bigSccsDataFile)
+          
+        } 
+        bigSccsData <- NULL
+        timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
+        # i <- 12
+        for (i in 1:nrow(timePeriods)) {
+          periodEstimatesFile <- file.path(outcomeFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
+          if (!file.exists(periodEstimatesFile)) {
+            ParallelLogger::logInfo(sprintf("Executing SCCS for exposure %s, outcome %s, and period: %s", baseExposureId, outcomeId, timePeriods$label[i]))
+            periodFolder <- file.path(outcomeFolder, sprintf("sccsOutput_t%d", timePeriods$seqId[i]))
+            if (!file.exists(periodFolder))
+              dir.create(periodFolder)
             
+            sccsDataFile <- file.path(periodFolder, "SccsData_l1.zip")
+            if (!file.exists(sccsDataFile)) {
+              ParallelLogger::logInfo("- Subsetting SccsData to period")
+              if (is.null(bigSccsData)) {
+                bigSccsData <- SelfControlledCaseSeries::loadSccsData(bigSccsDataFile)
+              }
+              subsetSccsData(bigSccsData = bigSccsData,
+                             endDate = timePeriods$endDate[i],
+                             sccsDataFile = sccsDataFile)
+              
+            }
+            estimates <- computeSccsEstimates(exposures = exposures,
+                                              outcomeId = outcomeId,
+                                              periodFolder = periodFolder,
+                                              maxCores = maxCores)
+            readr::write_csv(estimates, periodEstimatesFile)
+          } else {
+            estimates <- loadCmEstimates(periodEstimatesFile)
           }
-          estimates <- computeSccsEstimates(exposures = exposures,
-                                            outcomeIds = controls$outcomeId,
-                                            periodFolder = periodFolder,
-                                            maxCores = maxCores)
-          readr::write_csv(estimates, periodEstimatesFile)
-        } else {
-          estimates <- loadCmEstimates(periodEstimatesFile)
+          estimates$seqId <- timePeriods$seqId[i]
+          estimates$period <- timePeriods$label[i]
+          allEstimates[[length(allEstimates) + 1]] <- estimates
         }
-        estimates$seqId <- timePeriods$seqId[i]
-        estimates$period <- timePeriods$label[i]
-        allEstimates[[length(allEstimates) + 1]] <- estimates
-      }
-      
-      # Output last propensity model:
-      modelFile <- file.path(exposureFolder, "PsModel.csv")
-      if (!file.exists(modelFile)) {
-        if (is.null(bigsccsData)) {
-          bigsccsData <- CohortMethod::loadCohortMethodData(bigsccsDataFile)
-        }
-        omr <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), "outcomeModelReference.rds"))
-        ps <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$sharedPsFile[omr$sharedPsFile != ""][1]))
-        # om <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$outcomeModelFile[omr$sharedPsFile != ""][1]))
         
-        model <- CohortMethod::getPsModel(ps, bigsccsData)
-        # model <- getPsModel(ps, bigsccsData)
-        readr::write_csv(model, modelFile)
+        
       }
+      allEstimates <- bind_rows(allEstimates)  
+      allEstimates <- allEstimates %>%
+        filter(.data$eventsComparator > 0) %>%
+        mutate(expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) %>%
+        mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
+      readr::write_csv(allEstimates, sccsSummaryFile)
     }
-    allEstimates <- bind_rows(allEstimates)  
-    allEstimates <- allEstimates %>%
-      filter(.data$eventsComparator > 0) %>%
-      mutate(exposureId = bit64::as.integer64(.data$targetId/100),
-             expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) %>%
-      mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
-    readr::write_csv(allEstimates, sccsSummaryFile)
   }
   delta <- Sys.time() - start
   writeLines(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
@@ -184,52 +178,90 @@ subsetSccsData <- function(bigSccsData,
 }
 
 computeSccsEstimates <- function(exposures,
-                                 outcomeIds,
+                                 outcomeId,
                                  periodFolder,
                                  maxCores) {
   sccsAnalysisList <- createSccsAnalysesList()
   exposureOutcomeList <- list()
-  for (outcomeId in outcomeIds) {
-    if (nrow(exposures) == 1) {
-      exposureOutcome <- createExposureOutcome(exposureId = exposures$exposureId,
-                                               exposureId2 = -1,
-                                               outcomeId = outcomeId)
-      exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
-    } else {
-      exposureOutcome <- createExposureOutcome(exposureId = exposures$exposureId[exposures$shot == "Both"],
-                                               exposureId2 = -1,
-                                               outcomeId = outcomeId)
-      exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
-      
-      exposureOutcome <- createExposureOutcome(exposureId = exposures$exposureId[exposures$shot == "First"],
-                                               exposureId2 = exposures$exposureId[exposures$shot == "Second"],
-                                               outcomeId = outcomeId)
-      exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
-    }
+  if (nrow(exposures) == 1) {
+    exposureOutcome <- SelfControlledCaseSeries::createExposureOutcome(exposureId = exposures$exposureId,
+                                                                       exposureId2 = -1,
+                                                                       outcomeId = outcomeId)
+    exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
+  } else {
+    exposureOutcome <- SelfControlledCaseSeries::createExposureOutcome(exposureId = exposures$exposureId[exposures$shot == "Both"],
+                                                                       exposureId2 = -1,
+                                                                       outcomeId = outcomeId)
+    exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
+    
+    exposureOutcome <- SelfControlledCaseSeries::createExposureOutcome(exposureId = exposures$exposureId[exposures$shot == "First"],
+                                                                       exposureId2 = exposures$exposureId[exposures$shot == "Second"],
+                                                                       outcomeId = outcomeId)
+    exposureOutcomeList[[length(exposureOutcomeList) + 1]] <- exposureOutcome
   }
   
-  sccsResult <- SelfControlledCaseSeries::runSccsAnalyses(connectionDetails = NULL,
-                                                          cdmDatabaseSchema = NULL,
-                                                          outputFolder = periodFolder,
-                                                          sccsAnalysisList = sccsAnalysisList,
-                                                          exposureOutcomeList = exposureOutcomeList,
-                                                          getDbSccsDataThreads = 1,
-                                                          createStudyPopulationThreads = min(6, maxCores),
-                                                          createSccsIntervalDataThreads = min(6, maxCores),
-                                                          fitSccsModelThreads = min(6, maxCores),
-                                                          cvThreads = 4)
+  referenceTable <- SelfControlledCaseSeries::runSccsAnalyses(connectionDetails = NULL,
+                                                              cdmDatabaseSchema = NULL,
+                                                              outputFolder = periodFolder,
+                                                              sccsAnalysisList = sccsAnalysisList,
+                                                              exposureOutcomeList = exposureOutcomeList,
+                                                              getDbSccsDataThreads = 1,
+                                                              createStudyPopulationThreads = 1,
+                                                              createSccsIntervalDataThreads = min(4, maxCores),
+                                                              fitSccsModelThreads = min(5, floor(maxCores/4)),
+                                                              cvThreads = 4)
   
-  estimates <- SelfControlledCaseSeries::summarizeSccsAnalyses(sccsResult, periodFolder)
+  estimates <- summarizeSccsAnalyses(referenceTable, periodFolder)
   return(estimates)
+}
+
+summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
+  columns <- c("analysisId", "exposureId", "outcomeId")
+  result <- referenceTable[, columns]
+  result$outcomeSubjects <- 0
+  result$outcomeEvents <- 0
+  result$outcomeObsPeriods <- 0
+  
+  for (i in 1:nrow(referenceTable)) {
+    sccsModel <- readRDS(file.path(periodFolder, as.character(referenceTable$sccsModelFile[i])))
+    attrition <- as.data.frame(sccsModel$metaData$attrition)
+    attrition <- attrition[nrow(attrition), ]
+    result$outcomeSubjects[i] <- attrition$outcomeSubjects
+    result$outcomeEvents[i] <- attrition$outcomeEvents
+    result$outcomeObsPeriods[i] <- attrition$outcomeObsPeriods
+    estimates <- sccsModel$estimates[grepl("^Main|^Second", sccsModel$estimates$covariateName), ]
+    if (!is.null(estimates) && nrow(estimates) != 0) {
+      for (j in 1:nrow(estimates)) {
+        estimatesToInsert <- c(rr = exp(estimates$logRr[j]),
+                               ci95lb = exp(estimates$logLb95[j]),
+                               ci95ub = exp(estimates$logUb95[j]),
+                               logRr = estimates$logRr[j],
+                               seLogRr = estimates$seLogRr[j])
+        label <- sub(":.*$", "", estimates$covariateName[j])
+        names(estimatesToInsert) <- paste0(names(estimatesToInsert),
+                                           "(",
+                                           label,
+                                           ")")
+        for (colName in names(estimatesToInsert)) {
+          if (!(colName %in% colnames(result))) {
+            result$newVar <- as.numeric(NA)
+            colnames(result)[colnames(result) == "newVar"] <- colName
+          }
+          result[i, colName] <- estimatesToInsert[colName]
+        }
+      }
+    }
+  }
+  return(result)
 }
 
 createSccsAnalysesList <- function() {
   getDbSccsDataArgs <- SelfControlledCaseSeries::createGetDbSccsDataArgs()
   
-  createStudyPopulationArgs <- createCreateStudyPopulationArgs(naivePeriod = 365,
-                                                               firstOutcomeOnly = FALSE)
+  createStudyPopulationArgs <- SelfControlledCaseSeries::createCreateStudyPopulationArgs(naivePeriod = 365,
+                                                                                         firstOutcomeOnly = FALSE)
   
-  covarExposureOfInt <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Exposure of interest",
+  covarExposureOfInt <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
                                                                              includeEraIds = "exposureId",
                                                                              start = 1,
                                                                              startAnchor = "era start",
@@ -239,23 +271,23 @@ createSccsAnalysesList <- function() {
   covarPreExp <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure",
                                                                       includeEraIds = "exposureId",
                                                                       start = -30,
-                                                                      end = -1,
-                                                                      endAnchor = "era start")
-
-  covarExposureOfInt2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second dose",
-                                                                             includeEraIds = "exposureId2",
-                                                                             start = 1,
-                                                                             startAnchor = "era start",
-                                                                             end = 28,
-                                                                             endAnchor = "era start")
-  
-  covarPreExp2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure second dose",
-                                                                      includeEraIds = "exposureId2",
-                                                                      start = -30,
-                                                                      end = -1,
+                                                                      end = 0,
                                                                       endAnchor = "era start")
   
-    
+  covarExposureOfInt2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
+                                                                              includeEraIds = "exposureId2",
+                                                                              start = 1,
+                                                                              startAnchor = "era start",
+                                                                              end = 28,
+                                                                              endAnchor = "era start")
+  
+  covarPreExp2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure second",
+                                                                       includeEraIds = "exposureId2",
+                                                                       start = -30,
+                                                                       end = 0,
+                                                                       endAnchor = "era start")
+  
+  
   createSccsIntervalDataArgs1 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
                                                                                                                         covarPreExp,
                                                                                                                         covarExposureOfInt2,
