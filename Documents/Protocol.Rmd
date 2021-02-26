@@ -198,7 +198,7 @@ eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", packa
 colnames(eois) <- SqlRender::camelCaseToTitleCase(colnames(eois))
 
 tab <- eois %>%
-  select(-1, -7) %>%
+  select(-1, -7, -8) %>%
   kable(booktabs = TRUE, linesep = "",
       caption = "Exposures of interest.") %>% 
   kable_styling(bootstrap_options = "striped", latex_options = "striped")
@@ -284,10 +284,18 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 ### Counterfactual construction
 
 - Historic rate. Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. 
-Typically a single rate is estimated for the entire population, but we will also evaluate stratification on age and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
-- Propensity-score adjusted contemporary non-user comparator. 
-- Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI): 
-- Case-control?
+    - Using a single rate for the entire population, 
+    - Stratifying by age and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
+- Cohort method using a contemporary non-user comparator. We require the non-user comparator to have an outpatient visit on the index date.
+    - Crude comparison
+    - Using 1-on-1 propensity score matching
+- Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI).
+    - A simple SCCS
+    - An SCCS adjusting for age and season
+    - An SCRI, using a control interval of 43 to 15 days prior to vaccination.
+- Case-control
+    - Using age and sex matching controls
+    - By sampling controls from the general non-case population.
 
 ### Time-at-risk
 
@@ -336,6 +344,25 @@ For those vaccines requiring multiple doses (zoster, HPV), metrics will be compu
 - Treating all doses the same, so computing statistics using both doses without distinguishing between first and second.
 - Using the first dose only
 - Using the second dose only
+
+## Overview of analyses
+
+In total, we will evaluate:
+
+- 9 counterfactuals
+- 3 times at risk (1-28, 1-42, and 1-90 days)
+- 4 vaccines, with a total of 9 + 12 + 12 + 12 = 45 time periods
+- 127 negative controls
+- 3 * 127 = 381 positive controls
+- 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.
+
+Resulting in a total of 9 * 3 * ((9 + 12) * 1 + (12 + 12) * 3)  * (127 + 381) = 1,275,588 effect-size estimates. Each estimate will contain:
+
+- The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.
+- The empirically calibrated effect-size estimate and p-value
+- The LLR
+
+This will be computed for each database.
 
 # Strengths and Limitations
 

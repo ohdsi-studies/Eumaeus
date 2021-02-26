@@ -91,7 +91,7 @@ runCohortMethod <- function(connectionDetails,
       } 
       bigCmData <- NULL
       timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-      # i <- 11
+      # i <- 12
       for (i in 1:nrow(timePeriods)) {
         periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
         if (!file.exists(periodEstimatesFile)) {
@@ -143,7 +143,7 @@ runCohortMethod <- function(connectionDetails,
     allEstimates <- bind_rows(allEstimates)  
     allEstimates <- allEstimates %>%
       filter(.data$eventsComparator > 0) %>%
-      mutate(exposureId = bit64::as.integer64(.data$targetId/100),
+      mutate(exposureId = .data$targetId,
              expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) %>%
       mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
     readr::write_csv(allEstimates, cmSummaryFile)

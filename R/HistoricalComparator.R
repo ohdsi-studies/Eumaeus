@@ -28,17 +28,30 @@ runHistoricalComparator <- function(connectionDetails,
   hcSummaryFile <- file.path(outputFolder, "hcSummary.csv")
   if (!file.exists(hcSummaryFile)) {
     allControls <- loadAllControls(outputFolder)
+    
+    exposureCohorts <- loadExposureCohorts(outputFolder) %>%
+      filter(.data$sampled == FALSE & .data$comparator == FALSE)
+    
+    baseExposureIds <- exposureCohorts %>%
+      distinct(.data$baseExposureId) %>%
+      pull()
+    
     allEstimates <- list()
-    # controls <- allControls[allControls$exposureId == allControls$exposureId[1], ]
-    for (controls in split(allControls, allControls$exposureId)) {
-      exposureId <- controls$exposureId[1]
-      exposureFolder <- file.path(hcFolder, sprintf("e_%s", exposureId))
+    # baseExposureId <- baseExposureIds[1]
+    for (baseExposureId in baseExposureIds) {
+      exposures <- exposureCohorts %>%
+        filter(.data$baseExposureId == !!baseExposureId) 
+      
+      controls <- allControls %>%
+        filter(.data$exposureId == baseExposureId)
+      
+      exposureFolder <- file.path(hcFolder, sprintf("e_%s", baseExposureId))
       if (!file.exists(exposureFolder))
         dir.create(exposureFolder)
       
       historicRatesFile <- file.path(exposureFolder, "historicRates.rds")
       if (!file.exists(historicRatesFile)) {
-        ParallelLogger::logInfo(sprintf("Computing historical rates for exposure %s", exposureId))
+        ParallelLogger::logInfo(sprintf("Computing historical rates for exposure %s", baseExposureId))
         computeHistoricRates(connectionDetails = connectionDetails,
                              cdmDatabaseSchema = cdmDatabaseSchema,
                              cohortDatabaseSchema = cohortDatabaseSchema,
@@ -50,32 +63,36 @@ runHistoricalComparator <- function(connectionDetails,
                              ratesFile = historicRatesFile)
       }
       
-    timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-
-    # i <- 1
-    for (i in 1:nrow(timePeriods)) {
-      periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
-      if (!file.exists(periodEstimatesFile)) {
-        ParallelLogger::logInfo(sprintf("Computing historical comparator estimates for exposure %s and period: %s", exposureId, timePeriods$label[i]))
-        periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d", timePeriods$seqId[i]))
-        estimates <- computeHistoricalComparatorEstimates(connectionDetails = connectionDetails,
-                                                          cdmDatabaseSchema = cdmDatabaseSchema,
-                                                          cohortDatabaseSchema = cohortDatabaseSchema,
-                                                          cohortTable = cohortTable,
-                                                          startDate = timePeriods$startDate[i],
-                                                          endDate = timePeriods$endDate[i],
-                                                          exposureId = exposureId,
-                                                          outcomeIds = controls$outcomeId,
-                                                          ratesFile = historicRatesFile,
-                                                          periodFolder = periodFolder)
-        readr::write_csv(estimates, periodEstimatesFile)
-      } else {
-        estimates <- loadEstimates(periodEstimatesFile)
+      timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
+      # i <- 1
+      for (i in 1:nrow(timePeriods)) {
+        periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
+        if (!file.exists(periodEstimatesFile)) {
+          periodEstimates <- list()
+          for (exposureId in exposures$exposureId) {
+            ParallelLogger::logInfo(sprintf("Computing historical comparator estimates for exposure %s and period: %s", exposureId, timePeriods$label[i]))
+            periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d", timePeriods$seqId[i]))
+            estimates <- computeHistoricalComparatorEstimates(connectionDetails = connectionDetails,
+                                                              cdmDatabaseSchema = cdmDatabaseSchema,
+                                                              cohortDatabaseSchema = cohortDatabaseSchema,
+                                                              cohortTable = cohortTable,
+                                                              startDate = timePeriods$startDate[i],
+                                                              endDate = timePeriods$endDate[i],
+                                                              exposureId = exposureId,
+                                                              outcomeIds = controls$outcomeId,
+                                                              ratesFile = historicRatesFile,
+                                                              periodFolder = periodFolder)
+            periodEstimates[[length(periodEstimates) + 1]] <- estimates
+          }
+          periodEstimates <- bind_rows(periodEstimates)
+          readr::write_csv(periodEstimates, periodEstimatesFile)
+        } else {
+          periodEstimates <- loadEstimates(periodEstimatesFile)
+        }
+        periodEstimates$seqId <- timePeriods$seqId[i]
+        periodEstimates$period <- timePeriods$label[i]
+        allEstimates[[length(allEstimates) + 1]] <- periodEstimates
       }
-      estimates$seqId <- timePeriods$seqId[i]
-      estimates$period <- timePeriods$label[i]
-      allEstimates[[length(allEstimates) + 1]] <- estimates
-    }
     }
     allEstimates <- bind_rows(allEstimates)  
     readr::write_csv(allEstimates, hcSummaryFile)
