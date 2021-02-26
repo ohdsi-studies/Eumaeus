@@ -98,25 +98,18 @@ runSccs <- function(connectionDetails,
         } else {
           estimates <- loadCmEstimates(periodEstimatesFile)
         }
-        estimates$seqId <- timePeriods$seqId[i]
-        estimates$period <- timePeriods$label[i]
+        estimates$periodId <- timePeriods$seqId[i]
         allEstimates[[length(allEstimates) + 1]] <- estimates
       }
     }
     allEstimates <- bind_rows(allEstimates)  
     allEstimates <- allEstimates %>%
-      filter(.data$eventsComparator > 0) %>%
-      mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
+      filter(.data$exposedOutcomes > 0) %>%
+      mutate(llr = llr(.data$exposedOutcomes, .data$expectedOutcomes))
     readr::write_csv(allEstimates, sccsSummaryFile)
   }
   delta <- Sys.time() - start
-  writeLines(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
-  
-  analysisDesc <- tibble(analysisId = c(1, 
-                                        2),
-                         description = c("Crude cohort method",
-                                         "1-on-1 matching"))
-  readr::write_csv(analysisDesc, file.path(outputFolder, "cmAnalysisDesc.csv"))
+  message(paste("Completed SCCS analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 subsetSccsData <- function(bigSccsData,
@@ -206,7 +199,7 @@ summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
     sccsModel <- readRDS(file.path(periodFolder, as.character(referenceTable$sccsModelFile[i])))
     attrition <- as.data.frame(sccsModel$metaData$attrition)
     attrition <- attrition[nrow(attrition), ]
-    row <- referenceTable[i, c("analysisId", "outcomeId")]
+    row <- referenceTable[i, c("outcomeId", "analysisId")]
     row$outcomeSubjects <- attrition$outcomeSubjects
     row$outcomeEvents <- attrition$outcomeEvents
     row$outcomeObsPeriods <- attrition$outcomeObsPeriods
@@ -215,10 +208,12 @@ summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
       for (j in 1:nrow(estimates)) {
         row$exposureId <- estimates$originalEraId[j]
         row$rr <- exp(estimates$logRr[j])
-        row$ci95lb <- exp(estimates$logLb95[j])
-        row$ci95ub <- exp(estimates$logUb95[j])
+        row$ci95Lb <- exp(estimates$logLb95[j])
+        row$ci95Ub <- exp(estimates$logUb95[j])
         row$logRr <- estimates$logRr[j]
         row$seLogRr <- estimates$seLogRr[j]
+        z <- row$logRr/row$seLogRr
+        row$p <- 2 * pmin(pnorm(z), 1 - pnorm(z))
         covStats <- sccsModel$metaData$covariateStatistics %>%
           filter(.data$covariateId == estimates$covariateId[j])
         row$exposedSubjects <- covStats$personCount
@@ -270,7 +265,6 @@ createSccsAnalysesList <- function(startDate, endDate) {
                                                                        start = -30,
                                                                        end = 0,
                                                                        endAnchor = "era start")
-  
   
   createSccsIntervalDataArgs1 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
                                                                                                                         covarPreExp,

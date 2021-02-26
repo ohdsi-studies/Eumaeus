@@ -28,10 +28,10 @@ splitTimePeriod <- function(startDate, endDate) {
   lastPeriod <- periods[nrow(periods), ]
   if (lastPeriod$endDate + 1 < endDate) {
     periods <- bind_rows(periods, 
-              tibble(startDate = startDate,
-                     endDate = !!endDate,
-                     seqId = lastPeriod$seqId + 1,
-                     label = sprintf("%d months", lastPeriod$seqId + 1)))
+                         tibble(startDate = startDate,
+                                endDate = !!endDate,
+                                seqId = lastPeriod$seqId + 1,
+                                label = sprintf("%d months", lastPeriod$seqId + 1)))
   }
   return(periods)
 }
@@ -60,11 +60,8 @@ addCohortNames <- function(data, outputFolder, IdColumnName = "cohortDefinitionI
 
 loadCohortsToCreate <- function() {
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "Eumaeus")
-  # cohortsToCreate <- readr::read_csv(pathToCsv, col_types = c(cohortId = "c")) %>%
-  #   mutate(cohortId = bit64::as.integer64(.data$cohortId))
-  cohortsToCreate <- readr::read_csv(pathToCsv, col_types = readr::cols()) %>%
-    
-    return(cohortsToCreate)
+  cohortsToCreate <- readr::read_csv(pathToCsv, col_types = readr::cols())
+  return(cohortsToCreate)
 }
 
 loadExposureCohorts <- function(outputFolder) {
@@ -75,26 +72,16 @@ loadExposureCohorts <- function(outputFolder) {
 
 loadNegativeControls <- function() {
   pathToCsv <- system.file("settings", "NegativeControls.csv", package = "Eumaeus")
-  # negativeControls <- readr::read_csv(pathToCsv, col_types = c(outcomeId = "c")) %>%
-  #   mutate(outcomeId = bit64::as.integer64(.data$outcomeId))
   negativeControls <- readr::read_csv(pathToCsv, col_types = readr::cols())
   return(negativeControls)
 }
 
 loadSynthesisSummary <- function(synthesisSummaryFile) {
-  # synthesisSummary <- readr::read_csv(synthesisSummaryFile, col_types = c(exposureId = "c", outcomeId = "c", newOutcomeId = "c")) %>%
-  #   mutate(exposureId = bit64::as.integer64(.data$exposureId), 
-  #          outcomeId = bit64::as.integer64(.data$outcomeId),
-  #          newOutcomeId = bit64::as.integer64(.data$newOutcomeId))
   synthesisSummary <- readr::read_csv(synthesisSummaryFile, col_types = readr::cols())
   return(synthesisSummary)
 }
 
 loadAllControls <- function(outputFolder) {
-  # allControls <- readr::read_csv(file.path(outputFolder , "allControls.csv"), col_types = c(exposureId = "c", outcomeId = "c", oldOutcomeId = "c")) %>%
-  #   mutate(exposureId = bit64::as.integer64(.data$exposureId), 
-  #          outcomeId = bit64::as.integer64(.data$outcomeId),
-  #          oldOutcomeId = bit64::as.integer64(.data$oldOutcomeId))
   allControls <- readr::read_csv(file.path(outputFolder , "allControls.csv"), col_types = readr::cols())
   return(allControls)
 }
@@ -106,12 +93,6 @@ loadAdditionalConceptsToExclude <- function(outputFolder) {
 
 loadExposuresofInterest <- function() {
   pathToCsv <- system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus")
-  # exposuresOfInterest <- readr::read_csv(pathToCsv, col_types = c(exposureId = "c")) %>%
-  #   mutate(exposureId = bit64::as.integer64(.data$exposureId),
-  #          startDate = as.Date(.data$startDate, format = "%d-%m-%Y"),
-  #          endDate = as.Date(.data$endDate, format = "%d-%m-%Y"),
-  #          historyStartDate = as.Date(.data$historyStartDate, format = "%d-%m-%Y"),
-  #          historyEndDate = as.Date(.data$historyEndDate, format = "%d-%m-%Y"))
   # Excel date compatibility:
   exposuresOfInterest <- readr::read_csv(pathToCsv, col_types = readr::cols()) %>%
     mutate(startDate = as.Date(.data$startDate, format = "%d-%m-%Y"),
@@ -122,18 +103,11 @@ loadExposuresofInterest <- function() {
 }
 
 loadEstimates <- function(fileName) {
-  # estimates <- readr::read_csv(fileName, col_types = c(exposureId = "c", outcomeId = "c")) %>%
-  #   mutate(exposureId = bit64::as.integer64(.data$exposureId), 
-  #          outcomeId = bit64::as.integer64(.data$outcomeId))
   estimates <- readr::read_csv(fileName, col_types = readr::cols())
   return(estimates)
 }
 
 loadCmEstimates <- function(fileName) {
-  # estimates <- readr::read_csv(fileName, col_types = c(targetId = "c", comparatorId = "c", outcomeId = "c")) %>%
-  #   mutate(targetId = bit64::as.integer64(.data$targetId),
-  #          comparatorId = bit64::as.integer64(.data$comparatorId), 
-  #          outcomeId = bit64::as.integer64(.data$outcomeId))
   estimates <- readr::read_csv(fileName, col_types = readr::cols())
   return(estimates)
 }
