@@ -8,13 +8,7 @@
 .Rdata
 .Rproj.user
 
-R/TC
-statement_*.sql
-errorReport.txt
-
-#C++ objects
-src/*.o
-src/*.so
-src/*.dll
-/Debug
-standalone/build/*
+Documents/*.html
+Documents/*.pdf
+Documents/*.tex
+Documents/*.log
