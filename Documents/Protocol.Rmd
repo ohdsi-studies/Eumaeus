@@ -305,7 +305,7 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 
 ### Time-at-risk
 
-The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows, all starting on the day after vaccination, and ending 28, 42, and 90 days after vaccination. 
+The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination. 
 Time-at-risk windows will be constructed both for the first and second dose. The time-at-risk for one dose will be censored at the time of the next dose. 
 
 ### Statistic
@@ -322,7 +322,8 @@ Empirical calibration will be done using leave-one-out: when calibrating the est
 ### Decision rule
 
 To identify 'signals' we need a decision rule, for example in the shape of a threshold value on one of the estimates statistics.
-In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.01.
+In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.01. 
+For this we will use the [`Sequential` package in CRAN](https://cran.r-project.org/web/packages/Sequential/index.html).
 
 ## Metrics
 
