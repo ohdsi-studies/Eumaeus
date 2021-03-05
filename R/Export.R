@@ -316,8 +316,10 @@ exportMainResults <- function(outputFolder,
 
 calibrate <- function(subset, allControls) {
   # subset <- estimates[estimates$exposureId == 205023 & estimates$method == "SCCS" & estimates$analysisId == 2 & estimates$periodId == 3, ]
+  subset <- subset %>%
+    inner_join(allControls, by = c("exposureId", "outcomeId"))
+  
   ncs <- subset %>%
-    inner_join(allControls, by = c("exposureId", "outcomeId")) %>%
     filter(.data$targetEffectSize == 1 & !is.na(.data$seLogRr))
   if (nrow(ncs) > 5) {
     null <- EmpiricalCalibration::fitMcmcNull(ncs$logRr, ncs$seLogRr)

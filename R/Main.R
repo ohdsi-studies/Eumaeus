@@ -54,7 +54,7 @@
 #' @param maxCores             How many parallel cores should be used? If more cores are made available
 #'                             this can speed up the analyses.
 #' @param cdmVersion           Version of the Common Data Model used. Currently only version 5 is supported.
-#' @param createNegativeControlCohorts        Create the negative control outcome and nesting cohorts?
+#' @param createCohorts        Create the exposure and outcome cohorts?
 #' @param imputeExposureLengthForPanther      For PanTher only: impute exposure length?
 #' @param synthesizePositiveControls          Should positive controls be synthesized?
 #' @param runCohortMethod                     Perform the cohort method analyses?
@@ -76,7 +76,7 @@ execute <- function(connectionDetails,
                     databaseDescription = databaseId,
                     maxCores = 1,
                     cdmVersion = "5",
-                    createNegativeControlCohorts = TRUE,
+                    createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runCohortMethod = TRUE,
                     packageResults = TRUE) {
@@ -89,11 +89,9 @@ execute <- function(connectionDetails,
     on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
     on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
 
-    # Create outcome and nesting cohorts for positive and negative controls ----------------------------------
-
-    if (createNegativeControlCohorts) {
-        ParallelLogger::logInfo("Creating negative control cohorts")
-        createCohorts(connectionDetails = connectionDetails,
+    if (createCohorts) {
+        ParallelLogger::logInfo("Creating exposure and outcome cohorts")
+        Eumaeus:::createCohorts(connectionDetails = connectionDetails,
                       cdmDatabaseSchema = cdmDatabaseSchema,
                       cohortDatabaseSchema = cohortDatabaseSchema,
                       cohortTable = cohortTable,
@@ -103,15 +101,13 @@ execute <- function(connectionDetails,
 
     if (synthesizePositiveControls) {
         ParallelLogger::logInfo("Synthesizing positive controls")
-        synthesizePositiveControls(connectionDetails = connectionDetails,
+        Eumaeus:::synthesizePositiveControls(connectionDetails = connectionDetails,
                                    cdmDatabaseSchema = cdmDatabaseSchema,
                                    cohortDatabaseSchema = cohortDatabaseSchema,
                                    cohortTable = cohortTable,
                                    outputFolder = outputFolder,
                                    maxCores = maxCores)
     }
-
-    # Run methods on negative and positive controls ----------------------------------------------------------
 
     if (runCohortMethod) {
         ParallelLogger::logInfo("Running CohortMethod")

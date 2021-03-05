@@ -299,6 +299,7 @@ Vaccine safety surveillance methods can be broken down in to four components: co
     - A simple SCCS
     - An SCCS adjusting for age and season
     - An SCRI, using a control interval of 43 to 15 days prior to vaccination.
+    - An SCRI, using a control interval of 43 to 71 days after to vaccination.
 - Case-control
     - Using age and sex matching controls
     - By sampling controls from the general non-case population.
@@ -356,14 +357,14 @@ For those vaccines requiring multiple doses (zoster, HPV), metrics will be compu
 
 In total, we will evaluate:
 
-- 9 counterfactuals
-- 3 times at risk (1-28, 1-42, and 1-90 days)
-- 4 vaccines, with a total of 9 + 12 + 12 + 12 = 45 time periods
-- 127 negative controls
-- 3 * 127 = 381 positive controls
+- 10 counterfactuals
+- 3 times at risk (0-1, 1-28, and 1-42 days)
+- 4 vaccines, with a total of 8 + 8 + 12 + 12 = 40 time periods
+- 100 negative controls
+- 3 * 100 = 300 positive controls
 - 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.
 
-Resulting in a total of 9 * 3 * ((9 + 12) * 1 + (12 + 12) * 3)  * (127 + 381) = 1,275,588 effect-size estimates. Each estimate will contain:
+Resulting in a total of 10 * 3 * ((8 + 8) * 1 + (12 + 12) * 3)  * (100 + 300) = 1,056,000 effect-size estimates. Each estimate will contain:
 
 - The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.
 - The empirically calibrated effect-size estimate and p-value
@@ -492,7 +493,7 @@ printCohortDefinitionFromNameAndJson(name = "H1N1 Vaccines",
 ```
 
 ```{r flu-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-baseCohortJson <- SqlRender::readSql(system.file("cohorts", "FluVaccination.json", package = "Eumaeus"))
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "Fluvirin.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
@@ -502,7 +503,7 @@ printCohortDefinitionFromNameAndJson(name = "Seasonal Flu Vaccines",
 ```
 
 ```{r hpv-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-baseCohortJson <- SqlRender::readSql(system.file("cohorts", "HpvVaccination.json", package = "Eumaeus"))
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "Gardasil9.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
@@ -512,7 +513,7 @@ printCohortDefinitionFromNameAndJson(name = "HPV Vaccines",
 ```
 
 ```{r zoster-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-baseCohortJson <- SqlRender::readSql(system.file("cohorts", "ZosterVaccination.json", package = "Eumaeus"))
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "Shingrix.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)

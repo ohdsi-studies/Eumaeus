@@ -27,6 +27,7 @@ analyseResults <- function(outputFolder) {
                        estimates = estimates, 
                        analysisDesc = analysisDesc,
                        aucVariable = "llr",
+                       outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
   
@@ -37,6 +38,7 @@ analyseResults <- function(outputFolder) {
                        estimates = estimates, 
                        analysisDesc = analysisDesc,
                        aucVariable = "logRr",
+                       outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
 }
@@ -45,14 +47,16 @@ analyseMethodResults <- function(method,
                                  estimates,
                                  analysisDesc,
                                  aucVariable,
+                                 outputFolder,
                                  resultsFolder,
                                  maxCores) {
   allControls <- loadAllControls(outputFolder)
-  exposures <- loadExposuresofInterest()
+  exposures <- loadExposureCohorts(outputFolder)
   
-  estimates <- select(allControls, .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
-    left_join(estimates, by = c("exposureId", "outcomeId")) %>%
-    inner_join(select(exposures, .data$exposureId, .data$exposureName), by = "exposureId")
+  estimates <- select(allControls, baseExposureId = .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
+    inner_join(select(exposures, .data$exposureId, .data$baseExposureId, .data$exposureName), by = "baseExposureId") %>%
+    left_join(estimates, by = c("exposureId", "outcomeId")) 
+    
   
   # analysisId <- 2
   analyseAnalysis <- function(analysisId) {
@@ -63,7 +67,7 @@ analyseMethodResults <- function(method,
       pull(.data$description)
     
     
-    # subset <- split(analysisSubset, analysisSubset$exposureId)[[1]]
+    # subset <- split(analysisSubset, analysisSubset$exposureId)[[2]]
     analyseExposureAnalysis <- function(subset) {
       exposureId <- subset$exposureId[1]
       exposureName <- subset$exposureName[1]

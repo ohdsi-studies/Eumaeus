@@ -3324,7 +3324,7 @@ H1N1 vaccination
 01-09-2009
 </td>
 <td style="text-align:left;">
-01-06-2010
+01-05-2010
 </td>
 <td style="text-align:left;">
 01-01-2008
@@ -3335,10 +3335,10 @@ H1N1 vaccination
 </tr>
 <tr>
 <td style="text-align:left;">
-Seasonal flu vaccination
+Seasonal flu vaccination (Fluvirin)
 </td>
 <td style="text-align:left;">
-01-06-2017
+01-09-2017
 </td>
 <td style="text-align:left;">
 31-05-2018
@@ -3352,36 +3352,36 @@ Seasonal flu vaccination
 </tr>
 <tr>
 <td style="text-align:left;">
-Zoster vaccination
+Zoster vaccination (Shingrix)
+</td>
+<td style="text-align:left;">
+01-01-2018
+</td>
+<td style="text-align:left;">
+31-12-2018
 </td>
 <td style="text-align:left;">
 01-01-2017
 </td>
 <td style="text-align:left;">
 31-12-2017
-</td>
-<td style="text-align:left;">
-01-01-2016
-</td>
-<td style="text-align:left;">
-31-12-2016
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-HPV vaccination
+HPV vaccination (Gardasil 9)
+</td>
+<td style="text-align:left;">
+01-01-2018
+</td>
+<td style="text-align:left;">
+31-12-2018
 </td>
 <td style="text-align:left;">
 01-01-2017
 </td>
 <td style="text-align:left;">
 31-12-2017
-</td>
-<td style="text-align:left;">
-01-01-2016
-</td>
-<td style="text-align:left;">
-31-12-2016
 </td>
 </tr>
 </tbody>
@@ -3578,6 +3578,7 @@ Clinical information, prescriptions, lab results, vital signs, body measurements
 <li>A simple SCCS</li>
 <li>An SCCS adjusting for age and season</li>
 <li>An SCRI, using a control interval of 43 to 15 days prior to vaccination.</li>
+<li>An SCRI, using a control interval of 43 to 71 days after to vaccination.</li>
 </ul></li>
 <li>Case-control
 <ul>
@@ -3641,14 +3642,14 @@ For each month the methods will be executed using the data that had accumulated 
 <h2><span class="header-section-number">8.5</span> Overview of analyses</h2>
 <p>In total, we will evaluate:</p>
 <ul>
-<li>9 counterfactuals</li>
-<li>3 times at risk (1-28, 1-42, and 1-90 days)</li>
-<li>4 vaccines, with a total of 9 + 12 + 12 + 12 = 45 time periods</li>
-<li>127 negative controls</li>
-<li>3 * 127 = 381 positive controls</li>
+<li>10 counterfactuals</li>
+<li>3 times at risk (0-1, 1-28, and 1-42 days)</li>
+<li>4 vaccines, with a total of 8 + 8 + 12 + 12 = 40 time periods</li>
+<li>100 negative controls</li>
+<li>3 * 100 = 300 positive controls</li>
 <li>3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.</li>
 </ul>
-<p>Resulting in a total of 9 * 3 * ((9 + 12) * 1 + (12 + 12) * 3) * (127 + 381) = 1,275,588 effect-size estimates. Each estimate will contain:</p>
+<p>Resulting in a total of 10 * 3 * ((8 + 8) * 1 + (12 + 12) * 3) * (100 + 300) = 1,056,000 effect-size estimates. Each estimate will contain:</p>
 <ul>
 <li>The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.</li>
 <li>The empirically calibrated effect-size estimate and p-value</li>
@@ -3884,7 +3885,7 @@ With dedicated support from the OHDSI communications specialist, we will deliver
 <h3><span class="header-section-number">A.1.1</span> Cohort Entry Events</h3>
 <p>People enter the cohort when observing any of the following:</p>
 <ol style="list-style-type: decimal">
-<li>drug exposures of ‘H1N1 vaccine,’ starting between September 1, 2009 and June 1, 2010.</li>
+<li>drug exposures of ‘H1N1 vaccine,’ starting between September 1, 2009 and May 31, 2010.</li>
 </ol>
 <p>Limit cohort entry events to the earliest event per person.</p>
 </div>
@@ -3927,29 +3928,6 @@ Mapped
 <tbody>
 <tr>
 <td style="text-align:left;">
-40213188
-</td>
-<td style="text-align:left;">
-Novel Influenza-H1N1-09, live virus for nasal administration
-</td>
-<td style="text-align:left;">
-125
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 40213187
 </td>
 <td style="text-align:left;">
@@ -3973,39 +3951,16 @@ NO
 </tr>
 <tr>
 <td style="text-align:left;">
-40213186
+40166607
 </td>
 <td style="text-align:left;">
-Novel influenza-H1N1-09, injectable
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.03 MG/ML Injectable Suspension
 </td>
 <td style="text-align:left;">
-127
+864704
 </td>
 <td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213189
-</td>
-<td style="text-align:left;">
-Novel influenza-H1N1-09, preservative-free, injectable
-</td>
-<td style="text-align:left;">
-126
-</td>
-<td style="text-align:left;">
-CVX
+RxNorm
 </td>
 <td style="text-align:left;">
 NO
@@ -4019,13 +3974,197 @@ NO
 </tr>
 <tr>
 <td style="text-align:left;">
-46275993
+40166130
 </td>
 <td style="text-align:left;">
-influenza A virus (H1N1) antigen
+0.25 ML influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.03 MG/ML Prefilled Syringe
 </td>
 <td style="text-align:left;">
-1657128
+864781
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40166144
+</td>
+<td style="text-align:left;">
+0.5 ML influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.03 MG/ML Prefilled Syringe
+</td>
+<td style="text-align:left;">
+864797
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+42902936
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.03 MG/ML Prefilled Syringe
+</td>
+<td style="text-align:left;">
+1360049
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40240135
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.09 MG/ML
+</td>
+<td style="text-align:left;">
+1111367
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40225009
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 0.12 MG/ML
+</td>
+<td style="text-align:left;">
+1005949
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40166608
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 158000000 UNT/ML
+</td>
+<td style="text-align:left;">
+864812
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+45776785
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine 50000000 MG/ML
+</td>
+<td style="text-align:left;">
+1543758
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40166609
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine Injectable Suspension
+</td>
+<td style="text-align:left;">
+864703
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40166611
+</td>
+<td style="text-align:left;">
+influenza A-California-7-2009-(H1N1)v-like virus vaccine Prefilled Syringe
+</td>
+<td style="text-align:left;">
+864780
 </td>
 <td style="text-align:left;">
 RxNorm
@@ -4052,7 +4191,7 @@ NO
 <h3><span class="header-section-number">A.2.1</span> Cohort Entry Events</h3>
 <p>People enter the cohort when observing any of the following:</p>
 <ol style="list-style-type: decimal">
-<li>drug exposures of ‘seasonal influenza vaccines excluding H1N1,’ starting between June 1, 2017 and May 31, 2018.</li>
+<li>drug exposures of ‘Fluvirin,’ starting between September 1, 2017 and May 31, 2018.</li>
 </ol>
 <p>Limit cohort entry events to the earliest event per person.</p>
 </div>
@@ -4064,8 +4203,8 @@ NO
 <h3><span class="header-section-number">A.2.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-seasonal-influenza-vaccines-excluding-h1n1" class="section level3" number="14.2.4">
-<h3><span class="header-section-number">A.2.4</span> Concept: seasonal influenza vaccines excluding H1N1</h3>
+<div id="concept-fluvirin" class="section level3" number="14.2.4">
+<h3><span class="header-section-number">A.2.4</span> Concept: Fluvirin</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4095,634 +4234,13 @@ Mapped
 <tbody>
 <tr>
 <td style="text-align:left;">
-40213145
+1593906
 </td>
 <td style="text-align:left;">
-influenza, injectable, quadrivalent, contains preservative
+influenza A virus A/Hong Kong/4801/2014 (H3N2) antigen 0.03 MG/ML / influenza A virus A/Singapore/GP1908/2015 (H1N1) antigen 0.03 MG/ML / influenza B virus B/Brisbane/60/2008 antigen 0.03 MG/ML [Fluvirin 2017-2018]
 </td>
 <td style="text-align:left;">
-158
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-42903442
-</td>
-<td style="text-align:left;">
-influenza B virus
-</td>
-<td style="text-align:left;">
-1312376
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213150
-</td>
-<td style="text-align:left;">
-influenza, live, intranasal, quadrivalent
-</td>
-<td style="text-align:left;">
-149
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213159
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, whole virus
-</td>
-<td style="text-align:left;">
-16
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40225028
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, inactivated A-Victoria-210-2009 X-187 (H3N2) (A-Perth-16-2009) strain
-</td>
-<td style="text-align:left;">
-1005931
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213156
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, split virus (incl. purified surface antigen)-retired CODE
-</td>
-<td style="text-align:left;">
-15
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213151
-</td>
-<td style="text-align:left;">
-Seasonal, trivalent, recombinant, injectable influenza vaccine, preservative free
-</td>
-<td style="text-align:left;">
-155
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213327
-</td>
-<td style="text-align:left;">
-influenza nasal, unspecified formulation
-</td>
-<td style="text-align:left;">
-151
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213148
-</td>
-<td style="text-align:left;">
-influenza, intradermal, quadrivalent, preservative free, injectable
-</td>
-<td style="text-align:left;">
-166
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213158
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, unspecified formulation
-</td>
-<td style="text-align:left;">
-88
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-36878713
-</td>
-<td style="text-align:left;">
-Influenza Virus Fragmented, Inactivated, Strain B / Phuket / 3073/2013
-</td>
-<td style="text-align:left;">
-OMOP989577
-</td>
-<td style="text-align:left;">
-RxNorm Extension
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-42873961
-</td>
-<td style="text-align:left;">
-influenza B virus vaccine, B-Wisconsin-1-2010-like virus
-</td>
-<td style="text-align:left;">
-1303855
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40225038
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, live attenuated, A-Perth-16-2009 (H3N2) strain
-</td>
-<td style="text-align:left;">
-1005911
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213146
-</td>
-<td style="text-align:left;">
-Influenza, injectable, quadrivalent, preservative free
-</td>
-<td style="text-align:left;">
-150
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213143
-</td>
-<td style="text-align:left;">
-Influenza, injectable, Madin Darby Canine Kidney, preservative free, quadrivalent
-</td>
-<td style="text-align:left;">
-171
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-36879025
-</td>
-<td style="text-align:left;">
-Influenza Virus Surface Antigens, strain A / Switzerland / 9715293/2013 H3N2 - Analogue Strain Nib-88
-</td>
-<td style="text-align:left;">
-OMOP991645
-</td>
-<td style="text-align:left;">
-RxNorm Extension
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213157
-</td>
-<td style="text-align:left;">
-Seasonal trivalent influenza vaccine, adjuvanted, preservative free
-</td>
-<td style="text-align:left;">
-168
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-45776076
-</td>
-<td style="text-align:left;">
-influenza A virus vaccine, A-Texas-50-2012 (H3N2)-like virus
-</td>
-<td style="text-align:left;">
-1541617
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213149
-</td>
-<td style="text-align:left;">
-influenza virus vaccine, live, attenuated, for intranasal use
-</td>
-<td style="text-align:left;">
-111
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213147
-</td>
-<td style="text-align:left;">
-Influenza, injectable,quadrivalent, preservative free, pediatric
-</td>
-<td style="text-align:left;">
-161
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213152
-</td>
-<td style="text-align:left;">
-Seasonal, quadrivalent, recombinant, injectable influenza vaccine, preservative free
-</td>
-<td style="text-align:left;">
-185
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-42903441
-</td>
-<td style="text-align:left;">
-influenza A virus
-</td>
-<td style="text-align:left;">
-1312375
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213141
-</td>
-<td style="text-align:left;">
-influenza, high dose seasonal, preservative-free
-</td>
-<td style="text-align:left;">
-135
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213153
-</td>
-<td style="text-align:left;">
-Influenza, seasonal, injectable
-</td>
-<td style="text-align:left;">
-141
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213144
-</td>
-<td style="text-align:left;">
-Influenza, injectable, Madin Darby Canine Kidney, quadrivalent with preservative
-</td>
-<td style="text-align:left;">
-186
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213142
-</td>
-<td style="text-align:left;">
-Influenza, injectable, Madin Darby Canine Kidney, preservative free
-</td>
-<td style="text-align:left;">
-153
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213155
-</td>
-<td style="text-align:left;">
-seasonal influenza, intradermal, preservative free
-</td>
-<td style="text-align:left;">
-144
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40164828
-</td>
-<td style="text-align:left;">
-influenza B virus vaccine B/Brisbane/60/2008 antigen
-</td>
-<td style="text-align:left;">
-857921
+1928971
 </td>
 <td style="text-align:left;">
 RxNorm
@@ -4749,7 +4267,7 @@ NO
 <h3><span class="header-section-number">A.3.1</span> Cohort Entry Events</h3>
 <p>People enter the cohort when observing any of the following:</p>
 <ol style="list-style-type: decimal">
-<li>drug exposures of ‘HPV vaccines,’ starting between January 1, 2017 and December 31, 2017.</li>
+<li>drug exposures of ‘Gardasil 9,’ starting between January 1, 2018 and December 31, 2018.</li>
 </ol>
 </div>
 <div id="cohort-exit-2" class="section level3" number="14.3.2">
@@ -4760,8 +4278,8 @@ NO
 <h3><span class="header-section-number">A.3.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-hpv-vaccines" class="section level3" number="14.3.4">
-<h3><span class="header-section-number">A.3.4</span> Concept: HPV vaccines</h3>
+<div id="concept-gardasil-9" class="section level3" number="14.3.4">
+<h3><span class="header-section-number">A.3.4</span> Concept: Gardasil 9</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4791,36 +4309,13 @@ Mapped
 <tbody>
 <tr>
 <td style="text-align:left;">
-45892476
+36248866
 </td>
 <td style="text-align:left;">
-L1 protein, human papillomavirus type 45 vaccine
+Gardasil 9 Injectable Product
 </td>
 <td style="text-align:left;">
-1596932
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-45892474
-</td>
-<td style="text-align:left;">
-L1 protein, human papillomavirus type 31 vaccine
-</td>
-<td style="text-align:left;">
-1596930
+1597098
 </td>
 <td style="text-align:left;">
 RxNorm
@@ -4837,13 +4332,59 @@ NO
 </tr>
 <tr>
 <td style="text-align:left;">
-45892477
+45892513
 </td>
 <td style="text-align:left;">
-L1 protein, human papillomavirus type 52 vaccine
+L1 protein, human papillomavirus type 11 vaccine / L1 protein, human papillomavirus type 16 vaccine / L1 protein, human papillomavirus type 18 vaccine / L1 protein, human papillomavirus type 31 vaccine / L1 protein, human papillomavirus type 33 vaccine /
 </td>
 <td style="text-align:left;">
-1596933
+1597102
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+45892514
+</td>
+<td style="text-align:left;">
+0.5 ML L1 protein, human papillomavirus type 11 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 16 vaccine 0.12 MG/ML / L1 protein, human papillomavirus type 18 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 31 vaccine 0.04 MG/ML /
+</td>
+<td style="text-align:left;">
+1597103
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+45892510
+</td>
+<td style="text-align:left;">
+0.5 ML L1 protein, human papillomavirus type 11 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 16 vaccine 0.12 MG/ML / L1 protein, human papillomavirus type 18 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 31 vaccine 0.04 MG/ML /
+</td>
+<td style="text-align:left;">
+1597099
 </td>
 <td style="text-align:left;">
 RxNorm
@@ -4881,52 +4422,6 @@ YES
 NO
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-45892475
-</td>
-<td style="text-align:left;">
-L1 protein, human papillomavirus type 33 vaccine
-</td>
-<td style="text-align:left;">
-1596931
-</td>
-<td style="text-align:left;">
-RxNorm
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-40213320
-</td>
-<td style="text-align:left;">
-human papilloma virus vaccine, quadrivalent
-</td>
-<td style="text-align:left;">
-62
-</td>
-<td style="text-align:left;">
-CVX
-</td>
-<td style="text-align:left;">
-NO
-</td>
-<td style="text-align:left;">
-YES
-</td>
-<td style="text-align:left;">
-NO
-</td>
-</tr>
 </tbody>
 </table>
 <hr style="border:2px solid gray">
@@ -4939,7 +4434,7 @@ NO
 <h3><span class="header-section-number">A.4.1</span> Cohort Entry Events</h3>
 <p>People enter the cohort when observing any of the following:</p>
 <ol style="list-style-type: decimal">
-<li>drug exposures of ‘zoster vaccines,’ starting between January 1, 2017 and December 31, 2017.</li>
+<li>drug exposures of ‘Shingrix,’ starting between January 1, 2018 and December 31, 2018.</li>
 </ol>
 </div>
 <div id="cohort-exit-3" class="section level3" number="14.4.2">
@@ -4950,8 +4445,8 @@ NO
 <h3><span class="header-section-number">A.4.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-zoster-vaccines" class="section level3" number="14.4.4">
-<h3><span class="header-section-number">A.4.4</span> Concept: zoster vaccines</h3>
+<div id="concept-shingrix" class="section level3" number="14.4.4">
+<h3><span class="header-section-number">A.4.4</span> Concept: Shingrix</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4981,16 +4476,108 @@ Mapped
 <tbody>
 <tr>
 <td style="text-align:left;">
-40213260
+792784
 </td>
 <td style="text-align:left;">
-zoster vaccine, live
+varicella zoster virus glycoprotein E Injection [Shingrix]
 </td>
 <td style="text-align:left;">
-121
+1986828
 </td>
 <td style="text-align:left;">
-CVX
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+792783
+</td>
+<td style="text-align:left;">
+varicella zoster virus glycoprotein E, recombinant 0.1 MG/ML [Shingrix]
+</td>
+<td style="text-align:left;">
+1986827
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+792788
+</td>
+<td style="text-align:left;">
+varicella zoster virus glycoprotein E, recombinant 0.1 MG/ML Injection [Shingrix]
+</td>
+<td style="text-align:left;">
+1986832
+</td>
+<td style="text-align:left;">
+RxNorm
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+36421491
+</td>
+<td style="text-align:left;">
+Varicella-Zoster Virus Vaccine Live (Oka-Merck) strain Injectable Solution [Shingrix]
+</td>
+<td style="text-align:left;">
+OMOP4763774
+</td>
+<td style="text-align:left;">
+RxNorm Extension
+</td>
+<td style="text-align:left;">
+NO
+</td>
+<td style="text-align:left;">
+YES
+</td>
+<td style="text-align:left;">
+NO
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+792785
+</td>
+<td style="text-align:left;">
+Shingrix Injectable Product
+</td>
+<td style="text-align:left;">
+1986829
+</td>
+<td style="text-align:left;">
+RxNorm
 </td>
 <td style="text-align:left;">
 NO
@@ -5051,366 +4638,6 @@ Outcome Name
 <tbody>
 <tr>
 <td style="text-align:right;">
-316211
-</td>
-<td style="text-align:left;">
-Acquired spondylolisthesis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-200461
-</td>
-<td style="text-align:left;">
-Endometriosis of uterus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-765053
-</td>
-<td style="text-align:left;">
-Lump in right breast
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-194997
-</td>
-<td style="text-align:left;">
-Prostatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-193530
-</td>
-<td style="text-align:left;">
-Follicular cyst of ovary
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-78497
-</td>
-<td style="text-align:left;">
-Cellulitis and abscess of toe
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438120
-</td>
-<td style="text-align:left;">
-Opioid dependence
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74194
-</td>
-<td style="text-align:left;">
-Sprain of spinal ligament
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74816
-</td>
-<td style="text-align:left;">
-Contusion of toe
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-135215
-</td>
-<td style="text-align:left;">
-Hashimoto thyroiditis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-137977
-</td>
-<td style="text-align:left;">
-Jaundice
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-433527
-</td>
-<td style="text-align:left;">
-Endometriosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-377877
-</td>
-<td style="text-align:left;">
-Esotropia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195770
-</td>
-<td style="text-align:left;">
-Subserous leiomyoma of uterus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434327
-</td>
-<td style="text-align:left;">
-Cannabis abuse
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-73302
-</td>
-<td style="text-align:left;">
-Curvature of spine
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-201606
-</td>
-<td style="text-align:left;">
-Crohn’s disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4166902
-</td>
-<td style="text-align:left;">
-Scalp laceration
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4117713
-</td>
-<td style="text-align:left;">
-Ankle joint effusion
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-77638
-</td>
-<td style="text-align:left;">
-Displacement of intervertebral disc without myelopathy
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74719
-</td>
-<td style="text-align:left;">
-Ulcer of foot
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-314962
-</td>
-<td style="text-align:left;">
-Raynaud’s disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-197032
-</td>
-<td style="text-align:left;">
-Hyperplasia of prostate
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-440320
-</td>
-<td style="text-align:left;">
-Infection due to Escherichia coli
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-192357
-</td>
-<td style="text-align:left;">
-Paralytic ileus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-199764
-</td>
-<td style="text-align:left;">
-Benign neoplasm of ovary
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-43020475
-</td>
-<td style="text-align:left;">
-High risk heterosexual behavior
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-81250
-</td>
-<td style="text-align:left;">
-Carcinoma in situ of breast
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4147660
-</td>
-<td style="text-align:left;">
-Postural kyphosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4311499
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of respiratory tract
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-197494
-</td>
-<td style="text-align:left;">
-Viral hepatitis C
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-40482801
-</td>
-<td style="text-align:left;">
-Type II diabetes mellitus uncontrolled
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196735
-</td>
-<td style="text-align:left;">
-Acute pyelonephritis without medullary necrosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-133424
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of thyroid gland
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4331284
-</td>
-<td style="text-align:left;">
-Contusion of scalp
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4152376
-</td>
-<td style="text-align:left;">
-Intentional self poisoning
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438688
-</td>
-<td style="text-align:left;">
-Sarcoidosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4284982
-</td>
-<td style="text-align:left;">
-Calculus of bile duct without obstruction
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195596
-</td>
-<td style="text-align:left;">
-Chronic pancreatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-441258
-</td>
-<td style="text-align:left;">
-Anemia in neoplastic disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-378165
-</td>
-<td style="text-align:left;">
-Nystagmus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4023612
-</td>
-<td style="text-align:left;">
-Heterozygous thalassemia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-442149
-</td>
-<td style="text-align:left;">
-Poisoning by bee sting
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4313365
-</td>
-<td style="text-align:left;">
-Neoplasm of uncertain behavior of brain
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4001454
-</td>
-<td style="text-align:left;">
-Cervical spine ankylosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 4032787
 </td>
 <td style="text-align:left;">
@@ -5427,10 +4654,10 @@ Alkalosis
 </tr>
 <tr>
 <td style="text-align:right;">
-194286
+443721
 </td>
 <td style="text-align:left;">
-Malignant neoplasm of corpus uteri, excluding isthmus
+Sickle cell-hemoglobin C disease with crisis
 </td>
 </tr>
 <tr>
@@ -5443,30 +4670,6 @@ Osteomalacia
 </tr>
 <tr>
 <td style="text-align:right;">
-138690
-</td>
-<td style="text-align:left;">
-Infestation by Pediculus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4068241
-</td>
-<td style="text-align:left;">
-Chronic instability of knee
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4145627
-</td>
-<td style="text-align:left;">
-Biliary calculus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 77650
 </td>
 <td style="text-align:left;">
@@ -5475,34 +4678,58 @@ Aseptic necrosis of bone
 </tr>
 <tr>
 <td style="text-align:right;">
-4194207
+75924
 </td>
 <td style="text-align:left;">
-Tailor’s bunion
+Osteodystrophy
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-432513
+4284533
 </td>
 <td style="text-align:left;">
-Animal bite wound
+Vitamin D-dependent rickets
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-4151134
+765053
 </td>
 <td style="text-align:left;">
-Cyst of pancreas
+Lump in right breast
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-192360
+199764
 </td>
 <td style="text-align:left;">
-Cyst and pseudocyst of pancreas
+Benign neoplasm of ovary
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4311499
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of respiratory tract
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+133424
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of thyroid gland
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+441258
+</td>
+<td style="text-align:left;">
+Anemia in neoplastic disease
 </td>
 </tr>
 <tr>
@@ -5511,22 +4738,6 @@ Cyst and pseudocyst of pancreas
 </td>
 <td style="text-align:left;">
 Primary malignant neoplasm of pancreas
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-140362
-</td>
-<td style="text-align:left;">
-Hypoparathyroidism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4038835
-</td>
-<td style="text-align:left;">
-Hodgkin’s disease
 </td>
 </tr>
 <tr>
@@ -5547,114 +4758,10 @@ Primary malignant neoplasm of sigmoid colon
 </tr>
 <tr>
 <td style="text-align:right;">
-438039
-</td>
-<td style="text-align:left;">
-Injury caused by animal
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4226238
-</td>
-<td style="text-align:left;">
-Hyperosmolar coma due to diabetes mellitus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4094822
-</td>
-<td style="text-align:left;">
-Foreign body in respiratory tract
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443703
-</td>
-<td style="text-align:left;">
-Poisoning by propionic acid derivative
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4171556
-</td>
-<td style="text-align:left;">
-Ankle ulcer
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4098292
-</td>
-<td style="text-align:left;">
-Antiphospholipid syndrome
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-80286
-</td>
-<td style="text-align:left;">
-Prosthetic joint loosening
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-192953
-</td>
-<td style="text-align:left;">
-Intestinal adhesions with obstruction
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4090272
-</td>
-<td style="text-align:left;">
-Anuria
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4058397
-</td>
-<td style="text-align:left;">
-Claustrophobia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 195500
 </td>
 <td style="text-align:left;">
 Benign neoplasm of uterus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434319
-</td>
-<td style="text-align:left;">
-Premature ejaculation
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-37018294
-</td>
-<td style="text-align:left;">
-Residual osteitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443421
-</td>
-<td style="text-align:left;">
-Gallbladder and bile duct calculi
 </td>
 </tr>
 <tr>
@@ -5667,82 +4774,10 @@ Primary malignant neoplasm of testis
 </tr>
 <tr>
 <td style="text-align:right;">
-30365
-</td>
-<td style="text-align:left;">
-Panhypopituitarism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4300704
-</td>
-<td style="text-align:left;">
-Diffuse large B-cell lymphoma
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-258540
-</td>
-<td style="text-align:left;">
-Marfan’s syndrome
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196625
-</td>
-<td style="text-align:left;">
-Viral hepatitis A without hepatic coma
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4206338
-</td>
-<td style="text-align:left;">
-Chronic salpingitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195864
-</td>
-<td style="text-align:left;">
-Diverticulum of bladder
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 200348
 </td>
 <td style="text-align:left;">
 Secondary malignant neoplasm of large intestine
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-73017
-</td>
-<td style="text-align:left;">
-Congenital anomaly of toe
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-45757543
-</td>
-<td style="text-align:left;">
-Hemorrhage of colon due to diverticulosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434455
-</td>
-<td style="text-align:left;">
-Acquired claw toes
 </td>
 </tr>
 <tr>
@@ -5763,46 +4798,6 @@ Benign neoplasm of ciliary body
 </tr>
 <tr>
 <td style="text-align:right;">
-443274
-</td>
-<td style="text-align:left;">
-Psychostimulant dependence
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4299408
-</td>
-<td style="text-align:left;">
-Gouty tophus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4147016
-</td>
-<td style="text-align:left;">
-Open wound of buttock
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-439751
-</td>
-<td style="text-align:left;">
-Secondary malignant neoplasm of intrathoracic lymph nodes
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-200762
-</td>
-<td style="text-align:left;">
-Autoimmune hepatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 196044
 </td>
 <td style="text-align:left;">
@@ -5811,26 +4806,122 @@ Primary malignant neoplasm of stomach
 </tr>
 <tr>
 <td style="text-align:right;">
-435371
+256646
 </td>
 <td style="text-align:left;">
-Hypothermia
+Primary malignant neoplasm of middle lobe, bronchus or lung
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-201612
+40482801
 </td>
 <td style="text-align:left;">
-Alcoholic liver damage
+Type II diabetes mellitus uncontrolled
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-28083
+4226238
 </td>
 <td style="text-align:left;">
-Primary malignant neoplasm of pharynx
+Hyperosmolar coma due to diabetes mellitus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+438120
+</td>
+<td style="text-align:left;">
+Opioid dependence
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434327
+</td>
+<td style="text-align:left;">
+Cannabis abuse
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+200461
+</td>
+<td style="text-align:left;">
+Endometriosis of uterus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+377877
+</td>
+<td style="text-align:left;">
+Esotropia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+378165
+</td>
+<td style="text-align:left;">
+Nystagmus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+78497
+</td>
+<td style="text-align:left;">
+Cellulitis and abscess of toe
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+440320
+</td>
+<td style="text-align:left;">
+Infection due to Escherichia coli
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4108371
+</td>
+<td style="text-align:left;">
+Peripheral gangrene
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4288241
+</td>
+<td style="text-align:left;">
+Salmonella enterica subspecies arizonae infection
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+443204
+</td>
+<td style="text-align:left;">
+Human ehrlichiosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+192357
+</td>
+<td style="text-align:left;">
+Paralytic ileus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+192953
+</td>
+<td style="text-align:left;">
+Intestinal adhesions with obstruction
 </td>
 </tr>
 <tr>
@@ -5839,30 +4930,6 @@ Primary malignant neoplasm of pharynx
 </td>
 <td style="text-align:left;">
 Hemorrhage of colon
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-192275
-</td>
-<td style="text-align:left;">
-Alpha-1-antitrypsin deficiency
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-435775
-</td>
-<td style="text-align:left;">
-Genetic anomaly of leukocyte
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4211974
-</td>
-<td style="text-align:left;">
-Acute viral hepatitis
 </td>
 </tr>
 <tr>
@@ -5883,6 +4950,326 @@ Sclerosing mesenteritis
 </tr>
 <tr>
 <td style="text-align:right;">
+196347
+</td>
+<td style="text-align:left;">
+Intestinal parasitism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+193521
+</td>
+<td style="text-align:left;">
+Tropical sprue
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+194149
+</td>
+<td style="text-align:left;">
+Hirschsprung’s disease
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4145627
+</td>
+<td style="text-align:left;">
+Biliary calculus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4090272
+</td>
+<td style="text-align:left;">
+Anuria
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+443421
+</td>
+<td style="text-align:left;">
+Gallbladder and bile duct calculi
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4308394
+</td>
+<td style="text-align:left;">
+Infection and inflammatory reaction due to prosthetic device, implant and graft in urinary system
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+137977
+</td>
+<td style="text-align:left;">
+Jaundice
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+197494
+</td>
+<td style="text-align:left;">
+Viral hepatitis C
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+196625
+</td>
+<td style="text-align:left;">
+Viral hepatitis A without hepatic coma
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+200762
+</td>
+<td style="text-align:left;">
+Autoimmune hepatitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+201612
+</td>
+<td style="text-align:left;">
+Alcoholic liver damage
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+194997
+</td>
+<td style="text-align:left;">
+Prostatitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+193530
+</td>
+<td style="text-align:left;">
+Follicular cyst of ovary
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+314962
+</td>
+<td style="text-align:left;">
+Raynaud’s disease
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+197032
+</td>
+<td style="text-align:left;">
+Hyperplasia of prostate
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+43020475
+</td>
+<td style="text-align:left;">
+High risk heterosexual behavior
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+438688
+</td>
+<td style="text-align:left;">
+Sarcoidosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4284982
+</td>
+<td style="text-align:left;">
+Calculus of bile duct without obstruction
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+138690
+</td>
+<td style="text-align:left;">
+Infestation by Pediculus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4068241
+</td>
+<td style="text-align:left;">
+Chronic instability of knee
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4094822
+</td>
+<td style="text-align:left;">
+Foreign body in respiratory tract
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4098292
+</td>
+<td style="text-align:left;">
+Antiphospholipid syndrome
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80286
+</td>
+<td style="text-align:left;">
+Prosthetic joint loosening
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4058397
+</td>
+<td style="text-align:left;">
+Claustrophobia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+37018294
+</td>
+<td style="text-align:left;">
+Residual osteitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+30365
+</td>
+<td style="text-align:left;">
+Panhypopituitarism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4206338
+</td>
+<td style="text-align:left;">
+Chronic salpingitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195864
+</td>
+<td style="text-align:left;">
+Diverticulum of bladder
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4299408
+</td>
+<td style="text-align:left;">
+Gouty tophus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+435371
+</td>
+<td style="text-align:left;">
+Hypothermia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74722
+</td>
+<td style="text-align:left;">
+Secondary localized osteoarthrosis of pelvic region
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+43020446
+</td>
+<td style="text-align:left;">
+Sedative withdrawal
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+440367
+</td>
+<td style="text-align:left;">
+Plasmacytosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195596
+</td>
+<td style="text-align:left;">
+Chronic pancreatitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4151134
+</td>
+<td style="text-align:left;">
+Cyst of pancreas
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434319
+</td>
+<td style="text-align:left;">
+Premature ejaculation
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+201346
+</td>
+<td style="text-align:left;">
+Edema of penis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4152376
+</td>
+<td style="text-align:left;">
+Intentional self poisoning
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+442149
+</td>
+<td style="text-align:left;">
+Poisoning by bee sting
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
 4314086
 </td>
 <td style="text-align:left;">
@@ -5899,10 +5286,130 @@ Poisoning by antidiabetic agent
 </tr>
 <tr>
 <td style="text-align:right;">
-256646
+438945
 </td>
 <td style="text-align:left;">
-Primary malignant neoplasm of middle lobe, bronchus or lung
+Accidental poisoning by benzodiazepine-based tranquilizer
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+316211
+</td>
+<td style="text-align:left;">
+Acquired spondylolisthesis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74194
+</td>
+<td style="text-align:left;">
+Sprain of spinal ligament
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+73302
+</td>
+<td style="text-align:left;">
+Curvature of spine
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+77638
+</td>
+<td style="text-align:left;">
+Displacement of intervertebral disc without myelopathy
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4147660
+</td>
+<td style="text-align:left;">
+Postural kyphosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4001454
+</td>
+<td style="text-align:left;">
+Cervical spine ankylosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+135215
+</td>
+<td style="text-align:left;">
+Hashimoto thyroiditis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+140362
+</td>
+<td style="text-align:left;">
+Hypoparathyroidism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4194207
+</td>
+<td style="text-align:left;">
+Tailor’s bunion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434455
+</td>
+<td style="text-align:left;">
+Acquired claw toes
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74816
+</td>
+<td style="text-align:left;">
+Contusion of toe
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74719
+</td>
+<td style="text-align:left;">
+Ulcer of foot
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+432513
+</td>
+<td style="text-align:left;">
+Animal bite wound
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4171556
+</td>
+<td style="text-align:left;">
+Ankle ulcer
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4147016
+</td>
+<td style="text-align:left;">
+Open wound of buttock
 </td>
 </tr>
 <tr>
@@ -5915,70 +5422,6 @@ Burn of digit of hand
 </tr>
 <tr>
 <td style="text-align:right;">
-46269816
-</td>
-<td style="text-align:left;">
-Ascites due to alcoholic cirrhosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4108371
-</td>
-<td style="text-align:left;">
-Peripheral gangrene
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4308394
-</td>
-<td style="text-align:left;">
-Infection and inflammatory reaction due to prosthetic device, implant and graft in urinary system
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74722
-</td>
-<td style="text-align:left;">
-Secondary localized osteoarthrosis of pelvic region
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196347
-</td>
-<td style="text-align:left;">
-Intestinal parasitism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-201346
-</td>
-<td style="text-align:left;">
-Edema of penis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438945
-</td>
-<td style="text-align:left;">
-Accidental poisoning by benzodiazepine-based tranquilizer
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-43020446
-</td>
-<td style="text-align:left;">
-Sedative withdrawal
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 4129404
 </td>
 <td style="text-align:left;">
@@ -5987,82 +5430,10 @@ Open wound of upper arm
 </tr>
 <tr>
 <td style="text-align:right;">
-193521
-</td>
-<td style="text-align:left;">
-Tropical sprue
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-75924
-</td>
-<td style="text-align:left;">
-Osteodystrophy
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4288241
-</td>
-<td style="text-align:left;">
-Salmonella enterica subspecies arizonae infection
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-194149
-</td>
-<td style="text-align:left;">
-Hirschsprung’s disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443204
-</td>
-<td style="text-align:left;">
-Human ehrlichiosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443721
-</td>
-<td style="text-align:left;">
-Sickle cell-hemoglobin C disease with crisis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-440367
-</td>
-<td style="text-align:left;">
-Plasmacytosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-193155
-</td>
-<td style="text-align:left;">
-Carcinoid tumor of large intestine
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 75121
 </td>
 <td style="text-align:left;">
 Burn of lower leg
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4284533
-</td>
-<td style="text-align:left;">
-Vitamin D-dependent rickets
 </td>
 </tr>
 </tbody>

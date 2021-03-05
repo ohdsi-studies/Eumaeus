@@ -4,11 +4,11 @@
 		"CriteriaList" : [
 			{
 				"DrugExposure" : {
-					"CodesetId" : 3,
+					"CodesetId" : 4,
 					"OccurrenceStartDate" : {
-						"Value" : "2017-01-01",
+						"Value" : "2018-01-01",
 						"Op" : "bt",
-						"Extent" : "2017-12-31"
+						"Extent" : "2018-12-31"
 					},
 					"DrugTypeExclude" : false
 				}
@@ -24,22 +24,22 @@
 	},
 	"ConceptSets" : [
 		{
-			"id" : 3,
-			"name" : "HPV vaccines",
+			"id" : 4,
+			"name" : "Gardasil 9",
 			"expression" : {
 				"items" : [
 					{
 						"concept" : {
-							"CONCEPT_ID" : 45892476,
-							"CONCEPT_NAME" : "L1 protein, human papillomavirus type 45 vaccine",
-							"STANDARD_CONCEPT" : "S",
-							"STANDARD_CONCEPT_CAPTION" : "Standard",
+							"CONCEPT_ID" : 36248866,
+							"CONCEPT_NAME" : "Gardasil 9 Injectable Product",
+							"STANDARD_CONCEPT" : "C",
+							"STANDARD_CONCEPT_CAPTION" : "Classification",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "1596932",
+							"CONCEPT_CODE" : "1597098",
 							"DOMAIN_ID" : "Drug",
 							"VOCABULARY_ID" : "RxNorm",
-							"CONCEPT_CLASS_ID" : "Ingredient"
+							"CONCEPT_CLASS_ID" : "Branded Dose Group"
 						},
 						"isExcluded" : false,
 						"includeDescendants" : true,
@@ -47,16 +47,16 @@
 					},
 					{
 						"concept" : {
-							"CONCEPT_ID" : 45892474,
-							"CONCEPT_NAME" : "L1 protein, human papillomavirus type 31 vaccine",
+							"CONCEPT_ID" : 45892513,
+							"CONCEPT_NAME" : "L1 protein, human papillomavirus type 11 vaccine / L1 protein, human papillomavirus type 16 vaccine / L1 protein, human papillomavirus type 18 vaccine / L1 protein, human papillomavirus type 31 vaccine / L1 protein, human papillomavirus type 33 vaccine /",
 							"STANDARD_CONCEPT" : "S",
 							"STANDARD_CONCEPT_CAPTION" : "Standard",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "1596930",
+							"CONCEPT_CODE" : "1597102",
 							"DOMAIN_ID" : "Drug",
 							"VOCABULARY_ID" : "RxNorm",
-							"CONCEPT_CLASS_ID" : "Ingredient"
+							"CONCEPT_CLASS_ID" : "Branded Drug Form"
 						},
 						"isExcluded" : false,
 						"includeDescendants" : true,
@@ -64,16 +64,33 @@
 					},
 					{
 						"concept" : {
-							"CONCEPT_ID" : 45892477,
-							"CONCEPT_NAME" : "L1 protein, human papillomavirus type 52 vaccine",
+							"CONCEPT_ID" : 45892514,
+							"CONCEPT_NAME" : "0.5 ML L1 protein, human papillomavirus type 11 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 16 vaccine 0.12 MG/ML / L1 protein, human papillomavirus type 18 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 31 vaccine 0.04 MG/ML /",
 							"STANDARD_CONCEPT" : "S",
 							"STANDARD_CONCEPT_CAPTION" : "Standard",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "1596933",
+							"CONCEPT_CODE" : "1597103",
 							"DOMAIN_ID" : "Drug",
 							"VOCABULARY_ID" : "RxNorm",
-							"CONCEPT_CLASS_ID" : "Ingredient"
+							"CONCEPT_CLASS_ID" : "Quant Branded Drug"
+						},
+						"isExcluded" : false,
+						"includeDescendants" : true,
+						"includeMapped" : false
+					},
+					{
+						"concept" : {
+							"CONCEPT_ID" : 45892510,
+							"CONCEPT_NAME" : "0.5 ML L1 protein, human papillomavirus type 11 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 16 vaccine 0.12 MG/ML / L1 protein, human papillomavirus type 18 vaccine 0.08 MG/ML / L1 protein, human papillomavirus type 31 vaccine 0.04 MG/ML /",
+							"STANDARD_CONCEPT" : "S",
+							"STANDARD_CONCEPT_CAPTION" : "Standard",
+							"INVALID_REASON" : "V",
+							"INVALID_REASON_CAPTION" : "Valid",
+							"CONCEPT_CODE" : "1597099",
+							"DOMAIN_ID" : "Drug",
+							"VOCABULARY_ID" : "RxNorm",
+							"CONCEPT_CLASS_ID" : "Quant Branded Drug"
 						},
 						"isExcluded" : false,
 						"includeDescendants" : true,
@@ -88,40 +105,6 @@
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
 							"CONCEPT_CODE" : "165",
-							"DOMAIN_ID" : "Drug",
-							"VOCABULARY_ID" : "CVX",
-							"CONCEPT_CLASS_ID" : "CVX"
-						},
-						"isExcluded" : false,
-						"includeDescendants" : true,
-						"includeMapped" : false
-					},
-					{
-						"concept" : {
-							"CONCEPT_ID" : 45892475,
-							"CONCEPT_NAME" : "L1 protein, human papillomavirus type 33 vaccine",
-							"STANDARD_CONCEPT" : "S",
-							"STANDARD_CONCEPT_CAPTION" : "Standard",
-							"INVALID_REASON" : "V",
-							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "1596931",
-							"DOMAIN_ID" : "Drug",
-							"VOCABULARY_ID" : "RxNorm",
-							"CONCEPT_CLASS_ID" : "Ingredient"
-						},
-						"isExcluded" : false,
-						"includeDescendants" : true,
-						"includeMapped" : false
-					},
-					{
-						"concept" : {
-							"CONCEPT_ID" : 40213320,
-							"CONCEPT_NAME" : "human papilloma virus vaccine, quadrivalent",
-							"STANDARD_CONCEPT" : "S",
-							"STANDARD_CONCEPT_CAPTION" : "Standard",
-							"INVALID_REASON" : "V",
-							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "62",
 							"DOMAIN_ID" : "Drug",
 							"VOCABULARY_ID" : "CVX",
 							"CONCEPT_CLASS_ID" : "CVX"

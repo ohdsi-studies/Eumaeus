@@ -28,10 +28,18 @@ synthesizePositiveControls <- function(connectionDetails,
   
   synthesisSummaryFile <- file.path(outputFolder, "SynthesisSummary.csv")
   if (!file.exists(synthesisSummaryFile)) {
-    exposureOutcomePairs <- loadNegativeControls() %>%
+    outcomeIds <- loadNegativeControls() %>%
       distinct(.data$outcomeId) %>%
-      inner_join(loadExposuresofInterest() %>% distinct(.data$exposureId), by = character(0))
+      pull()
     
+    exposureIds <- loadExposureCohorts(outputFolder) %>%
+      filter(((.data$shots == 2 &.data$shot == "Both") | (.data$shots == 1 & .data$shot == "First")) &
+               .data$sampled == FALSE &
+               .data$comparator == FALSE) %>%
+      pull(.data$exposureId)
+    
+    exposureOutcomePairs <- expand.grid(exposureId = exposureIds, outcomeId = outcomeIds)
+
     prior <- Cyclops::createPrior("laplace", exclude = 0, useCrossValidation = TRUE)
     
     control <- Cyclops::createControl(cvType = "auto",
@@ -83,7 +91,7 @@ synthesizePositiveControls <- function(connectionDetails,
                                                            prior = prior,
                                                            control = control,
                                                            maxSubjectsForModel = 250000,
-                                                           minOutcomeCountForModel = 100,
+                                                           minOutcomeCountForModel = 25,
                                                            minOutcomeCountForInjection = 25,
                                                            covariateSettings = covariateSettings)
     readr::write_csv(result, synthesisSummaryFile)
@@ -96,6 +104,9 @@ synthesizePositiveControls <- function(connectionDetails,
   synthesisSummary <- loadSynthesisSummary(synthesisSummaryFile)
   synthesisSummary$targetId <- synthesisSummary$exposureId
   synthesisSummary <- synthesisSummary %>%
+    inner_join(loadExposureCohorts(outputFolder) %>% select("exposureId", "baseExposureId"), by = "exposureId") %>%
+    select(-.data$exposureId) %>%
+    rename(exposureId = .data$baseExposureId) %>%
     inner_join(negativeControls, by = c("exposureId", "outcomeId")) %>%
     mutate(outcomeName = paste0(.data$outcomeName, ", RR=", .data$targetEffectSize),
            oldOutcomeId = .data$outcomeId) %>%
@@ -109,7 +120,7 @@ synthesizePositiveControls <- function(connectionDetails,
   
   exposuresOfInterest <- loadExposuresofInterest()
   allControls <- allControls %>%
-    inner_join(exposuresOfInterest %>% select(-.data$exposureName ), by = "exposureId")
+    inner_join(exposuresOfInterest %>% select(-.data$exposureName), by = "exposureId")
   
   readr::write_csv(allControls, file.path(outputFolder, "AllControls.csv"))
 }

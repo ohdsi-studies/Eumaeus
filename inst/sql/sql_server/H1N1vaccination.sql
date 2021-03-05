@@ -5,13 +5,13 @@ CREATE TABLE #Codesets (
 ;
 
 INSERT INTO #Codesets (codeset_id, concept_id)
-SELECT 1 as codeset_id, c.concept_id FROM (select distinct I.concept_id FROM
+SELECT 4 as codeset_id, c.concept_id FROM (select distinct I.concept_id FROM
 ( 
-  select concept_id from @vocabulary_database_schema.CONCEPT where concept_id in (40213188,40213187,40213186,40213189,46275993)
+  select concept_id from @vocabulary_database_schema.CONCEPT where concept_id in (40213187,40166607,40166130,40166144,42902936,40240135,40225009,40166608,45776785,40166609,40166611)
 UNION  select c.concept_id
   from @vocabulary_database_schema.CONCEPT c
   join @vocabulary_database_schema.CONCEPT_ANCESTOR ca on c.concept_id = ca.descendant_concept_id
-  and ca.ancestor_concept_id in (40213188,40213187,40213186,40213189,46275993)
+  and ca.ancestor_concept_id in (40213187,40166607,40166130,40166144,42902936,40240135,40225009,40166608,45776785,40166609,40166611)
   and c.invalid_reason is null
 
 ) I
@@ -37,10 +37,10 @@ from
 (
   select de.* 
   FROM @cdm_database_schema.DRUG_EXPOSURE de
-JOIN #Codesets codesets on ((de.drug_concept_id = codesets.concept_id and codesets.codeset_id = 1))
+JOIN #Codesets codesets on ((de.drug_concept_id = codesets.concept_id and codesets.codeset_id = 4))
 ) C
 
-WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2009, 9, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2010, 6, 1))
+WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2009, 9, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2010, 5, 31))
 -- End Drug Exposure Criteria
 
   ) E
@@ -84,7 +84,7 @@ with cteIncludedEvents(event_id, person_id, start_date, end_date, op_start_date,
 select event_id, person_id, start_date, end_date, op_start_date, op_end_date
 into #included_events
 FROM cteIncludedEvents Results
-WHERE Results.ordinal = 1
+
 ;
 
 -- date offset strategy

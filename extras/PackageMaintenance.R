@@ -27,16 +27,8 @@ ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "inst/settings/Cohor
                                                  generateStats = FALSE,
                                                  packageName = "Eumaeus")
 
-
-# Create analysis details
-Eumaeus::createCohortMethodSettings(fileName = "inst/settings/cmAnalysisSettings.txt")
-Eumaeus::createSccsSettings(fileName = "inst/settings/sccsAnalysisSettings.txt")
-Eumaeus::createSelfControlledCohortSettings(fileName = "inst/settings/sccAnalysisSettings.txt")
-
 # Regenerate protocol
 rmarkdown::render("Documents/Protocol.rmd", output_dir = "docs")
-
-rmarkdown::render("Documents/Protocol.rmd", output_format = "bookdown::pdf_document2")
 
 # Upload Rmd to GDocs
 gdrive_path <- "Eumaeus"

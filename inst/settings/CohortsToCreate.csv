@@ -1,5 +1,5 @@
 atlasId,atlasName,cohortId,name
-20345,H1N1 vaccination,20345,H1N1vaccination
-20501,Seasonal flu vaccination,20501,FluVaccination
-20502,Zoster vaccination,20502,ZosterVaccination
-20503,HPV vaccination,20503,HpvVaccination
+21184,H1N1 vaccination,21184,H1N1vaccination
+21185,Seasonal flu vaccination (Fluvirin),21185,Fluvirin
+21198,Zoster vaccination (Shingrix),21198,Shingrix
+21183,HPV vaccination (Gardasil 9),21183,Gardasil9

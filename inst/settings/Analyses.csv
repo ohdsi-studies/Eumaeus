@@ -3,26 +3,29 @@ HistoricalComparator,1,"Unadjusted historical comparator",1-28
 HistoricalComparator,2,"Age + sex adjusted historical comparator",1-28
 HistoricalComparator,3,"Unadjusted historical comparator",1-42
 HistoricalComparator,4,"Age + sex adjusted historical comparator",1-42
-HistoricalComparator,5,"Unadjusted historical comparator",1-90
-HistoricalComparator,6,"Age + sex adjusted historical comparator",1-90
+HistoricalComparator,5,"Unadjusted historical comparator",0-1
+HistoricalComparator,6,"Age + sex adjusted historical comparator",0-1
 CohortMethod,1,"Crude cohort method",1-28
 CohortMethod,2,"Propensity-score adjusted cohort method",1-28
 CohortMethod,3,"Crude cohort method",1-42
 CohortMethod,4,"Propensity-score matched cohort method",1-42
-CohortMethod,5,"Crude cohort method",1-90
-CohortMethod,6,"Propensity-score matched cohort method",1-90
+CohortMethod,5,"Crude cohort method",0-1
+CohortMethod,6,"Propensity-score matched cohort method",0-1
 SCCS,1,"Simple SCCS",1-28
 SCCS,2,"SCCS adjusting for age and season",1-28
-SCCS,3,"SCRI",1-28
-SCCS,4,"Simple SCCS",1-42
-SCCS,5,"SCCS adjusting for age and season",1-42
-SCCS,6,"SCRI",1-42
-SCCS,7,"Simple SCCS",1-90
-SCCS,8,"SCCS adjusting for age and season",1-90
-SCCS,9,"SCRI",1-90
+SCCS,3,"SCRI with prior control interval",1-28
+SCCS,4,"SCRI with posterior control interval",1-28
+SCCS,5,"Simple SCCS",1-42
+SCCS,6,"SCCS adjusting for age and season",1-42
+SCCS,7,"SCRI with prior control interval",1-28
+SCCS,8,"SCRI with posterior control interval",1-28
+SCCS,9,"Simple SCCS",1-90
+SCCS,10,"SCCS adjusting for age and season",1-90
+SCCS,11,"SCRI with prior control interval",0-1
+SCCS,12,"SCRI with posterior control interval",0-1
 CaseControl,1,"age + sex matched case-control",1-28
 CaseControl,2,"Case-control using sampled controls",1-28
 CaseControl,3,"age + sex matched case-control",1-42
 CaseControl,4,"Case-control using sampled controls",1-42
-CaseControl,5,"age + sex matched case-control",1-90
-CaseControl,6,"Case-control using sampled controls",1-90
+CaseControl,5,"age + sex matched case-control",0-1
+CaseControl,6,"Case-control using sampled controls",0-1

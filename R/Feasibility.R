@@ -54,7 +54,7 @@
 #' @param maxCores             How many parallel cores should be used? If more cores are made available
 #'                             this can speed up the analyses.
 #' @param cdmVersion           Version of the Common Data Model used. Currently only version 5 is supported.
-#' @param createNegativeControlCohorts        Create the negative control outcome and nesting cohorts?
+#' @param createCohorts        Create the exposure and outcome?
 #' @param imputeExposureLengthForPanther      For PanTher only: impute exposure length?
 #' @param synthesizePositiveControls          Should positive controls be synthesized?
 #' @param runCohortMethod                     Perform the cohort method analyses?
@@ -75,7 +75,7 @@ assessFeasibility <- function(connectionDetails,
                               databaseName = databaseId,
                               databaseDescription = databaseId,
                               cdmVersion = "5",
-                              createNegativeControlCohorts = TRUE,
+                              createCohorts = TRUE,
                               runCohortDiagnostics = TRUE) {
     cohortDiagnosticsFolder <- file.path(outputFolder, "cohortDiagnostics")
     if (!file.exists(cohortDiagnosticsFolder)) {
@@ -87,11 +87,9 @@ assessFeasibility <- function(connectionDetails,
     on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
     on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
     
-    # Create outcome and nesting cohorts for positive and negative controls ----------------------------------
-    
-    if (createNegativeControlCohorts) {
+    if (createCohorts) {
         ParallelLogger::logInfo("Creating negative control cohorts")
-        createCohorts(connectionDetails = connectionDetails,
+        Eumaeus:::createCohorts(connectionDetails = connectionDetails,
                       cdmDatabaseSchema = cdmDatabaseSchema,
                       cohortDatabaseSchema = cohortDatabaseSchema,
                       cohortTable = cohortTable,
@@ -100,13 +98,6 @@ assessFeasibility <- function(connectionDetails,
     
     if (runCohortDiagnostics) {
         ParallelLogger::logInfo("Running cohort diagnostics")
-        # tempFile <- tempfile(fileext = ".csv")
-        # exposureCohorts <- loadExposureCohorts(outputFolder) %>%
-        #     filter(.data$sampled == TRUE) %>%
-        #     transmute(cohortId = .data$exposureId,
-        #               name = .data$exposureName) %>%
-        #     readr::write_csv(file = tempFile)
-        
         CohortDiagnostics::runCohortDiagnostics(packageName = "Eumaeus",
                                                 cohortToCreateFile = "settings/AllExposureCohorts.csv",
                                                 connectionDetails = connectionDetails,

@@ -15,7 +15,7 @@ execute(
   databaseDescription = databaseId,
   maxCores = 1,
   cdmVersion = "5",
-  createNegativeControlCohorts = TRUE,
+  createCohorts = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,
   packageResults = TRUE
@@ -42,7 +42,7 @@ this can speed up the analyses.}
 
 \item{cdmVersion}{Version of the Common Data Model used. Currently only version 5 is supported.}
 
-\item{createNegativeControlCohorts}{Create the negative control outcome and nesting cohorts?}
+\item{createCohorts}{Create the exposure and outcome cohorts?}
 
 \item{synthesizePositiveControls}{Should positive controls be synthesized?}
 

@@ -5,13 +5,13 @@ CREATE TABLE #Codesets (
 ;
 
 INSERT INTO #Codesets (codeset_id, concept_id)
-SELECT 1 as codeset_id, c.concept_id FROM (select distinct I.concept_id FROM
+SELECT 4 as codeset_id, c.concept_id FROM (select distinct I.concept_id FROM
 ( 
-  select concept_id from @vocabulary_database_schema.CONCEPT where concept_id in (40213145,42903442,40213150,40213159,40225028,40213156,40213151,40213327,40213148,40213158,36878713,42873961,40225038,40213146,40213143,36879025,40213157,45776076,40213149,40213147,40213152,42903441,40213141,40213153,40213144,40213142,40213155,40164828)
+  select concept_id from @vocabulary_database_schema.CONCEPT where concept_id in (36248866,45892513,45892514,45892510,40213322)
 UNION  select c.concept_id
   from @vocabulary_database_schema.CONCEPT c
   join @vocabulary_database_schema.CONCEPT_ANCESTOR ca on c.concept_id = ca.descendant_concept_id
-  and ca.ancestor_concept_id in (40213145,42903442,40213150,40213159,40225028,40213156,40213151,40213327,40213148,40213158,36878713,42873961,40225038,40213146,40213143,36879025,40213157,45776076,40213149,40213147,40213152,42903441,40213141,40213153,40213144,40213142,40213155,40164828)
+  and ca.ancestor_concept_id in (36248866,45892513,45892514,45892510,40213322)
   and c.invalid_reason is null
 
 ) I
@@ -37,17 +37,17 @@ from
 (
   select de.* 
   FROM @cdm_database_schema.DRUG_EXPOSURE de
-JOIN #Codesets codesets on ((de.drug_concept_id = codesets.concept_id and codesets.codeset_id = 1))
+JOIN #Codesets codesets on ((de.drug_concept_id = codesets.concept_id and codesets.codeset_id = 4))
 ) C
 
-WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2017, 6, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2018, 5, 31))
+WHERE (C.drug_exposure_start_date >= DATEFROMPARTS(2018, 1, 1) and C.drug_exposure_start_date <= DATEFROMPARTS(2018, 12, 31))
 -- End Drug Exposure Criteria
 
   ) E
 	JOIN @cdm_database_schema.observation_period OP on E.person_id = OP.person_id and E.start_date >=  OP.observation_period_start_date and E.start_date <= op.observation_period_end_date
   WHERE DATEADD(day,0,OP.OBSERVATION_PERIOD_START_DATE) <= E.START_DATE AND DATEADD(day,0,E.START_DATE) <= OP.OBSERVATION_PERIOD_END_DATE
 ) P
-WHERE P.ordinal = 1
+
 -- End Primary Events
 
 )

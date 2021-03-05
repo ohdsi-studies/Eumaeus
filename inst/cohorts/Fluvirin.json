@@ -4,11 +4,11 @@
 		"CriteriaList" : [
 			{
 				"DrugExposure" : {
-					"CodesetId" : 2,
+					"CodesetId" : 4,
 					"OccurrenceStartDate" : {
-						"Value" : "2017-01-01",
+						"Value" : "2017-09-01",
 						"Op" : "bt",
-						"Extent" : "2017-12-31"
+						"Extent" : "2018-05-31"
 					},
 					"DrugTypeExclude" : false
 				}
@@ -19,44 +19,27 @@
 			"PostDays" : 0
 		},
 		"PrimaryCriteriaLimit" : {
-			"Type" : "All"
+			"Type" : "First"
 		}
 	},
 	"ConceptSets" : [
 		{
-			"id" : 2,
-			"name" : "zoster vaccines",
+			"id" : 4,
+			"name" : "Fluvirin",
 			"expression" : {
 				"items" : [
 					{
 						"concept" : {
-							"CONCEPT_ID" : 40213260,
-							"CONCEPT_NAME" : "zoster vaccine, live",
+							"CONCEPT_ID" : 1593906,
+							"CONCEPT_NAME" : "influenza A virus A/Hong Kong/4801/2014 (H3N2) antigen 0.03 MG/ML / influenza A virus A/Singapore/GP1908/2015 (H1N1) antigen 0.03 MG/ML / influenza B virus B/Brisbane/60/2008 antigen 0.03 MG/ML [Fluvirin 2017-2018]",
 							"STANDARD_CONCEPT" : "S",
 							"STANDARD_CONCEPT_CAPTION" : "Standard",
 							"INVALID_REASON" : "V",
 							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "121",
+							"CONCEPT_CODE" : "1928971",
 							"DOMAIN_ID" : "Drug",
-							"VOCABULARY_ID" : "CVX",
-							"CONCEPT_CLASS_ID" : "CVX"
-						},
-						"isExcluded" : false,
-						"includeDescendants" : true,
-						"includeMapped" : false
-					},
-					{
-						"concept" : {
-							"CONCEPT_ID" : 706103,
-							"CONCEPT_NAME" : "zoster vaccine recombinant",
-							"STANDARD_CONCEPT" : "S",
-							"STANDARD_CONCEPT_CAPTION" : "Standard",
-							"INVALID_REASON" : "V",
-							"INVALID_REASON_CAPTION" : "Valid",
-							"CONCEPT_CODE" : "187",
-							"DOMAIN_ID" : "Drug",
-							"VOCABULARY_ID" : "CVX",
-							"CONCEPT_CLASS_ID" : "CVX"
+							"VOCABULARY_ID" : "RxNorm",
+							"CONCEPT_CLASS_ID" : "Branded Drug Comp"
 						},
 						"isExcluded" : false,
 						"includeDescendants" : true,
