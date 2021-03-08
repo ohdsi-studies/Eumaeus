@@ -67,7 +67,8 @@ analyseMethodResults <- function(method,
       pull(.data$description)
     
     
-    # subset <- split(analysisSubset, analysisSubset$exposureId)[[2]]
+    # subset <- split(analysisSubset, analysisSubset$exposureId)[[3]]
+    # subset <- analysisSubset[analysisSubset$exposureId == 21184, ]
     analyseExposureAnalysis <- function(subset) {
       exposureId <- subset$exposureId[1]
       exposureName <- subset$exposureName[1]
@@ -96,6 +97,9 @@ analyseMethodResults <- function(method,
       # lastPeriod <- subset$period[subset$seqId == lastSeqId][1]
       fileName <- file.path(resultsFolder, sprintf("ncs_m%s_e%s_a%s.png", method, exposureId, analysisId))
       plotNcs(subset = subset, title = title, fileName = fileName)
+      
+      fileName <- file.path(resultsFolder, sprintf("ncs_pcs_m%s_e%s_a%s.png", method, exposureId, analysisId))
+      plotNcsAndPcs(subset = subset, title = title, fileName = fileName)
     }
     purrr::map(split(analysisSubset, analysisSubset$exposureId), analyseExposureAnalysis)
   }
@@ -300,4 +304,20 @@ plotNcs <- function(subset = subset, title = title, fileName = fileName) {
   #   ggplot2::geom_ribbon(color = rgb(0, 0, 0, alpha = 0), fill = rgb(0, 0, 0.8, alpha = 0.05)) +
   #   ggplot2::scale_y_log10()
   
+}
+
+plotNcsAndPcs <- function(subset = subset, title = title, fileName = fileName) {
+  controls <- subset %>%
+    filter(.data$expectedOutcomes > 1) %>%
+    mutate(treatment = 0) %>%
+    arrange(.data$seqId)
+  
+  lastControls <- controls %>%
+    filter(.data$seqId == max(controls$seqId))
+  
+  EmpiricalCalibration::plotCiCalibrationEffect(logRr = lastControls$logRr,
+                                                seLogRr = lastControls$seLogRr,
+                                                trueLogRr = log(lastControls$targetEffectSize),
+                                                title = title,
+                                                fileName = fileName)
 }

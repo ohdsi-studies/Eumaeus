@@ -84,12 +84,31 @@ source("PrintCohortDefinitions.R")
 
 ```{r abbreviations, echo=FALSE}
 abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRUE, file = "
-  CDM; Common data model
+  AUC; Area Under the receiver-operator Curve 
+  CCAE; IBM MarketScan Commercial Claims and Encounters 
+  CDM; Common Data Model
+  CIOMS; Council for International Organizations of Medical Sciences
+  COVID-19; COronaVIrus Disease 2019
+  CPRD; Clinical Practice Research Datalink
+  CRAN; Comprehensive R Archive Network
+  EHR; Electronic Health Record
+  ENCEPP; European Network of Centres for Pharmacoepidemiology and Pharmacovigilance
+  H1N1; Hemagglutinin Type 1 and Neuraminidase Type 1 (influenza strain; aka swine flu)
+  HPV: Human PapillomaVirus
   IRB; Institutional review board
+  JMDC; Japan Medical Data Center
+  LLR; Log Likelihood Ratio
+  MDCR; IBM MarketScan Medicare Supplemental Database
+  MDCD; IBM MarketScan Multi-State Medicaid Database 
+  MSE; Mean Squared Error
   OHDSI; Observational Health Data Science and Informatics
   OMOP; Observational Medical Outcomes Partnership
+  PMaxSPRT; Poisson-based MAXimized Sequential Probability Ratio Test 
   PS; Propensity score
   RCT; Randomized controlled trial
+  SCCS; Self-Controlled Case Series
+  SCRI; Self-Controlled Risk Interval
+  WHO; World Health Organization
 ")
 
 tab <- kable(abbreviations, col.names = NULL, linesep = "", booktabs = TRUE)
@@ -205,11 +224,11 @@ Specific aims:
 The evaluation will center on four existing (groups of) vaccines, for specific time periods (start date to end date): 
 
 ```{r exposures-of-interest, echo=FALSE}
-eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols())
+eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
+  select(exposureName, startDate, endDate, historyStartDate, historyEndDate)
 colnames(eois) <- SqlRender::camelCaseToTitleCase(colnames(eois))
 
 tab <- eois %>%
-  select(-1, -7, -8) %>%
   kable(booktabs = TRUE, linesep = "",
       caption = "Exposures of interest.") %>% 
   kable_styling(bootstrap_options = "striped", latex_options = "striped")
@@ -227,7 +246,9 @@ if (knitr::is_latex_output()) {
 }
 ```
 For some methods the period between historic start and historic end date will be used to estimate the historic incidence rate. 
-The formal cohort definitions of each exposure can be found in Appendix \@ref(exposure-cohort-definitions).
+For analyses executed on data in the southern hemisphere (if any) the flu seasons are different, and the study periods will need to be adjusted accordingly.
+The formal cohort definitions of each exposure can be found in Appendix \@ref(exposure-cohort-definitions). 
+
 
 ### Negative control outcomes 
 
@@ -236,7 +257,7 @@ Any effect size estimates for negative control ideally should be close to the nu
 
 A single set of negative control outcomes is defined for all four vaccine groups.
 To identify negative control outcomes that match the severity and prevalence of suspected vaccine adverse effects, a candidate list of negative controls was generated based on similarity of prevalence and percent of diagnoses that were recorded in an inpatient setting (as a proxy for severity). 
-Manual review of this list by clinical experts created the final list of 127 negative control outcomes. 
+Manual review of this list by clinical experts created the final list of 100 negative control outcomes. 
 The full list of negative control outcomes can be found in Appendix \@ref(negative-controls)
 
 Negative control outcomes are defined as any occurrence of the negative control concept or any of its descendants. 
@@ -247,7 +268,7 @@ Positive controls are outcomes known to be caused by vaccines, and ideally would
 For various reasons, real positive controls are problematic.[@Schuemie2018-zi] 
 Instead, here we will rely on synthetic positive controls,[@Schuemie2020-he;@Schuemie2018-hq] created by modifying a negative control through injection of additional, simulated occurrences of the outcome. 
 To preserve (measured) confounding, simulated outcome occurrences are sampled from the probability distribution derived from a predictive model fitted on the data.
-Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, so using the 127 negative controls we are able to construct 127 * 3 = 381 positive control outcomes.
+Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, so using the 100 negative controls we are able to construct 100 * 3 = 300 positive control outcomes.
 The hazard for the outcome is simulated to be increased by the target ratio for the period starting 1 day after vaccination until 28 days after vaccinations, with a constant hazard ratio during that time. 
 This increased risk is applied both for the first and second injection of multi-dose vaccines.
 
@@ -270,6 +291,7 @@ data_sources <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE,
   Japan Medical Data Center (JMDC) ; Japan, general ; 5.5M ; 2005 -- ; Data from 60 society-managed health insurance plans covering workers aged 18 to 65 and their dependents.
   Optum Clinformatics Data Mart (Optum) ; Commercially or Medicare insured ; 85M ; 2000 -- ; Inpatient and outpatient healthcare insurance claims.
   Optum Electronic Health Records (OptumEHR) ; US, general ; 93M ; 2006 -- ; Clinical information, prescriptions, lab results, vital signs, body measurements, diagnoses and procedures derived from clinical notes using natural language processing. 
+  Clinical Practice Research Datalink (CPRD) GOLD ; UK, NHS primary care ; 10M ; 1995 -- ; Primary care EHR.
 ")
 tab <- kable(data_sources, booktabs = TRUE, linesep = "",
       caption = "Committed EUMAEUS data sources and the populations they cover.") %>% 
@@ -287,8 +309,6 @@ if (knitr::is_latex_output()) {
   tab
 }
 ```
-# note: you can add CPRD GOLD if you wish. I'll apply to ISAC, and we can run it from Oxford
-# Potential description: Clinical Practice Research Datalink (CPRD) GOLD ; UK, NHS primary care ; 10M ; 1995 -- ; Primary care EHR.
 
 ## Methods to evaluate
 
@@ -299,7 +319,7 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 - Historic rate. Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. 
     - Using a single rate for the entire population, 
     - Stratifying by age and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
-- Cohort method using a contemporary non-user comparator. We require the non-user comparator to have an outpatient visit on the index date.
+- Cohort method using a contemporary non-user comparator. We require the non-user comparator to have an outpatient visit on the index date, and have no vaccinations for the same disease as the target vaccine during the study period.
     - Crude comparison
     - Using 1-on-1 propensity score matching
 - Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI).
@@ -367,12 +387,12 @@ In total, we will evaluate:
 
 - 10 counterfactuals
 - 3 times at risk (0-1, 1-28, and 1-42 days)
-- 4 vaccines, with a total of 8 + 8 + 12 + 12 = 40 time periods
+- 6 vaccines, with a total of 9 + 9 + 9 + 9 + 12 + 12 = 60 time periods
 - 100 negative controls
 - 3 * 100 = 300 positive controls
 - 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.
 
-Resulting in a total of 10 * 3 * ((8 + 8) * 1 + (12 + 12) * 3)  * (100 + 300) = 1,056,000 effect-size estimates. Each estimate will contain:
+Resulting in a total of 10 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3)  * (100 + 300) = 1,296,000 effect-size estimates. Each estimate will contain:
 
 - The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.
 - The empirically calibrated effect-size estimate and p-value
@@ -416,15 +436,10 @@ Data source & Statement
 IBM MarketScan Commercial Claims and Encounters (CCAE) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 IBM MarketScan Medicare Supplemental Database (MDCR)  & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 IBM MarketScan Multi-State Medicaid Database (MDCD) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-IQVIA Open Claims (IOC) & This is a retrospective database study on de-identified data and is deemed not human subject research. Approval is provided for OHDSI network studies.
 Japan Medical Data Center (JMDC) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 Optum Clinformatics Data Mart (Optum) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-Columbia University Irving Medical Center (CIUMC) & Use of the CUIMC data source was approved by the Columbia University Institutional Review Board as an OHDSI network study (IRB\\# AAAO7805).
-Department of Veterans Affairs (VA) & Use of the VA-OMOP data source was reviewed by the Department of Veterans Affairs Central Institutional Review Board (IRB) and was determined to meet the criteria for exemption under Exemption Category 4(3) and approved the request for Waiver of HIPAA Authorization.
-Information System for Research in Primary Care (SIDIAP) & Use of the SIDIAP data source was approved by the Clinical Research Ethics Committee of IDIAPJGol (project code: 20/070-PCV)
-IQVIA Disease Analyzer Germany (DAG) & This is a retrospective database study on de-identified data and is deemed not human subject research. Approval is provided for OHDSI network studies.
 Optum Electronic Health Records (OptumEHR) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-Yale New Haven Health System (YNHHS) & Use of the YNHHS EHR data source was approved by the Yale University Institutional Review Board as an OHDSI network study (IRB\\# pending).
+Clinical Practice Research Datalink (CPRD) GOLD & Independent Scientific Advisory Committee will review the protocol prior to study execution (TODO: change tense to past after review, and add protocol ID).
 ")
 
 tab <- kable(data_sources, booktabs = TRUE, linesep = "",
@@ -500,13 +515,33 @@ printCohortDefinitionFromNameAndJson(name = "H1N1 Vaccines",
                                      json = baseCohortJson)
 ```
 
-```{r flu-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+```{r fluvirin-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 baseCohortJson <- SqlRender::readSql(system.file("cohorts", "Fluvirin.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
 
-printCohortDefinitionFromNameAndJson(name = "Seasonal Flu Vaccines",
+printCohortDefinitionFromNameAndJson(name = "Seasonal Flu Vaccines (Fluvirin)",
+                                     json = baseCohortJson)
+```
+
+```{r fluzone-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "Fluzone.json", package = "Eumaeus"))
+baseCohort <- RJSONIO::fromJSON(baseCohortJson)
+
+baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
+
+printCohortDefinitionFromNameAndJson(name = "Seasonal Flu Vaccines (Fluzone)",
+                                     json = baseCohortJson)
+```
+
+```{r flu-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "AllFluVaccines.json", package = "Eumaeus"))
+baseCohort <- RJSONIO::fromJSON(baseCohortJson)
+
+baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
+
+printCohortDefinitionFromNameAndJson(name = "Seasonal Flu Vaccines (All)",
                                      json = baseCohortJson)
 ```
 
@@ -550,6 +585,3 @@ if (knitr::is_latex_output()) {
   tab
 }
 ```
-
-# Analysis Plan Matrix
-

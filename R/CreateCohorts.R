@@ -19,7 +19,6 @@
                            vocabularyDatabaseSchema = cdmDatabaseSchema,
                            cohortDatabaseSchema,
                            cohortTable,
-                           oracleTempSchema,
                            outputFolder) {
   
   # Create study cohort table structure:

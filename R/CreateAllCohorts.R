@@ -37,6 +37,7 @@ createCohorts <- function(connectionDetails,
                                      cohortDatabaseSchema = cohortDatabaseSchema,
                                      cohortTable = cohortTable)
   readr::write_csv(derivedExposures, file.path(outputFolder, "DerivedExposures.csv"))
+  # derivedExposures <- readr::read_csv(file.path(outputFolder, "DerivedExposures.csv"))
   
   ParallelLogger::logInfo("Creating non-user comparator cohorts")
   allExposureCohorts <- purrr::map_dfr(split(derivedExposures, 1:nrow(derivedExposures)), 
@@ -144,6 +145,13 @@ sampleComparatorCohorts <- function(row,
   sampleComparatorRow$exposureName <- paste("Age-sex stratified comparator for", row$exposureName)
   sampleComparatorRow$comparatorType <- "Age-sex stratified"
   
+  sampleCrudeComparatorRow <- row
+  sampleCrudeComparatorRow$sampled <- TRUE
+  sampleCrudeComparatorRow$comparator <- TRUE
+  sampleCrudeComparatorRow$exposureId <- row$exposureId * 10 + 3
+  sampleCrudeComparatorRow$exposureName <- paste("Crude comparator for", row$exposureName)
+  sampleCrudeComparatorRow$comparatorType <- "Crude"
+  
   sql <- SqlRender::loadRenderTranslateSql("SampleComparators.sql",
                                            "Eumaeus",
                                            dbms = connectionDetails$dbms,
@@ -153,14 +161,16 @@ sampleComparatorCohorts <- function(row,
                                            exposure_id = row$exposureId,
                                            target_sample_cohort_id = sampleTargetRow$exposureId,
                                            comparator_sample_cohort_id = sampleComparatorRow$exposureId,
+                                           crude_comparator_sample_cohort_id = sampleCrudeComparatorRow$exposureId,
+                                           exclusion_cohort_id = row$exclusionCohortId,
                                            start_date = format(row$startDate, "%Y%m%d"),
                                            end_date = format(row$endDate, "%Y%m%d"),
                                            washout_period = 365,
-                                           multiplier = 2,
+                                           multiplier = row$comparatorMultiplier,
                                            max_target_per_month = 350000,
                                            visit_concept_ids = c(9202))
   
   DatabaseConnector::executeSql(connection, sql)
   
-  return(bind_rows(originalRow, sampleTargetRow, sampleComparatorRow))
+  return(bind_rows(originalRow, sampleTargetRow, sampleComparatorRow, sampleCrudeComparatorRow))
 }
