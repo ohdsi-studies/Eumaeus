@@ -142,7 +142,7 @@ This study is undertaken within Observational Health Data Sciences and Informati
 
 **Study Description**: 
 
-
+# NOTE: We lack an abstract. Dani to write once agreed on Aims (see below).
 
 # Amendments and Updates
 
@@ -188,8 +188,13 @@ A total of 3 COVID-19 vaccines have been approved for clinical use in Europe, an
 The ENCEPP (European Network of Centres for Pharmacoepidemiology and Pharmacovigilance) methodological guidelines, in their 8th revision [ref], mention a few documents that set out standards for the conducting of vaccine safety studies. Specific aspects related to vaccine safety research are discussed in detail in different materials, including the Report of the CIOMS/WHO Working Group on Definition and Application of Terms for Vaccine Pharmacovigilance (2012), the CIOMS Guide to Active Vaccine Safety Surveillance (2017), the CIOMS Guide to Vaccine Safety Communication (2018) , the Brighton Collaboration resources, the Module 4 (Surveillance) of the e-learning training course Vaccine Safety Basics by the World Health Organization (WHO), or the recommendations on vaccine-specific aspects of the EU pharmacovigilance system outlined in the Module P.I: Vaccines for prophylaxis against infectious diseases of the Good pharmacovigilance practices (GVP). Additionally, the Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE) project has summarized methods for vaccine safety in a bespoke report [ref] covering multiple study designs, both experimental and observational in nature. Despite this plethora of literature and guidance, there is a scarcity of methodological studies on the performance of different methods for vaccine safety [ref]. 
 
 Given the quick and increasingly global rollout of COVID-19 vaccines internationally, it is highly likely that potential safety signals will emerge, which will need a timely but robust evaluation in ‘real world’ observational studies. It is therefore urgent that we conduct large-scale evaluations of methods for vaccine safety, similar to previous work on methods for drug safety [ref our work published in HDSR]. The results of this evaluation will help us understand how these methods will perform when applied to COVID vaccines. 
+# NOTE: we need to reference up before sending for registration
 
 # Study Objectives
+The overarching aim is to identify the best methods for the generation of evidence of vaccine safety in observational, real world data.
+Specific aims:
+- To estimate the bias and precision associated with the use of different methods (historic rate, cohort, self-controlled, and case-control) for the study of vaccine safety compared
+- To compare the 'timeliness' of these methods for the identification of vaccine safety signals
 
 # Research Methods
 
@@ -246,9 +251,9 @@ Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, 
 The hazard for the outcome is simulated to be increased by the target ratio for the period starting 1 day after vaccination until 28 days after vaccinations, with a constant hazard ratio during that time. 
 This increased risk is applied both for the first and second injection of multi-dose vaccines.
 
-## Data
+## Data sources
 
-We will execute EUMAEUS as an OHDSI network stuy.
+We will execute EUMAEUS as an OHDSI network study.
 All data partners within OHDSI are encouraged to participate voluntarily and can do so conveniently, because of the community's shared Observational Medical Outcomes Partnership (OMOP) common data model (CDM) and OHDSI tool-stack.
 Many OHDSI community data partners have already committed to participate and we will recruit further data partners through OHDSI’s standard recruitment process, which includes protocol publication on OHDSI’s GitHub, an announcement in OHDSI’s research forum, presentation at the weekly OHDSI all-hands-on meeting and direct requests to data holders.
 
@@ -282,6 +287,8 @@ if (knitr::is_latex_output()) {
   tab
 }
 ```
+# note: you can add CPRD GOLD if you wish. I'll apply to ISAC, and we can run it from Oxford
+# Potential description: Clinical Practice Research Datalink (CPRD) GOLD ; UK, NHS primary care ; 10M ; 1995 -- ; Primary care EHR.
 
 ## Methods to evaluate
 
@@ -339,6 +346,7 @@ Similar to our previous study, we will compute the following metrics based on th
 - Non-estimable. For how many of the controls was the method unable to produce an estimate? There can be various reasons why an estimate cannot be produced, for example because there were no subjects left after propensity score matching, or because no subjects remained having the outcome.
 
 In addition, based on the PMaxSPRT decision rule, we will compute sensitivity and specificity. 
+# NOTE: not keen on % bias eg average or similar of estimated-true effect size/true effect size for all positive and negative controls, or something similar? it's kind of similar to coverage of course.
 
 ### Timeliness
 
