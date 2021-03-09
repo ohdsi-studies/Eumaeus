@@ -3,14 +3,6 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::html_document2:
-    df_print: paged
-    toc: yes
-    toc_depth: 2
-    toc_float: yes
-    number_sections: yes
-    number_tables: yes
-    css: "style.css"
   bookdown::pdf_document2:
     keep_tex: yes
     latex_engine: xelatex
@@ -19,6 +11,14 @@ output:
     # citation_package: natbib
     includes:
       before_body: title.tex
+  bookdown::html_document2:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    number_sections: yes
+    number_tables: yes
+    css: "style.css"
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -49,7 +49,7 @@ mainfont: Arial
 bibliography: Protocol.bib
 params:
   date: '2020-09-24'
-  version: 0.0.99
+  version: 0.1.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
 csl: jamia.csl
@@ -103,7 +103,7 @@ abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRU
   MSE; Mean Squared Error
   OHDSI; Observational Health Data Science and Informatics
   OMOP; Observational Medical Outcomes Partnership
-  PMaxSPRT; Poisson-based MAXimized Sequential Probability Ratio Test 
+  MaxSPRT; MAXimized Sequential Probability Ratio Test 
   PS; Propensity score
   RCT; Randomized controlled trial
   SCCS; Self-Controlled Case Series
@@ -155,29 +155,34 @@ This study is undertaken within Observational Health Data Sciences and Informati
 
 # Abstract
 
-**Background and Significance**: 
+**Background and Significance**
+
 As recently approved COVID-19 vaccines are rolled out globally, it is likely that safety signals will be identified from spontaneous reports and other data sources. Although some work has been done on the best methods for vaccine safety surveillance, there is a scarcity of information on how these perform in analyses of real world data.
-**Study Aims**: 
+
+**Study Aims**
+
 To study the comparative performance (bias, precision, and timeliness) of different analytical methods for the study of comparative vaccine safety.
-**Study Description**: 
+
+**Study Description**
+
 * Design: Cohort, self-controlled, and case-control studies 
 * Exposures: previous viral vaccines including 2017-2018 flu, H1N1 flu, Human Papillomavirus (HPV), and Varicella-Zoster.
 * Outcomes: selected adverse events of special interest; negative control outcomes; synthetic positive control outcomes
 * Analyses: 
-* 1) Historical rate comparisons. 
-* 2) Cohort analyses using a contemporary non-user comparator, with large-scale propensity score matching
-* 3) Self-controlled case series with variations
-* 4) Case-control analyses
+    1) Historical rate comparisons. 
+    2) Cohort analyses using a contemporary non-user comparator, with large-scale propensity score matching
+    3) Self-controlled case series with variations
+    4) Case-control analyses
 * Metrics:
-- Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size.
-- Coverage. How often the true effect size is within the 95% confidence interval.
-- Mean precision, computed as 1 / (standard error)2
-- Mean squared error (MSE). Mean squared error between the log of the effect size point-estimate and the log of the true effect size.
-- Type 1 error. For negative controls, how often was the null rejected (at alpha = 0.05). This is equivalent to the false positive rate and 1 - specificity.
-- Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.
-- Non-estimable. Measure for how many of the controls was the method unable to produce an estimate
-- Sensitivity and specificity based on the PMaxSPRT decision rule
-- Timeliness: measure of the time it takes for a method the identify safety signals 
+    - Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size.
+    - Coverage. How often the true effect size is within the 95% confidence interval.
+    - Mean precision, computed as 1 / (standard error)2
+    - Mean squared error (MSE). Mean squared error between the log of the effect size point-estimate and the log of the true effect size.
+    - Type 1 error. For negative controls, how often was the null rejected (at alpha = 0.05). This is equivalent to the false positive rate and 1 - specificity.
+    - Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.
+    - Non-estimable. Measure for how many of the controls was the method unable to produce an estimate
+    - Sensitivity and specificity based on the MaxSPRT decision rule
+    - Detection time: the number of months until 80% of all positive controls exceeds the critical value
 
 # Amendments and Updates
 
@@ -218,16 +223,23 @@ if (knitr::is_latex_output()) {
 
 # Rationale and Background
 
-A total of 3 COVID-19 vaccines have been approved for clinical use in Europe, and 2 in the USA [ref]. Many more are in pipeline, and at least two more have reported to date on phase 3 efficacy data. Although safe and effective based on large randomised controlled trials, COVID-19 vaccines will be subject to post-marketing safety studies, including both analyses of spontaneous reports (pharmacovigilance) as well as longitudinal analyses in the form of post-authorisation safety studies.  
+A total of 3 COVID-19 vaccines have been approved for clinical use in Europe, and 4 in the USA.
+Many more are in pipeline, and at least two more have reported to date on phase 3 efficacy data. Although safe and effective based on large randomised controlled trials, COVID-19 vaccines will be subject to post-marketing safety studies, including both analyses of spontaneous reports (pharmacovigilance) as well as longitudinal analyses in the form of post-authorisation safety studies.  
 
-The ENCEPP (European Network of Centres for Pharmacoepidemiology and Pharmacovigilance) methodological guidelines, in their 8th revision [ref], mention a few documents that set out standards for the conducting of vaccine safety studies. Specific aspects related to vaccine safety research are discussed in detail in different materials, including the Report of the CIOMS/WHO Working Group on Definition and Application of Terms for Vaccine Pharmacovigilance (2012), the CIOMS Guide to Active Vaccine Safety Surveillance (2017), the CIOMS Guide to Vaccine Safety Communication (2018) , the Brighton Collaboration resources, the Module 4 (Surveillance) of the e-learning training course Vaccine Safety Basics by the World Health Organization (WHO), or the recommendations on vaccine-specific aspects of the EU pharmacovigilance system outlined in the Module P.I: Vaccines for prophylaxis against infectious diseases of the Good pharmacovigilance practices (GVP). Additionally, the Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE) project has summarized methods for vaccine safety in a bespoke report [ref] covering multiple study designs, both experimental and observational in nature. Despite this plethora of literature and guidance, there is a scarcity of methodological studies on the performance of different methods for vaccine safety [ref]. 
+The ENCEPP (European Network of Centres for Pharmacoepidemiology and Pharmacovigilance) methodological guidelines, in their 8th revision,[@encepp2010] mention a few documents that set out standards for the conducting of vaccine safety studies. 
+Specific aspects related to vaccine safety research are discussed in detail in different materials, including the Report of the CIOMS/WHO Working Group on Definition and Application of Terms for Vaccine Pharmacovigilance (2012), the CIOMS Guide to Active Vaccine Safety Surveillance (2017), the CIOMS Guide to Vaccine Safety Communication (2018), the Brighton Collaboration resources, the Module 4 (Surveillance) of the e-learning training course Vaccine Safety Basics by the World Health Organization (WHO), or the recommendations on vaccine-specific aspects of the EU pharmacovigilance system outlined in the Module P.I: Vaccines for prophylaxis against infectious diseases of the Good pharmacovigilance practices (GVP). 
+Additionally, the Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE) project has summarized methods for vaccine safety in a bespoke report [@advance2014] covering multiple study designs, both experimental and observational in nature. 
+Despite this plethora of literature and guidance, there is a scarcity of methodological studies on the performance of different methods for vaccine safety. 
 
-Given the quick and increasingly global rollout of COVID-19 vaccines internationally, it is highly likely that potential safety signals will emerge, which will need a timely but robust evaluation in ‘real world’ observational studies. It is therefore urgent that we conduct large-scale evaluations of methods for vaccine safety, similar to previous work on methods for drug safety [ref our work published in HDSR]. The results of this evaluation will help us understand how these methods will perform when applied to COVID vaccines. 
-# NOTE: we need to reference up before sending for registration
+Given the quick and increasingly global rollout of COVID-19 vaccines internationally, it is highly likely that potential safety signals will emerge, which will need a timely but robust evaluation in ‘real world’ observational studies. 
+It is therefore urgent that we conduct large-scale evaluations of methods for vaccine safety, similar to previous work on methods for drug safety. [@Schuemie2020-he]
+The results of this evaluation will help us understand how these methods will perform when applied to COVID vaccines. 
 
 # Study Objectives
+
 The overarching aim is to identify the best methods for the generation of evidence of vaccine safety in observational, real world data.
 Specific aims:
+
 - To estimate the bias and precision associated with the use of different methods (historic rate, cohort, self-controlled, and case-control) for the study of vaccine safety compared
 - To compare the 'timeliness' of these methods for the identification of vaccine safety signals
 
@@ -237,7 +249,7 @@ Specific aims:
 
 ### Exposures
 
-The evaluation will center on four existing (groups of) vaccines, for specific time periods (start date to end date): 
+The evaluation will center on six existing (groups of) vaccines, for specific time periods (start date to end date), as shown in Table \@ref(tab:exposures-of-interest).
 
 ```{r exposures-of-interest, echo=FALSE}
 eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
@@ -251,7 +263,7 @@ tab <- eois %>%
 
 if (knitr::is_latex_output()) {
   tab %>%
-    column_spec(1, width = "30em") %>%
+    column_spec(1, width = "18em") %>%
     column_spec(2, width = "8em") %>%
     column_spec(3, width = "8em") %>%
     column_spec(4, width = "8em") %>%
@@ -265,7 +277,6 @@ For some methods the period between historic start and historic end date will be
 For analyses executed on data in the southern hemisphere (if any) the flu seasons are different, and the study periods will need to be adjusted accordingly.
 The formal cohort definitions of each exposure can be found in Appendix \@ref(exposure-cohort-definitions). 
 
-
 ### Negative control outcomes 
 
 Negative controls are outcomes believed not to be caused by any of the vaccines, and therefore ideally would not be flagged as a signal by a safety surveillance system. 
@@ -276,7 +287,7 @@ To identify negative control outcomes that match the severity and prevalence of 
 Manual review of this list by clinical experts created the final list of 100 negative control outcomes. 
 The full list of negative control outcomes can be found in Appendix \@ref(negative-controls)
 
-Negative control outcomes are defined as any occurrence of the negative control concept or any of its descendants. 
+Negative control outcomes are defined as the first occurrence of the negative control concept or any of its descendants. 
 
 ### Positive control outcomes 
 
@@ -332,20 +343,43 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 
 ### Counterfactual construction
 
-- Historic rate. Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. 
-    - Using a single rate for the entire population. 
-    - Stratifying by age and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
-- Cohort method using a contemporary non-user comparator. We require the non-user comparator to have an outpatient visit on the index date, and have no vaccinations for the same disease as the target vaccine during the study period.
-    - Crude comparison. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.
-    - Using 1-on-1 propensity score (PS) matching. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons).
-- Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI).
-    - A simple SCCS
-    - An SCCS adjusting for age and season
-    - An SCRI, using a control interval of 43 to 15 days prior to vaccination.
-    - An SCRI, using a control interval of 43 to 71 days after to vaccination.
-- Case-control
-    - Using age and sex matching controls
-    - By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model.
+**Historic rates**
+
+Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. We will use the historic period indicated in Table \@ref(tab:exposures-of-interest). 
+We will evaluate two variants:
+
+- Using a single rate for the entire population. 
+- Stratifying by age (in 5 year increments) and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
+
+**Cohort method using a contemporary non-user comparator**
+
+A comparator cohort study most closely emulates a randomized clinical trial, comparing the target cohort (those vaccinated) to some comparator cohort.
+We define a non-user comparator cohort as having an outpatient visit on the index date, and having no vaccinations for the same disease as the target vaccine during the study period. 
+We will evaluate two variants:
+
+- Crude comparison. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.
+- Using 1-on-1 propensity score (PS) matching. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. [@Tian2018-xy]
+
+**Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI)**
+
+The SCCS and SCRI designs are self-controlled, comparing the time-at-risk (the time shortly following the vaccination) to some other time in the same patient's record. 
+The SCCS design uses all patient time when not at risk as the control time. [@Whitaker2006]
+The SCRI design uses a pre-specified control interval relative to the vaccination date as the control time. [@glanz2011]
+This unexposed time can be both before or after the time at risk.
+We will evaluate four variants:
+
+- A simple SCCS, using all patient time when not at risk as the control time, with the exception of the 30 days prior to vaccination which is excluded from the analysis to avoid bias due to contra-indications.
+- An SCCS adjusting for age and season. Age and season will be modeled to be constant within each calendar month, and vary across months as bicubic splines.
+- An SCRI, using a control interval of 43 to 15 days prior to vaccination.
+- An SCRI, using a control interval of 43 to 71 days after to vaccination.
+
+**Case-control**
+
+The case-control design compares cases (those with the outcome) to controls (those that do not have the outcome), and looks back in time for exposures to a vaccine. 
+We will evaluate two variants:
+
+- Using up to four age and sex matched controls per case. For age we will use a two-year caliper.
+- By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model. The control sample will be four time the number of controls. Age will be modeled as one variable per 5-year age category.
 
 ### Time-at-risk
 
@@ -357,8 +391,8 @@ Time-at-risk windows will be constructed both for the first and second dose. The
 - Effect-size estimate. Each method can be used to produce an effect-size estimates such as a hazard ratio, incidence rate ratio, or odds ratio. For example, when using a historic rate we can compute the observed to expected ratio, which can be interpreted as the incidence rate ratio.
 
 - Log likelihood ratio (LLR). A common practice in vaccine safety surveillance is to computer the LLR, which is the log of the ratio between the likelihood of the alternative hypothesis (that there is an effect) and the likelihood of the null hypothesis (of no effect). 
-The LLR is a convenient statistic when performing sequential testing, where the LLR can be compared to a pre-computed critical value, as is done in the PMaxSPRT method. [@kulldorf2011] 
-Although typically PMaxSPRT uses a historic rate as counterfactual, any counterfactual can be used to compute the LLR and can be used in PMaxSPRT.
+The LLR is a convenient statistic when performing sequential testing, where the LLR can be compared to a pre-computed critical value, as is done in the MaxSPRT method. [@kulldorf2011] 
+Although typically MaxSPRT uses a historic rate as counterfactual, any counterfactual can be used to compute the LLR and can be used in MaxSPRT.
 
 Effect-size estimates will be computed both with and without empirical calibration. [@Schuemie2014-bv;@Schuemie2018-hq]
 Empirical calibration will be done using leave-one-out: when calibrating the estimate for a control, the systematic error distribution will be fitted uses all controls except the one being calibrated.
@@ -366,7 +400,7 @@ Empirical calibration will be done using leave-one-out: when calibrating the est
 ### Decision rule
 
 To identify 'signals' we need a decision rule, for example in the shape of a threshold value on one of the estimates statistics.
-In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.01. 
+In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.01, using a binomial model. 
 For this we will use the [`Sequential` package in CRAN](https://cran.r-project.org/web/packages/Sequential/index.html).
 
 ## Metrics
@@ -381,7 +415,7 @@ Similar to our previous study, we will compute the following metrics based on th
 - Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.
 - Non-estimable. For how many of the controls was the method unable to produce an estimate? There can be various reasons why an estimate cannot be produced, for example because there were no subjects left after propensity score matching, or because no subjects remained having the outcome.
 
-In addition, based on the PMaxSPRT decision rule, we will compute sensitivity and specificity. 
+In addition, based on the MaxSPRT decision rule, we will compute sensitivity, specificity, as well as the number of months until 80% of all positive controls exceeds the critical value (detection time). 
 
 ### Timeliness
 
@@ -442,7 +476,7 @@ This will be computed for each database.
 
 EUMAEUS does not involve human subjects research.
 The project does, however, use de-identified human data collected during routine healthcare provision.
-All data partners executing the EUMAEUS studies within their data sources will have received institutional review board (IRB) approval or waiver for participation in accordance to their institutional governance prior to execution (see Table ADD-REF).
+All data partners executing the EUMAEUS studies within their data sources will have received institutional review board (IRB) approval or waiver for participation in accordance to their institutional governance prior to execution (see Table \@ref(tab:irb)).
 EUMAEUS executes across a federated and distributed data network, where analysis code is sent to participating data partners and only aggregate summary statistics are returned, with no sharing of patient-level data between organizations.
 
 ```{r irb, echo=FALSE}

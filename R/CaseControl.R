@@ -40,7 +40,7 @@ runCaseControl <- function(connectionDetails,
       distinct(.data$baseExposureId) %>%
       pull()
     allEstimates <- list()
-    # baseExposureId <- baseExposureIds[3]
+    # baseExposureId <- baseExposureIds[1]
     for (baseExposureId in baseExposureIds) {
       exposures <- exposureCohorts %>%
         filter(.data$baseExposureId == !!baseExposureId) 
@@ -230,7 +230,7 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                              studyEndDate = format(endDate, "%Y%m%d"),
                                                              maxCasesPerOutcome = 1e6)
   
-  samplingCriteria <- CaseControl::createSamplingCriteria(controlsPerCase = 2,
+  samplingCriteria <- CaseControl::createSamplingCriteria(controlsPerCase = 4,
                                                           seed = 123)
   
   selectControlsArgs1 <- CaseControl::createSelectControlsArgs(firstOutcomeOnly = TRUE,
@@ -259,7 +259,7 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                createCaseControlDataArgs = createCaseControlDataArgs1,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
   
-  matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = 2,
+  matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = 4,
                                                           matchOnAge = TRUE,
                                                           ageCaliper = 2,
                                                           matchOnGender = TRUE)

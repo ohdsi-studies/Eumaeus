@@ -20,7 +20,7 @@ compareCohorts <- function(connectionDetails,
                            cohortTable,
                            outputFolder) {
   cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
-    filter(.data$sampled == TRUE)
+    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | .data$comparatorType == "Age-sex stratified"))
   
   covariateData <- FeatureExtraction::getDbCovariateData(connectionDetails = connectionDetails,
                                                          cdmDatabaseSchema = cdmDatabaseSchema,

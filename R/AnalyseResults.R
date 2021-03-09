@@ -37,7 +37,7 @@ analyseResults <- function(outputFolder) {
   analyseMethodResults(method = method,
                        estimates = estimates, 
                        analysisDesc = analysisDesc,
-                       aucVariable = "logRr",
+                       aucVariable = "llr",
                        outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
@@ -58,7 +58,7 @@ analyseMethodResults <- function(method,
     left_join(estimates, by = c("exposureId", "outcomeId")) 
     
   
-  # analysisId <- 2
+  # analysisId <- 1
   analyseAnalysis <- function(analysisId) {
     analysisSubset <- estimates %>%
       filter(.data$analysisId == !!analysisId)
@@ -68,7 +68,7 @@ analyseMethodResults <- function(method,
     
     
     # subset <- split(analysisSubset, analysisSubset$exposureId)[[3]]
-    # subset <- analysisSubset[analysisSubset$exposureId == 21184, ]
+    # subset <- analysisSubset[analysisSubset$exposureId == 211841, ]
     analyseExposureAnalysis <- function(subset) {
       exposureId <- subset$exposureId[1]
       exposureName <- subset$exposureName[1]

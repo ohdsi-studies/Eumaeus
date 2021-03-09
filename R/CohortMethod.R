@@ -49,39 +49,45 @@ runCohortMethod <- function(connectionDetails,
                               suffix = c("1", "2"))
     
     allEstimates <- list()
-    # comparison <- comparisons[5, ]
+    # comparison <- comparisons[1, ]
     for (comparison in split(comparisons, 1:nrow(comparisons))) {
-      exposureId <- comparison$exposureId1[1]
+      targetId <- comparison$exposureId1
+      comparatorId <- comparison$exposureId2
+      crude <- comparison$comparatorType2 == "Crude"
       controls <- allControls %>%
         filter(.data$exposureId == comparison$baseExposureId)
-      exposureFolder <- file.path(cmFolder, sprintf("e_%s", exposureId))
-      if (!file.exists(exposureFolder))
-        dir.create(exposureFolder)
+      targetComparatorFolder <- file.path(cmFolder, sprintf("t%s_c%s", targetId, comparatorId))
+      if (!file.exists(targetComparatorFolder))
+        dir.create(targetComparatorFolder)
       
       # Create one big CohortMethodData object ----------------------------
-      bigCmDataFile <- file.path(exposureFolder, "CmData.zip")
+      bigCmDataFile <- file.path(targetComparatorFolder, "CmData.zip")
       if (!file.exists(bigCmDataFile)) {
-        ParallelLogger::logInfo(sprintf("Constructing CohortMethodData object for exposure %s", exposureId))
-        excludedCovariateConceptIds <- loadExposuresofInterest() %>%
-          filter(.data$exposureId == !!comparison$baseExposureId) %>%
-          pull(.data$conceptIdsToExclude) %>%
-          strsplit(";")
-        excludedCovariateConceptIds <- as.numeric(excludedCovariateConceptIds[[1]])
-        additionalConceptToExclude <- loadAdditionalConceptsToExclude(outputFolder) %>%
-          filter(.data$exposureId1 == exposureId) %>%
-          pull(.data$conceptId)
-        excludedCovariateConceptIds <- unique(c(excludedCovariateConceptIds, additionalConceptToExclude))
-        
-        covariateSettings <- FeatureExtraction::createDefaultCovariateSettings(excludedCovariateConceptIds = excludedCovariateConceptIds,
-                                                                               addDescendantsToExclude = TRUE)
+        ParallelLogger::logInfo(sprintf("Constructing CohortMethodData object for exposure %s", targetId))
+        if (crude) {
+          covariateSettings <- FeatureExtraction::createCovariateSettings(useDemographicsGender = TRUE)
+        } else {
+          excludedCovariateConceptIds <- loadExposuresofInterest() %>%
+            filter(.data$exposureId == !!comparison$baseExposureId) %>%
+            pull(.data$conceptIdsToExclude) %>%
+            strsplit(";")
+          excludedCovariateConceptIds <- as.numeric(excludedCovariateConceptIds[[1]])
+          additionalConceptToExclude <- loadAdditionalConceptsToExclude(outputFolder) %>%
+            filter(.data$exposureId1 == targetId) %>%
+            pull(.data$conceptId)
+          excludedCovariateConceptIds <- unique(c(excludedCovariateConceptIds, additionalConceptToExclude))
+          
+          covariateSettings <- FeatureExtraction::createDefaultCovariateSettings(excludedCovariateConceptIds = excludedCovariateConceptIds,
+                                                                                 addDescendantsToExclude = TRUE)
+        }
         bigCmData <- CohortMethod::getDbCohortMethodData(connectionDetails = connectionDetails,
                                                          cdmDatabaseSchema = cdmDatabaseSchema,
                                                          exposureDatabaseSchema = cohortDatabaseSchema,
                                                          exposureTable = cohortTable,
                                                          outcomeDatabaseSchema = cohortDatabaseSchema,
                                                          outcomeTable = cohortTable,
-                                                         targetId = comparison$exposureId1,
-                                                         comparatorId = comparison$exposureId2,
+                                                         targetId = targetId,
+                                                         comparatorId = comparatorId,
                                                          outcomeIds = controls$outcomeId,
                                                          firstExposureOnly = FALSE,
                                                          washoutPeriod = 365,
@@ -91,31 +97,64 @@ runCohortMethod <- function(connectionDetails,
       } 
       bigCmData <- NULL
       timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-      # i <- 12
-      for (i in 1:nrow(timePeriods)) {
-        periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
-        if (!file.exists(periodEstimatesFile)) {
-          ParallelLogger::logInfo(sprintf("Executing cohort method for exposure %s and period: %s", exposureId, timePeriods$label[i]))
-          periodFolder <- file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[i]))
-          if (!file.exists(periodFolder))
-            dir.create(periodFolder)
-          
-          cmDataFile <- file.path(periodFolder, sprintf("CmData_l1_t%s_c%s.zip", comparison$exposureId1, comparison$exposureId2))
-          if (!file.exists(cmDataFile)) {
-            ParallelLogger::logInfo("- Subsetting CohortMethodData to period")
-            if (is.null(bigCmData)) {
-              bigCmData <- CohortMethod::loadCohortMethodData(bigCmDataFile)
-            }
-            subsetCmData(bigCmData = bigCmData,
-                         endDate = timePeriods$endDate[i],
-                         cmDataFile = cmDataFile)
-            
+      timePeriods$folder <- file.path(targetComparatorFolder, sprintf("cmOutput_t%d", timePeriods$seqId))
+      sapply(timePeriods$folder[!file.exists(timePeriods$folder)], dir.create)
+      
+      # Subset CohortMethodData for each period ------------------------------------------------
+      ParallelLogger::logInfo(sprintf("Subsetting CohortMethodData for all periods for exposure %s", targetId))
+      cluster <- ParallelLogger::makeCluster(min(3, maxCores))
+      ParallelLogger::clusterRequire(cluster, "Eumaeus")
+      invisible(ParallelLogger::clusterApply(cluster = cluster, 
+                                             x = 1:nrow(timePeriods), 
+                                             fun = Eumaeus:::subsetCmData, 
+                                             targetId = targetId, 
+                                             comparatorId = comparatorId,
+                                             timePeriods = timePeriods,
+                                             bigCmDataFile = bigCmDataFile) )
+      ParallelLogger::stopCluster(cluster)
+
+      # Fit shared propensity models per period ----------------------------------------------
+      if (!crude) {
+        ParallelLogger::logInfo(sprintf("Fitting propensity models across all periods for exposure %s", targetId))
+        cluster <- ParallelLogger::makeCluster(min(max(1, floor(maxCores/8)), 3))
+        invisible(ParallelLogger::clusterApply(cluster = cluster, 
+                                               x = timePeriods$folder, 
+                                               fun = Eumaeus:::fitSharedPsModel, 
+                                               targetId = targetId, 
+                                               comparatorId = comparatorId, 
+                                               cvThreads = min(10, maxCores))) 
+        ParallelLogger::stopCluster(cluster)
+        
+        # Output last propensity model:
+        modelFile <- file.path(targetComparatorFolder, "PsModel.csv")
+        if (!file.exists(modelFile)) {
+          if (is.null(bigCmData)) {
+            bigCmData <- CohortMethod::loadCohortMethodData(bigCmDataFile)
           }
-          estimates <- computeCohortMethodEstimates(targetId = comparison$exposureId1,
-                                                    comparatorId = comparison$exposureId2,
+          omr <- readRDS(file.path(targetComparatorFolder, 
+                                   sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), 
+                                   "outcomeModelReference.rds"))
+          ps <- readRDS(file.path(targetComparatorFolder, 
+                                  sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), 
+                                  omr$sharedPsFile[omr$sharedPsFile != ""][1]))
+          model <- CohortMethod::getPsModel(ps, bigCmData)
+          readr::write_csv(model, modelFile)
+        }
+      }
+      
+      # Compute estimates --------------------------------------------------
+      # i <- nrow(timePeriods)
+      for (i in 1:nrow(timePeriods)) {
+        periodEstimatesFile <- file.path(targetComparatorFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
+        if (!file.exists(periodEstimatesFile)) {
+          ParallelLogger::logInfo(sprintf("Executing cohort method for exposure %s and period: %s", targetId, timePeriods$label[i]))
+          periodFolder <- file.path(targetComparatorFolder, sprintf("cmOutput_t%d", timePeriods$seqId[i]))
+          estimates <- computeCohortMethodEstimates(targetId = targetId,
+                                                    comparatorId = comparatorId,
                                                     outcomeIds = controls$outcomeId,
                                                     periodFolder = periodFolder,
-                                                    maxCores = maxCores)
+                                                    maxCores = maxCores,
+                                                    crude = crude)
           readr::write_csv(estimates, periodEstimatesFile)
         } else {
           estimates <- loadCmEstimates(periodEstimatesFile)
@@ -124,28 +163,12 @@ runCohortMethod <- function(connectionDetails,
         estimates$period <- timePeriods$label[i]
         allEstimates[[length(allEstimates) + 1]] <- estimates
       }
-      
-      # Output last propensity model:
-      modelFile <- file.path(exposureFolder, "PsModel.csv")
-      if (!file.exists(modelFile)) {
-        if (is.null(bigCmData)) {
-          bigCmData <- CohortMethod::loadCohortMethodData(bigCmDataFile)
-        }
-        omr <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), "outcomeModelReference.rds"))
-        ps <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$sharedPsFile[omr$sharedPsFile != ""][1]))
-        # om <- readRDS(file.path(exposureFolder, sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), omr$outcomeModelFile[omr$sharedPsFile != ""][1]))
-        
-        model <- CohortMethod::getPsModel(ps, bigCmData)
-        # model <- getPsModel(ps, bigCmData)
-        readr::write_csv(model, modelFile)
-      }
     }
     allEstimates <- bind_rows(allEstimates)  
     allEstimates <- allEstimates %>%
       filter(.data$eventsComparator > 0) %>%
       mutate(exposureId = .data$targetId,
-             expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) %>%
-      mutate(llr = llr(.data$eventsTarget, .data$expectedOutcomes))
+             expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) 
     readr::write_csv(allEstimates, cmSummaryFile)
   }
   delta <- Sys.time() - start
@@ -158,39 +181,99 @@ runCohortMethod <- function(connectionDetails,
   readr::write_csv(analysisDesc, file.path(outputFolder, "cmAnalysisDesc.csv"))
 }
 
-subsetCmData <- function(bigCmData,
-                         endDate,
-                         cmDataFile) {
-  endDate <- as.integer(endDate)
-  
-  cmData <- Andromeda::andromeda()
-  cmData$cohorts <- bigCmData$cohorts %>%
-    filter(.data$cohortStartDate < endDate) %>%
-    mutate(ifelse(.data$daysToObsEnd > endDate - .data$cohortStartDate, endDate - .data$cohortStartDate, .data$daysToObsEnd))
-  rowIds <- cmData$cohorts %>%
-    pull(.data$rowId)
-  cmData$outcomes <- bigCmData$outcomes %>%
-    filter(.data$rowId %in% rowIds)
-  cmData$covariates <- bigCmData$covariates %>%
-    filter(.data$rowId %in% rowIds)
-  
-  cmData$analysisRef <- bigCmData$analysisRef
-  cmData$covariateRef <- bigCmData$covariateRef
-  
-  metaData <- attr(bigCmData, "metaData")
-  metaData$populationSize <- length(rowIds)
-  attr(cmData, "metaData") <- metaData
-  class(cmData) <- class(bigCmData)
-  CohortMethod::saveCohortMethodData(cmData, cmDataFile)
+cache <- new.env()
+
+getCohortMethodData <- function(cohortMethodDataFile) {
+  if (exists("cohortMethodData", envir = cache)) {
+    cohortMethodData <- get("cohortMethodData", envir = cache)
+  }
+  if (!mget("cohortMethodDataFile", envir = cache, ifnotfound = "") == cohortMethodDataFile) {
+    if (exists("cohortMethodData", envir = cache)) {
+      Andromeda::close(cohortMethodData)
+    }
+    cohortMethodData <- CohortMethod::loadCohortMethodData(cohortMethodDataFile)
+    assign("cohortMethodData", cohortMethodData, envir = cache)
+    assign("cohortMethodDataFile", cohortMethodDataFile, envir = cache)
+  }
+  return(cohortMethodData)
+}
+
+subsetCmData <- function(i,
+                         targetId,
+                         comparatorId,
+                         timePeriods,
+                         bigCmDataFile) {
+  cmDataFile <- file.path(timePeriods$folder[i], sprintf("CmData_l1_t%s_c%s.zip", targetId, comparatorId))
+  if (!file.exists(cmDataFile)) {
+    bigCmData <- getCohortMethodData(bigCmDataFile)
+    
+    if (timePeriods$seqId[i] == max(timePeriods$seqId)) {
+      cmData <- bigCmData
+    } else {
+      endDate <- as.integer(timePeriods$endDate[i])
+
+      cmData <- Andromeda::andromeda()
+      cmData$cohorts <- bigCmData$cohorts %>%
+        filter(.data$cohortStartDate < endDate) %>%
+        mutate(ifelse(.data$daysToObsEnd > endDate - .data$cohortStartDate, endDate - .data$cohortStartDate, .data$daysToObsEnd))
+      rowIds <- cmData$cohorts %>%
+        pull(.data$rowId)
+      cmData$outcomes <- bigCmData$outcomes %>%
+        filter(.data$rowId %in% rowIds)
+      cmData$covariates <- bigCmData$covariates %>%
+        filter(.data$rowId %in% rowIds)
+      
+      cmData$analysisRef <- bigCmData$analysisRef
+      cmData$covariateRef <- bigCmData$covariateRef
+      
+      metaData <- attr(bigCmData, "metaData")
+      metaData$populationSize <- length(rowIds)
+      attr(cmData, "metaData") <- metaData
+      class(cmData) <- class(bigCmData)
+    }
+    CohortMethod::saveCohortMethodData(cmData, cmDataFile)
+  }
+  return(NULL)
+}
+
+fitSharedPsModel <- function(periodFolder, targetId, comparatorId, cvThreads) {
+  sharedPsFile <- file.path(periodFolder, sprintf("Ps_l1_p1_t%s_c%s.zip", targetId, comparatorId))
+  if (!file.exists(sharedPsFile)) {
+    cmDataFile <- file.path(periodFolder, sprintf("CmData_l1_t%s_c%s.zip", targetId, comparatorId))
+    cmData <- CohortMethod::loadCohortMethodData(cmDataFile)
+    studyPop <- CohortMethod::createStudyPopulation(cohortMethodData = cmData,
+                                                    removeSubjectsWithPriorOutcome = TRUE,
+                                                    removeDuplicateSubjects = TRUE,
+                                                    minDaysAtRisk = 1,
+                                                    riskWindowStart = 1,
+                                                    startAnchor = "cohort start",
+                                                    riskWindowEnd = 28,
+                                                    endAnchor = "cohort start")
+    sharedPs <- CohortMethod::createPs(cohortMethodData = cmData,
+                                       population = studyPop,
+                                       errorOnHighCorrelation = TRUE,
+                                       stopOnError = FALSE,
+                                       maxCohortSizeForFitting = 150000,
+                                       control = Cyclops::createControl(cvType = "auto",
+                                                                        startingVariance = 0.01,
+                                                                        noiseLevel = "quiet",
+                                                                        tolerance  = 2e-07,
+                                                                        fold = 10,
+                                                                        cvRepetitions = 1,
+                                                                        threads = cvThreads))
+    saveRDS(sharedPs, sharedPsFile)
+  }
+  return(NULL)
 }
 
 computeCohortMethodEstimates <- function(targetId,
                                          comparatorId,
                                          outcomeIds,
                                          periodFolder,
-                                         maxCores) {
+                                         maxCores,
+                                         crude) {
   
-  cmAnalysisList <- createCmAnalysisList()
+  cmAnalysisList <- createCmAnalysisList(crude = crude)
   
   tcosList <- list()
   tcosList[[1]] <- CohortMethod::createTargetComparatorOutcomes(targetId = targetId,
@@ -216,51 +299,47 @@ computeCohortMethodEstimates <- function(targetId,
   return(estimates)
 }
 
-createCmAnalysisList <- function() {
+createCmAnalysisList <- function(crude) {
+  # Not used. CohortMethodData object already created earlier for efficiency.
   getDbCmDataArgs <- CohortMethod::createGetDbCohortMethodDataArgs(covariateSettings = NULL)
   
+  # warning: if you make changes here, also make them in the fitSharedPsModel function.
   createStudyPopArgs <- CohortMethod::createCreateStudyPopulationArgs(removeSubjectsWithPriorOutcome = TRUE,
                                                                       removeDuplicateSubjects = TRUE,
                                                                       minDaysAtRisk = 1,
                                                                       riskWindowStart = 1,
                                                                       startAnchor = "cohort start",
                                                                       riskWindowEnd = 28,
-                                                                      endAnchor = "cohort start",)
+                                                                      endAnchor = "cohort start")
   
   fitOutcomeModelArgs <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
                                                                  modelType = "cox",
                                                                  stratified = FALSE)
   
-  cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = 1,
-                                                description = "Crude cohort method",
-                                                getDbCohortMethodDataArgs = getDbCmDataArgs,
-                                                createStudyPopArgs = createStudyPopArgs,
-                                                fitOutcomeModel = TRUE,
-                                                fitOutcomeModelArgs = fitOutcomeModelArgs)
-  
-  createPsArgs <- CohortMethod::createCreatePsArgs(errorOnHighCorrelation = TRUE,
-                                                   stopOnError = FALSE,
-                                                   maxCohortSizeForFitting = 150000,
-                                                   control = Cyclops::createControl(cvType = "auto",
-                                                                                    startingVariance = 0.01,
-                                                                                    noiseLevel = "quiet",
-                                                                                    tolerance  = 2e-07,
-                                                                                    fold = 10,
-                                                                                    cvRepetitions = 1))
-  
-  matchOnPsArgs <- CohortMethod::createMatchOnPsArgs(maxRatio = 1)
-  
-  cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = 2,
-                                                description = "1-on-1 matching",
-                                                getDbCohortMethodDataArgs = getDbCmDataArgs,
-                                                createStudyPopArgs = createStudyPopArgs,
-                                                createPs = TRUE,
-                                                createPsArgs = createPsArgs,
-                                                matchOnPs = TRUE,
-                                                matchOnPsArgs = matchOnPsArgs,
-                                                fitOutcomeModel = TRUE,
-                                                fitOutcomeModelArgs = fitOutcomeModelArgs)
-  
-  cmAnalysisList <- list(cmAnalysis1, cmAnalysis2)
-  return(cmAnalysisList)
+  if (crude) {
+    cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = 1,
+                                                  description = "Crude cohort method",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+    return(list(cmAnalysis1))
+  } else {
+    # Not used. Shared PS object already created earlier for efficiency.
+    createPsArgs <- CohortMethod::createCreatePsArgs()
+    
+    matchOnPsArgs <- CohortMethod::createMatchOnPsArgs(maxRatio = 1)
+    
+    cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = 2,
+                                                  description = "1-on-1 matching",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  matchOnPs = TRUE,
+                                                  matchOnPsArgs = matchOnPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+    return(list(cmAnalysis2))
+  }
 }
