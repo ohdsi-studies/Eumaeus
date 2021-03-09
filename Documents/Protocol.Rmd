@@ -3,14 +3,8 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::pdf_document2:
-    keep_tex: yes
-    latex_engine: xelatex
-    md_extensions: +raw_attribute
-    number_sections: yes
-    # citation_package: natbib
-    includes:
-      before_body: title.tex
+  bookdown::word_document2:
+    toc: yes
   bookdown::html_document2:
     df_print: paged
     toc: yes
@@ -19,6 +13,14 @@ output:
     number_sections: yes
     number_tables: yes
     css: "style.css"
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +raw_attribute
+    number_sections: yes
+    # citation_package: natbib
+    includes:
+      before_body: title.tex
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -62,6 +64,9 @@ library(kableExtra)
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table]{xcolor}', x, fixed = TRUE)})
 library(dplyr)
 options(knitr.kable.NA = "")
+if (!knitr::is_latex_output() && !knitr::is_html_output()) {
+  options(knitr.table.format = "simple")
+}
 
 pdf2png <- function(path) {
   # only do the conversion for non-LaTeX output
@@ -82,7 +87,7 @@ source("PrintCohortDefinitions.R")
 
 # List of Abbreviations
 
-```{r abbreviations, echo=FALSE}
+```{r abbreviations, echo=FALSE, results="asis", warning=FALSE}
 abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRUE, file = "
   AUC; Area Under the receiver-operator Curve 
   CCAE; IBM MarketScan Commercial Claims and Encounters 
@@ -117,14 +122,14 @@ if (knitr::is_latex_output()) {
   tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
-}
+} 
 ```
 
 # Responsible Parties
 
 ## Investigators
 
-```{r parties, echo=FALSE}
+```{r parties, echo=FALSE, results="asis", warning=FALSE}
 parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Investigator; Institution/Affiliation
   George Hripcsak; Department of Biomedical Informatics, Columbia University, New York, NY, USA
@@ -186,7 +191,7 @@ To study the comparative performance (bias, precision, and timeliness) of differ
 
 # Amendments and Updates
 
-```{r amendments, echo=FALSE}
+```{r amendments, echo=FALSE, results="asis", warning=FALSE}
 amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Number; Date; Section of study protocol; Amendment or update; Reason
   None;;;; 
@@ -203,7 +208,7 @@ if (knitr::is_latex_output()) {
 
 # Milestones
 
-```{r dates, echo=FALSE}
+```{r dates, echo=FALSE, results="asis", warning=FALSE}
 dates <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Milestone; Planned / actual date
   EU PAS Registration; 
@@ -251,7 +256,7 @@ Specific aims:
 
 The evaluation will center on six existing (groups of) vaccines, for specific time periods (start date to end date), as shown in Table \@ref(tab:exposures-of-interest).
 
-```{r exposures-of-interest, echo=FALSE}
+```{r exposures-of-interest, echo=FALSE, warning=FALSE}
 eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
   select(exposureName, startDate, endDate, historyStartDate, historyEndDate)
 colnames(eois) <- SqlRender::camelCaseToTitleCase(colnames(eois))
@@ -273,6 +278,7 @@ if (knitr::is_latex_output()) {
   tab
 }
 ```
+
 For some methods the period between historic start and historic end date will be used to estimate the historic incidence rate. 
 For analyses executed on data in the southern hemisphere (if any) the flu seasons are different, and the study periods will need to be adjusted accordingly.
 The formal cohort definitions of each exposure can be found in Appendix \@ref(exposure-cohort-definitions). 
@@ -479,7 +485,7 @@ The project does, however, use de-identified human data collected during routine
 All data partners executing the EUMAEUS studies within their data sources will have received institutional review board (IRB) approval or waiver for participation in accordance to their institutional governance prior to execution (see Table \@ref(tab:irb)).
 EUMAEUS executes across a federated and distributed data network, where analysis code is sent to participating data partners and only aggregate summary statistics are returned, with no sharing of patient-level data between organizations.
 
-```{r irb, echo=FALSE}
+```{r irb, echo=FALSE,warning=FALSE}
 data_sources <- readr::read_delim(col_names = TRUE, delim = "&", trim_ws = TRUE, file = "
 Data source & Statement
 IBM MarketScan Commercial Claims and Encounters (CCAE) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
@@ -617,7 +623,7 @@ printCohortDefinitionFromNameAndJson(name = "Zoster Vaccines",
 
 # Negative controls
 
-```{r ncs, echo=FALSE}
+```{r ncs, echo=FALSE, warning=FALSE}
 ncs <- readr::read_csv(system.file("settings", "NegativeControls.csv", package = "Eumaeus"), col_types = readr::cols())
 colnames(ncs) <- SqlRender::camelCaseToTitleCase(colnames(ncs))
 
