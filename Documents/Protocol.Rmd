@@ -156,12 +156,28 @@ This study is undertaken within Observational Health Data Sciences and Informati
 # Abstract
 
 **Background and Significance**: 
-
+As recently approved COVID-19 vaccines are rolled out globally, it is likely that safety signals will be identified from spontaneous reports and other data sources. Although some work has been done on the best methods for vaccine safety surveillance, there is a scarcity of information on how these perform in analyses of real world data.
 **Study Aims**: 
-
+To study the comparative performance (bias, precision, and timeliness) of different analytical methods for the study of comparative vaccine safety.
 **Study Description**: 
-
-# NOTE: We lack an abstract. Dani to write once agreed on Aims (see below).
+* Design: Cohort, self-controlled, and case-control studies 
+* Exposures: previous viral vaccines including 2017-2018 flu, H1N1 flu, Human Papillomavirus (HPV), and Varicella-Zoster.
+* Outcomes: selected adverse events of special interest; negative control outcomes; synthetic positive control outcomes
+* Analyses: 
+* 1) Historical rate comparisons. 
+* 2) Cohort analyses using a contemporary non-user comparator, with large-scale propensity score matching
+* 3) Self-controlled case series with variations
+* 4) Case-control analyses
+* Metrics:
+- Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size.
+- Coverage. How often the true effect size is within the 95% confidence interval.
+- Mean precision, computed as 1 / (standard error)2
+- Mean squared error (MSE). Mean squared error between the log of the effect size point-estimate and the log of the true effect size.
+- Type 1 error. For negative controls, how often was the null rejected (at alpha = 0.05). This is equivalent to the false positive rate and 1 - specificity.
+- Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.
+- Non-estimable. Measure for how many of the controls was the method unable to produce an estimate
+- Sensitivity and specificity based on the PMaxSPRT decision rule
+- Timeliness: measure of the time it takes for a method the identify safety signals 
 
 # Amendments and Updates
 
@@ -366,7 +382,6 @@ Similar to our previous study, we will compute the following metrics based on th
 - Non-estimable. For how many of the controls was the method unable to produce an estimate? There can be various reasons why an estimate cannot be produced, for example because there were no subjects left after propensity score matching, or because no subjects remained having the outcome.
 
 In addition, based on the PMaxSPRT decision rule, we will compute sensitivity and specificity. 
-# NOTE: not keen on % bias eg average or similar of estimated-true effect size/true effect size for all positive and negative controls, or something similar? it's kind of similar to coverage of course.
 
 ### Timeliness
 
