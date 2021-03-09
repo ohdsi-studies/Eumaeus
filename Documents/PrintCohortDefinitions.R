@@ -1,4 +1,4 @@
-printConceptSet <- function(conceptSet) {
+printConceptSet <- function(conceptSet, latex_table_font_size) {
   
   markdown <- CirceR::conceptSetPrintFriendly(conceptSet)
   rows <- unlist(strsplit(markdown, "\\r\\n"))
@@ -7,17 +7,24 @@ printConceptSet <- function(conceptSet) {
   data <- readr::read_delim(paste(rows[c(2,4:(length(rows)-2))], 
                                   collapse = '\n'), delim = '|',)
   
-  header <- gsub("###", "### Concept:", header)
+  header <- gsub("###", "### Concept set:", header)
   
-  tab <- data %>% mutate_if(is.numeric, format, digits = 10) %>% kable(linesep = "", booktabs = TRUE, longtable = TRUE)
+  tab <- data %>% 
+    mutate_if(is.numeric, format, digits = 10) %>% 
+    kable(linesep = "", booktabs = TRUE, longtable = TRUE)
   
   if (knitr::is_latex_output()) {    
     writeLines(header)
     
-    tab %>% 
+    writeLines(tab %>% 
       kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
       column_spec(1, width = "5em") %>%
-      column_spec(2, width = "20em")   
+      column_spec(2, width = "22em") %>%
+      column_spec(3, width = "5em") %>%
+      column_spec(4, width = "5em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "5em") %>%
+      column_spec(7, width = "3em"))
   } else if (knitr::is_html_output()) {
     writeLines(header)
     
@@ -40,7 +47,7 @@ printCohortClose <- function() {
 
 printCohortDefinitionFromNameAndJson <- function(name, json = NULL, obj = NULL, 
                                                  withConcepts = TRUE,
-                                                 withClosing = TRUE) {
+                                                 withClosing = TRUE, latex_table_font_size = 8) {
   
   if (is.null(obj)) {
     obj <- CirceR::cohortExpressionFromJson(json)
@@ -66,7 +73,7 @@ printCohortDefinitionFromNameAndJson <- function(name, json = NULL, obj = NULL,
   # Print concept sets
   
   if (withConcepts) {
-    lapply(obj$conceptSets, printConceptSet)
+    lapply(obj$conceptSets, printConceptSet, latex_table_font_size = latex_table_font_size)
   }
   
   if (withClosing) {

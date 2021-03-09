@@ -622,7 +622,7 @@ ncs <- readr::read_csv(system.file("settings", "NegativeControls.csv", package =
 colnames(ncs) <- SqlRender::camelCaseToTitleCase(colnames(ncs))
 
 tab <- kable(ncs, booktabs = TRUE, linesep = "",
-      caption = "Negative control outcomes.") %>% 
+      caption = "Negative control outcomes.", longtable = TRUE) %>% 
   kable_styling(bootstrap_options = "striped", latex_options = "striped")
 
 if (knitr::is_latex_output()) {
