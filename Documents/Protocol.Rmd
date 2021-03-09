@@ -93,8 +93,8 @@ abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRU
   CRAN; Comprehensive R Archive Network
   EHR; Electronic Health Record
   ENCEPP; European Network of Centres for Pharmacoepidemiology and Pharmacovigilance
-  H1N1; Hemagglutinin Type 1 and Neuraminidase Type 1 (influenza strain; aka swine flu)
-  HPV: Human PapillomaVirus
+  H1N1; Hemagglutinin Type 1 and Neuraminidase Type 1 (influenza strain, aka swine flu)
+  HPV; Human PapillomaVirus
   IRB; Institutional review board
   JMDC; Japan Medical Data Center
   LLR; Log Likelihood Ratio
@@ -317,11 +317,11 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 ### Counterfactual construction
 
 - Historic rate. Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. 
-    - Using a single rate for the entire population, 
+    - Using a single rate for the entire population. 
     - Stratifying by age and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.
 - Cohort method using a contemporary non-user comparator. We require the non-user comparator to have an outpatient visit on the index date, and have no vaccinations for the same disease as the target vaccine during the study period.
-    - Crude comparison
-    - Using 1-on-1 propensity score matching
+    - Crude comparison. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.
+    - Using 1-on-1 propensity score (PS) matching. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons).
 - Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI).
     - A simple SCCS
     - An SCCS adjusting for age and season
@@ -329,7 +329,7 @@ Vaccine safety surveillance methods can be broken down in to four components: co
     - An SCRI, using a control interval of 43 to 71 days after to vaccination.
 - Case-control
     - Using age and sex matching controls
-    - By sampling controls from the general non-case population.
+    - By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model.
 
 ### Time-at-risk
 
