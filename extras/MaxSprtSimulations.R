@@ -5,7 +5,8 @@ parameters <- data.frame(n = 10000, # Number of subjects
                          tar = 10, # Time at risk for each exposure
                          rr = 1) # Relative risk
 
-simulate <- function(dummy, parameters, method = "llr-binomial", conditionalPoisson = TRUE) {
+simulate <- function(seed, parameters, method = "llr-binomial", conditionalPoisson = TRUE) {
+  set.seed(seed)
   isSignal <- function(t, method, conditionalPoisson) {
     exposedTime <- t - tExposure 
     exposedTime[t <  tExposure] <- 0
@@ -85,27 +86,27 @@ cluster <- ParallelLogger::makeCluster(10)
 ParallelLogger::clusterRequire(cluster, "survival")
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-poisson", conditionalPoisson = TRUE)), na.rm = TRUE)
-# [1] 0.123
+# [1] 0.121
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-poisson", conditionalPoisson = FALSE)), na.rm = TRUE)
-# [1] 0.119
+# [1] 0.102
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", conditionalPoisson = TRUE)), na.rm = TRUE)
-# [1] 0.115
+# [1] 0.119
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", conditionalPoisson = FALSE)), na.rm = TRUE)
-# [1] 0.104
+# [1] 0.102
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", conditionalPoisson = TRUE)), na.rm = TRUE)
-# [1] 0.04008016
+# [1] 0.04704705
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", conditionalPoisson = FALSE)), na.rm = TRUE)
-# [1] 0.048
+# [1] 0.04004004
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", conditionalPoisson = TRUE)), na.rm = TRUE)
-# [1] 0.058
+# [1] 0.041
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", conditionalPoisson = FALSE)), na.rm = TRUE)
-# [1] 0.045
+# [1] 0.044
 
 ParallelLogger::stopCluster(cluster)
