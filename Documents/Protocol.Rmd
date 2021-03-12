@@ -444,10 +444,10 @@ In total, we will evaluate:
 - 3 times at risk (0-1, 1-28, and 1-42 days)
 - 6 vaccines, with a total of 9 + 9 + 9 + 9 + 12 + 12 = 60 time periods
 - 100 negative controls
-- 3 * 100 = 300 positive controls
+- 3 $\times$ 100 = 300 positive controls
 - 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.
 
-Resulting in a total of 10 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3)  * (100 + 300) = 1,296,000 effect-size estimates. Each estimate will contain:
+Resulting in a total of 10 $\times$ 3 $\times$ [(9 + 9 + 9 + 9) $\times$ 1 + (12 + 12) $\times$ 3]  $\times$ (100 + 300) = 1,296,000 effect-size estimates. Each estimate will contain:
 
 - The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.
 - The empirically calibrated effect-size estimate and p-value
