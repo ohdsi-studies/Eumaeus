@@ -93,6 +93,7 @@ mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters =
 # [1] 0.054
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", conditionalPoisson = FALSE)), na.rm = TRUE)
+# [1] 0.032
 
 mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", conditionalPoisson = TRUE)), na.rm = TRUE)
 # [1] 0.04704705
@@ -118,114 +119,101 @@ parameters <- data.frame(n = 100000, # Number of subjects
                          rr = 1, # Relative risk (hazard ratio)
                          maxT = 100) 
 
-simulate <- function(seed, parameters, method = "llr-binomial") {
+simulate <- function(seed, parameters, method = "llr-binomial", looks = 10) {
   set.seed(seed)
   
-  llr <- function(observed, expected) {
-    if (observed <= expected) {
-      return(0)
-    } else {
-      return((expected - observed) + observed * log(observed / expected))
-    }
-  }
-  
-  computeCv <- function(data) {
-    tempFolder <- tempfile()
-    dir.create(tempFolder)
-    on.exit(unlink(tempFolder, recursive = TRUE))
-    
-    timeExposed <- sum(data$time[data$exposure == 1])
-    timeUnexposed <- sum(data$time[data$exposure == 0])
-    outcomesExposed <- sum(data$outcome[data$exposure == 1])
-    outcomesUnexposed <- sum(data$outcome[data$exposure == 0])
-    Sequential::AnalyzeSetUp.CondPoisson(name = "TestA",
-                                         SampleSizeType = "Events",
-                                         K = outcomesExposed,
-                                         cc = outcomesUnexposed,
-                                         alpha = 0.05,
-                                         M = 1,
-                                         AlphaSpendType = "power-type",
-                                         rho = 0.5,
-                                         title = "n",
-                                         address = tempFolder)
-    x <- Sequential::Analyze.CondPoisson(name = "TestA",
-                                         test = 1,
-                                         events = outcomesExposed,
-                                         PersonTimeRatio = timeExposed/timeUnexposed)
-    return(as.numeric(x$CV))
-  }
-  
-  isSignal <- function(t, method) {
-    # Truncate at time of look:
+  computeAtT <- function(t) {
     truncatedTime <- time
     idxTruncated <- tIndex + time > t
     truncatedTime[idxTruncated] <- t - tIndex[idxTruncated]
     truncatedOutcome <- outcome
     truncatedOutcome[idxTruncated] <- 0
-    
     data <- data.frame(time = truncatedTime,
                        outcome = truncatedOutcome,
                        exposure = exposure)
     data <- data[data$time > 0, ]
-    
     cyclopsData <- Cyclops::createCyclopsData(Surv(time, outcome) ~ exposure , modelType = "cox", data = data)
     fit <- Cyclops::fitCyclopsModel(cyclopsData, control = Cyclops::createControl(seed = seed))
-    # exp(coef(fit))
-    
-    if (method == "ci") {    
-      ci <- confint(fit, "exposureTRUE", level = .90)
-      return(ci[2] > 0)
+    if (fit$return_flag != "SUCCESS") {
+      return(data.frame(logRr = NA,
+                        lb = 0,
+                        llr = 0,
+                        events = sum(data$outcome),
+                        exposedTime = sum(data$time[data$exposure]),
+                        unexposedTime = sum(data$time[!data$exposure])))
     } else {
+      ci <- confint(fit, "exposureTRUE", level = .90)
       if (coef(fit)["exposureTRUE"] > 0) {
         llNull <- Cyclops::getCyclopsProfileLogLikelihood(object = fit,
                                                           parm = "exposureTRUE",
-                                                          x = 0,
-                                                          includePenalty = FALSE)$value
-        
-        llr <- fit$log_likelihood - llNull
-      } else {
-        llr <- 0
-      }
+                                                        x = 0,
+                                                        includePenalty = FALSE)$value
       
-      if (method == "llr-binomial") {
-        totalEvents <- sum(data$outcome)
-        cv <- Sequential::CV.Binomial(N = totalEvents,
-                                      M = 1,
-                                      z = sum(data$time[!data$exposure]) / sum(data$time[data$exposure]),
-                                      GroupSizes = totalEvents)$cv
-        return(llr > cv)
-      } else if (method == "llr-poisson") {
-        cv <- computeCv(data)
-        return(llr > cv)
-      } else if (method == "llr-chisq") {
-        return(1 - pchisq(2 * llr, df = 1) < 0.1)
-      }
+      llr <- fit$log_likelihood - llNull
+    } else {
+      llr <- 0
     }
-  }
-  
+    return(data.frame(logRr = coef(fit),
+                      lb = ci[2],
+                      llr,
+                      events = sum(data$outcome),
+                      exposedTime = sum(data$time[data$exposure]),
+                      unexposedTime = sum(data$time[!data$exposure])))
+    }
+  }     
   tIndex <- runif(parameters$n,  0, parameters$maxT)
   exposure <- runif(parameters$n) < parameters$pExposure
   tOutcome <- rexp(parameters$n,  parameters$backgroundHazard * (1 + ((parameters$rr - 1) * exposure)))
   outcome <- tOutcome < parameters$tar
   time <- rep(parameters$tar, parameters$n)
   time[outcome] <- tOutcome[outcome]
-  return(isSignal(t = 100, method = method))
+  t <- seq(0, parameters$maxT, length.out = looks + 1)[-1]                 
+  results <- purrr::map_dfr(t, computeAtT)
+  
+  # Perform sequential testing
+  if (method == "ci") {    
+    return(any(results$lb > 0, na.rm = TRUE))
+  } else if (method == "llr-binomial") {
+    sampleSizeUpperLimit <- max(results$events, na.rm = TRUE)
+    if (sampleSizeUpperLimit <= 5) {
+      return(FALSE)
+    }
+    events <- results$events
+    if (looks > 1) {
+      events[2:looks] <- events[2:looks] - events[1:(looks-1)]
+      events <- events[events != 0]
+    }
+    cv <- Sequential::CV.Binomial(N = sampleSizeUpperLimit,
+                                  M = 1,
+                                  z = max(results$unexposedTime) / max(results$exposedTime),
+                                  GroupSizes = events)$cv
+    return(any(results$llr > cv, na.rm = TRUE))
+  } else if (method == "llr-chisq") {
+    return(any(1 - pchisq(2 * results$llr, df = 1) < 0.1, na.rm = TRUE))
+  }
 }
 
 # Compute type I error (probability of a signal when the null is true). Should be 0.05:
 cluster <- ParallelLogger::makeCluster(10)
 ParallelLogger::clusterRequire(cluster, "survival")
 
-# mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-poisson")), na.rm = TRUE)
-
-mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial")), na.rm = TRUE)
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", looks = 1)), na.rm = TRUE)
 # [1] 0.055
 
-mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci")), na.rm = TRUE)
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", looks = 10)), na.rm = TRUE)
+# [1] 0.064
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", looks = 1)), na.rm = TRUE)
 # [1] 0.059
 
-mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq")), na.rm = TRUE)
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", looks = 10)), na.rm = TRUE)
+# [1] 0.183
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", looks = 1)), na.rm = TRUE)
 # [1] 0.059
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", looks = 10)), na.rm = TRUE)
+# [1] 0.208
 
 ParallelLogger::stopCluster(cluster)
 
