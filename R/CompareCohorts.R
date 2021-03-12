@@ -56,7 +56,7 @@ compareCohorts <- function(connectionDetails,
   
   # Compute SDM
   cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
-    filter(.data$sampled == TRUE) %>%
+    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | .data$comparatorType == "Age-sex stratified")) %>%
     select(.data$exposureId, .data$exposureName, .data$baseExposureId, .data$shot, .data$comparator) 
   
   comparisons <- inner_join(filter(cohortsToCompare, .data$comparator == FALSE),
@@ -77,8 +77,8 @@ compareCohorts <- function(connectionDetails,
                             suffix = c("1", "2")) %>%
       mutate(sd = sqrt(.data$sd1^2 + .data$sd2^2),
              stdDiff = (.data$mean2 - .data$mean1)/.data$sd) %>% 
-      filter((abs(.data$stdDiff) > 0.1 | is.na(.data$stdDiff)) &
-               (.data$mean1 > 0.01 | .data$mean2 > 0.01))
+      filter((abs(.data$stdDiff) > 0.01 | is.na(.data$stdDiff)) &
+               (.data$mean1 > 0.001 | .data$mean2 > 0.001))
     unbalanced$exposureId1 <- comparison$exposureId1
     unbalanced$exposureName1 <- comparison$exposureName1
     unbalanced$exposureId2 <- comparison$exposureId2
@@ -93,6 +93,7 @@ compareCohorts <- function(connectionDetails,
   readr::write_csv(unbalanced, file.path(outputFolder, "Unbalanced.csv"))
   toExclude <- unbalanced %>%
     filter(.data$stdDiff < 0) %>%
-    filter(grepl("immun|vacc|prevent|virus|antibody|antigen|procedure", .data$covariateName, ignore.case = TRUE))
+    filter(grepl("immun|vacc|prevent|virus|antibody|antigen", .data$covariateName, ignore.case = TRUE)) %>%
+    arrange(-abs(.data$stdDiff))
   readr::write_csv(toExclude, file.path(outputFolder, "ToExclude.csv"))
 }

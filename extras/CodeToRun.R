@@ -22,6 +22,7 @@ options(andromedaTempFolder = "s:/andromedaTemp")
 options(sqlRenderTempEmulationSchema = NULL)
 
 maxCores <- parallel::detectCores() - 1
+exposureIds <- c(21184) # For development only!
 
 # For bulk uploading synthetic outcomes:
 Sys.setenv("AWS_OBJECT_KEY" = "bulk")

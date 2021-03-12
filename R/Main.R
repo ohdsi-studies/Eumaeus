@@ -14,6 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Get the exposures of interest
+#'
+#' @return
+#' A tibble with exposure IDs and names.
+#' 
+#' @export
+getExposuresOfInterest <- function() {
+  loadExposuresofInterest() %>% 
+        select(.data$exposureId,
+               .data$exposureName) %>%
+        return()
+}
+
 #' Execute the Study
 #'
 #' @details
@@ -76,6 +89,7 @@ execute <- function(connectionDetails,
                     databaseDescription = databaseId,
                     maxCores = 1,
                     cdmVersion = "5",
+                    exposureIds = getExposuresOfInterest()$exposureId,
                     createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runCohortMethod = TRUE,
@@ -95,7 +109,8 @@ execute <- function(connectionDetails,
                       cdmDatabaseSchema = cdmDatabaseSchema,
                       cohortDatabaseSchema = cohortDatabaseSchema,
                       cohortTable = cohortTable,
-                      outputFolder = outputFolder)
+                      outputFolder = outputFolder,
+                      exposureIds = exposureIds)
        
     }
 

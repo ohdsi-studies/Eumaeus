@@ -41,6 +41,18 @@ analyseResults <- function(outputFolder) {
                        outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
+  
+  method <- "SCCS"
+  estimates <- loadEstimates(file.path(outputFolder, "sccsSummary.csv"))
+  analysisDesc <- readr::read_csv(system.file("settings", "Analyses.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
+    filter(.data$method == !!method)
+  analyseMethodResults(method = method,
+                       estimates = estimates, 
+                       analysisDesc = analysisDesc,
+                       aucVariable = "llr",
+                       outputFolder = outputFolder,
+                       resultsFolder = resultsFolder,
+                       maxCores = maxCores)
 }
 
 analyseMethodResults <- function(method,
@@ -58,7 +70,7 @@ analyseMethodResults <- function(method,
     left_join(estimates, by = c("exposureId", "outcomeId")) 
     
   
-  # analysisId <- 1
+  # analysisId <- 3
   analyseAnalysis <- function(analysisId) {
     analysisSubset <- estimates %>%
       filter(.data$analysisId == !!analysisId)
@@ -68,7 +80,7 @@ analyseMethodResults <- function(method,
     
     
     # subset <- split(analysisSubset, analysisSubset$exposureId)[[3]]
-    # subset <- analysisSubset[analysisSubset$exposureId == 211841, ]
+    # subset <- analysisSubset[analysisSubset$exposureId == 21184, ]
     analyseExposureAnalysis <- function(subset) {
       exposureId <- subset$exposureId[1]
       exposureName <- subset$exposureName[1]

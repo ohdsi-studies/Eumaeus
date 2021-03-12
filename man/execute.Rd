@@ -15,6 +15,7 @@ execute(
   databaseDescription = databaseId,
   maxCores = 1,
   cdmVersion = "5",
+  exposureIds = getExposuresOfInterest()$exposureId,
   createCohorts = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,

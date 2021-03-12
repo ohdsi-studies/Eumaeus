@@ -40,7 +40,7 @@ runSccs <- function(connectionDetails,
       distinct(.data$baseExposureId) %>%
       pull()
     allEstimates <- list()
-    # baseExposureId <- baseExposureIds[3]
+    # baseExposureId <- baseExposureIds[1]
     for (baseExposureId in baseExposureIds) {
       exposures <- exposureCohorts %>%
         filter(.data$baseExposureId == !!baseExposureId) 
@@ -53,16 +53,14 @@ runSccs <- function(connectionDetails,
         dir.create(exposureFolder)
       
       timePeriods <- splitTimePeriod(startDate = controls$startDate[1], endDate = controls$endDate[1])
-      periodFolders <- file.path(exposureFolder, sprintf("sccsOutput_t%d", timePeriods$seqId))
-      periodFolders <- periodFolders[!file.exists(periodFolders)]
-      sapply(periodFolders, dir.create)
+      timePeriods$folder <- file.path(exposureFolder, sprintf("sccsOutput_t%d", timePeriods$seqId))
+      sapply(timePeriods$folder[!file.exists(timePeriods$folder)], dir.create)
       # i <- nrow(timePeriods)
       for (i in nrow(timePeriods):1) {
         periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
         if (!file.exists(periodEstimatesFile)) {
           ParallelLogger::logInfo(sprintf("Executing SCCS for exposure %s and period: %s", baseExposureId, timePeriods$label[i]))
-          periodFolder <- file.path(exposureFolder, sprintf("sccsOutput_t%d", timePeriods$seqId[i]))
-          
+          periodFolder <- timePeriods$folder[i]
           estimates <- computeSccsEstimates(connectionDetails = connectionDetails,
                                             cdmDatabaseSchema = cdmDatabaseSchema,
                                             cohortDatabaseSchema = cohortDatabaseSchema,
@@ -75,30 +73,22 @@ runSccs <- function(connectionDetails,
                                             maxCores = maxCores)
           if (i == nrow(timePeriods)) {
             # All prior periods don't need to download data, can subset data of last period:
+            ParallelLogger::logInfo(sprintf("Subsetting SccsData objects for all periods for exposure %s", baseExposureId))
             sccsDataFiles <- list.files(path = periodFolder, pattern = "SccsData_l[0-9]+.zip")
-            for (sccsDataFile in sccsDataFiles) {
-              for (j in 1:(i-1)) {
-                bigSccsData <- NULL
-                priorPeriodFolder <- file.path(exposureFolder, sprintf("sccsOutput_t%d", timePeriods$seqId[j]))
-                if (!file.exists(file.path(priorPeriodFolder, sccsDataFile))) {
-                  ParallelLogger::logInfo(sprintf("- Subsetting %s to %s", sccsDataFile, timePeriods$label[j]))
-                  if (is.null(bigSccsData)) {
-                    bigSccsData <- SelfControlledCaseSeries::loadSccsData(file.path(periodFolder, sccsDataFile))
-                  }
-                  subsetSccsData(bigSccsData = bigSccsData,
-                                 endDate = timePeriods$endDate[j],
-                                 sccsDataFile = file.path(priorPeriodFolder, sccsDataFile))
-                  
-                }
-              }
-            }
+            cluster <- ParallelLogger::makeCluster(min(4, maxCores))
+            ParallelLogger::clusterRequire(cluster, "Eumaeus")
+            invisible(ParallelLogger::clusterApply(cluster = cluster, 
+                                                   x = sccsDataFiles, 
+                                                   fun = Eumaeus:::subsetSccsData, 
+                                                   timePeriods = timePeriods))
+            ParallelLogger::stopCluster(cluster)
           }
           
           readr::write_csv(estimates, periodEstimatesFile)
         } else {
           estimates <- loadCmEstimates(periodEstimatesFile)
         }
-        estimates$periodId <- timePeriods$seqId[i]
+        estimates$seqId <- timePeriods$seqId[i]
         allEstimates[[length(allEstimates) + 1]] <- estimates
       }
     }
@@ -112,9 +102,26 @@ runSccs <- function(connectionDetails,
   message(paste("Completed SCCS analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
-subsetSccsData <- function(bigSccsData,
-                           endDate,
-                           sccsDataFile) {
+subsetSccsData <- function(sccsDataFile, timePeriods) {
+  for (i in 1:(nrow(timePeriods)-1)) {
+    bigSccsData <- NULL
+    priorPeriodFolder <- timePeriods$folder[i]
+    if (!file.exists(file.path(priorPeriodFolder, sccsDataFile))) {
+      ParallelLogger::logInfo(sprintf("- Subsetting %s to %s", sccsDataFile, timePeriods$label[i]))
+      if (is.null(bigSccsData)) {
+        lastPeriodFolder <- timePeriods$folder[nrow(timePeriods)]
+        bigSccsData <- SelfControlledCaseSeries::loadSccsData(file.path(lastPeriodFolder, sccsDataFile))
+      }
+      subsetSingleSccsDataObject(bigSccsData = bigSccsData,
+                                 endDate = timePeriods$endDate[i],
+                                 sccsDataFile = file.path(priorPeriodFolder, sccsDataFile))
+    }
+  }
+}
+
+subsetSingleSccsDataObject <- function(bigSccsData,
+                                       endDate,
+                                       sccsDataFile) {
   sccsData <- Andromeda::andromeda()
   
   sccsData$cases <- bigSccsData$cases %>%
@@ -193,7 +200,7 @@ computeSccsEstimates <- function(connectionDetails,
 summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
   # Custom summarize function because we want second dose as just another estimate
   result <- list()
-  # i <- 576
+  # i <- 10
   for (i in 1:nrow(referenceTable)) {
     # print(i)
     sccsModel <- readRDS(file.path(periodFolder, as.character(referenceTable$sccsModelFile[i])))
@@ -212,6 +219,7 @@ summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
         row$ci95ub <- exp(estimates$logUb95[j])
         row$logRr <- estimates$logRr[j]
         row$seLogRr <- estimates$seLogRr[j]
+        row$llr <- estimates$llr[j]
         z <- row$logRr/row$seLogRr
         row$p <- 2 * pmin(pnorm(z), 1 - pnorm(z))
         covStats <- sccsModel$metaData$covariateStatistics %>%

@@ -131,12 +131,8 @@ runCohortMethod <- function(connectionDetails,
           if (is.null(bigCmData)) {
             bigCmData <- CohortMethod::loadCohortMethodData(bigCmDataFile)
           }
-          omr <- readRDS(file.path(targetComparatorFolder, 
-                                   sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), 
-                                   "outcomeModelReference.rds"))
-          ps <- readRDS(file.path(targetComparatorFolder, 
-                                  sprintf("cmOutput_t%d", timePeriods$seqId[nrow(timePeriods)]), 
-                                  omr$sharedPsFile[omr$sharedPsFile != ""][1]))
+          sharedPsFile <- file.path(timePeriods$folder[nrow(timePeriods)], sprintf("Ps_l1_p1_t%s_c%s.rds", targetId, comparatorId))
+          ps <- readRDS(sharedPsFile)
           model <- CohortMethod::getPsModel(ps, bigCmData)
           readr::write_csv(model, modelFile)
         }
@@ -237,7 +233,7 @@ subsetCmData <- function(i,
 }
 
 fitSharedPsModel <- function(periodFolder, targetId, comparatorId, cvThreads) {
-  sharedPsFile <- file.path(periodFolder, sprintf("Ps_l1_p1_t%s_c%s.zip", targetId, comparatorId))
+  sharedPsFile <- file.path(periodFolder, sprintf("Ps_l1_p1_t%s_c%s.rds", targetId, comparatorId))
   if (!file.exists(sharedPsFile)) {
     cmDataFile <- file.path(periodFolder, sprintf("CmData_l1_t%s_c%s.zip", targetId, comparatorId))
     cmData <- CohortMethod::loadCohortMethodData(cmDataFile)

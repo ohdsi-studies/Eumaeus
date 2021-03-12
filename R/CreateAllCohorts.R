@@ -18,7 +18,8 @@ createCohorts <- function(connectionDetails,
                           cdmDatabaseSchema,
                           cohortDatabaseSchema,
                           cohortTable,
-                          outputFolder) {
+                          outputFolder,
+                          exposureIds = NULL) {
   connection <- DatabaseConnector::connect(connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
@@ -30,7 +31,7 @@ createCohorts <- function(connectionDetails,
                  outputFolder = outputFolder)
   
   ParallelLogger::logInfo("Creating derived exposure cohorts")
-  exposuresOfInterest <- loadExposuresofInterest()
+  exposuresOfInterest <- loadExposuresofInterest(exposureIds)
   derivedExposures <- purrr::map_dfr(split(exposuresOfInterest, 1:nrow(exposuresOfInterest)), 
                                      deriveExposureCohorts,
                                      connection = connection,

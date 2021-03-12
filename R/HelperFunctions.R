@@ -91,7 +91,7 @@ loadAdditionalConceptsToExclude <- function(outputFolder) {
   return(data)
 }
 
-loadExposuresofInterest <- function() {
+loadExposuresofInterest <- function(exposureIds = NULL) {
   pathToCsv <- system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus")
   # Excel date compatibility:
   exposuresOfInterest <- readr::read_csv(pathToCsv, col_types = readr::cols()) %>%
@@ -99,6 +99,11 @@ loadExposuresofInterest <- function() {
            endDate = as.Date(.data$endDate, format = "%d-%m-%Y"),
            historyStartDate = as.Date(.data$historyStartDate, format = "%d-%m-%Y"),
            historyEndDate = as.Date(.data$historyEndDate, format = "%d-%m-%Y"))
+  
+  if (!is.null(exposureIds)) {
+    exposuresOfInterest <- exposuresOfInterest %>%
+      filter(.data$exposureId %in% exposureIds)
+  }
   return(exposuresOfInterest)
 }
 
