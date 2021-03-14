@@ -20,7 +20,7 @@ compareCohorts <- function(connectionDetails,
                            cohortTable,
                            outputFolder) {
   cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
-    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | .data$comparatorType == "Age-sex stratified"))
+    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | grepl("age-sex stratified", .data$comparatorType)))
   
   covariateData <- FeatureExtraction::getDbCovariateData(connectionDetails = connectionDetails,
                                                          cdmDatabaseSchema = cdmDatabaseSchema,
@@ -56,7 +56,7 @@ compareCohorts <- function(connectionDetails,
   
   # Compute SDM
   cohortsToCompare <- loadExposureCohorts(outputFolder) %>%
-    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | .data$comparatorType == "Age-sex stratified")) %>%
+    filter(.data$sampled == TRUE & (is.na(.data$comparatorType) | grepl("age-sex stratified", .data$comparatorType))) %>%
     select(.data$exposureId, .data$exposureName, .data$baseExposureId, .data$shot, .data$comparator) 
   
   comparisons <- inner_join(filter(cohortsToCompare, .data$comparator == FALSE),

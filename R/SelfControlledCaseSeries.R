@@ -94,8 +94,7 @@ runSccs <- function(connectionDetails,
     }
     allEstimates <- bind_rows(allEstimates)  
     allEstimates <- allEstimates %>%
-      filter(.data$exposedOutcomes > 0) %>%
-      mutate(llr = llr(.data$exposedOutcomes, .data$expectedOutcomes))
+      filter(.data$exposedOutcomes > 0)
     readr::write_csv(allEstimates, sccsSummaryFile)
   }
   delta <- Sys.time() - start

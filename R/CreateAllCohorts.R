@@ -143,15 +143,30 @@ sampleComparatorCohorts <- function(row,
   sampleComparatorRow$sampled <- TRUE
   sampleComparatorRow$comparator <- TRUE
   sampleComparatorRow$exposureId <- row$exposureId * 10 + 2
-  sampleComparatorRow$exposureName <- paste("Age-sex stratified comparator for", row$exposureName)
-  sampleComparatorRow$comparatorType <- "Age-sex stratified"
+  sampleComparatorRow$exposureName <- paste("Visit-anchored age-sex stratified comparator for", row$exposureName)
+  sampleComparatorRow$comparatorType <- "Visit-anchored age-sex stratified"
   
   sampleCrudeComparatorRow <- row
   sampleCrudeComparatorRow$sampled <- TRUE
   sampleCrudeComparatorRow$comparator <- TRUE
   sampleCrudeComparatorRow$exposureId <- row$exposureId * 10 + 3
-  sampleCrudeComparatorRow$exposureName <- paste("Crude comparator for", row$exposureName)
-  sampleCrudeComparatorRow$comparatorType <- "Crude"
+  sampleCrudeComparatorRow$exposureName <- paste("Visit-anchored crude comparator for", row$exposureName)
+  sampleCrudeComparatorRow$comparatorType <- "Visit-anchored crude"
+  
+  
+  sampleRandomComparatorRow <- row
+  sampleRandomComparatorRow$sampled <- TRUE
+  sampleRandomComparatorRow$comparator <- TRUE
+  sampleRandomComparatorRow$exposureId <- row$exposureId * 10 + 4
+  sampleRandomComparatorRow$exposureName <- paste("Random day age-sex stratified comparator for", row$exposureName)
+  sampleRandomComparatorRow$comparatorType <- "Random day age-sex stratified"
+  
+  sampleRandomCrudeComparatorRow <- row
+  sampleRandomCrudeComparatorRow$sampled <- TRUE
+  sampleRandomCrudeComparatorRow$comparator <- TRUE
+  sampleRandomCrudeComparatorRow$exposureId <- row$exposureId * 10 + 5
+  sampleRandomCrudeComparatorRow$exposureName <- paste("Random day crude comparator for", row$exposureName)
+  sampleRandomCrudeComparatorRow$comparatorType <- "Random day crude"
   
   sql <- SqlRender::loadRenderTranslateSql("SampleComparators.sql",
                                            "Eumaeus",
@@ -163,6 +178,8 @@ sampleComparatorCohorts <- function(row,
                                            target_sample_cohort_id = sampleTargetRow$exposureId,
                                            comparator_sample_cohort_id = sampleComparatorRow$exposureId,
                                            crude_comparator_sample_cohort_id = sampleCrudeComparatorRow$exposureId,
+                                           random_date_comparator_sample_cohort_id = sampleRandomComparatorRow$exposureId,
+                                           random_date_crude_comparator_sample_cohort_id = sampleRandomCrudeComparatorRow$exposureId,
                                            exclusion_cohort_id = row$exclusionCohortId,
                                            start_date = format(row$startDate, "%Y%m%d"),
                                            end_date = format(row$endDate, "%Y%m%d"),
@@ -171,7 +188,31 @@ sampleComparatorCohorts <- function(row,
                                            max_target_per_month = 350000,
                                            visit_concept_ids = c(9202))
   
+  # sql <- SqlRender::readSql("inst/sql/sql_server/SampleComparators.sql")
+  # sql <- SqlRender::render(sql,
+  #                          cdm_database_schema = cdmDatabaseSchema,
+  #                          cohort_database_schema = cohortDatabaseSchema,
+  #                          cohort_table = cohortTable,
+  #                          exposure_id = row$exposureId,
+  #                          target_sample_cohort_id = sampleTargetRow$exposureId,
+  #                          comparator_sample_cohort_id = sampleComparatorRow$exposureId,
+  #                          crude_comparator_sample_cohort_id = sampleCrudeComparatorRow$exposureId,
+  #                          random_date_comparator_sample_cohort_id = sampleRandomComparatorRow$exposureId,
+  #                          random_date_crude_comparator_sample_cohort_id = sampleRandomCrudeComparatorRow$exposureId,
+  #                          exclusion_cohort_id = row$exclusionCohortId,
+  #                          start_date = format(row$startDate, "%Y%m%d"),
+  #                          end_date = format(row$endDate, "%Y%m%d"),
+  #                          washout_period = 365,
+  #                          multiplier = row$comparatorMultiplier,
+  #                          max_target_per_month = 350000,
+  #                          visit_concept_ids = c(9202))
+  # sql <- SqlRender::translate(sql, targetDialect =  connectionDetails$dbms)
   DatabaseConnector::executeSql(connection, sql)
   
-  return(bind_rows(originalRow, sampleTargetRow, sampleComparatorRow, sampleCrudeComparatorRow))
+  return(bind_rows(originalRow, 
+                   sampleTargetRow, 
+                   sampleComparatorRow, 
+                   sampleCrudeComparatorRow,
+                   sampleRandomComparatorRow,
+                   sampleRandomCrudeComparatorRow))
 }

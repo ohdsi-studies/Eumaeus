@@ -53,7 +53,7 @@ runCohortMethod <- function(connectionDetails,
     for (comparison in split(comparisons, 1:nrow(comparisons))) {
       targetId <- comparison$exposureId1
       comparatorId <- comparison$exposureId2
-      crude <- comparison$comparatorType2 == "Crude"
+      crude <- grepl("crude", comparison$comparatorType2)
       controls <- allControls %>%
         filter(.data$exposureId == comparison$baseExposureId)
       targetComparatorFolder <- file.path(cmFolder, sprintf("t%s_c%s", targetId, comparatorId))
@@ -63,7 +63,7 @@ runCohortMethod <- function(connectionDetails,
       # Create one big CohortMethodData object ----------------------------
       bigCmDataFile <- file.path(targetComparatorFolder, "CmData.zip")
       if (!file.exists(bigCmDataFile)) {
-        ParallelLogger::logInfo(sprintf("Constructing CohortMethodData object for exposure %s", targetId))
+        ParallelLogger::logInfo(sprintf("Constructing CohortMethodData object for target %s and comparator %s", targetId, comparatorId))
         if (crude) {
           covariateSettings <- FeatureExtraction::createCovariateSettings(useDemographicsGender = TRUE)
         } else {
@@ -101,7 +101,7 @@ runCohortMethod <- function(connectionDetails,
       sapply(timePeriods$folder[!file.exists(timePeriods$folder)], dir.create)
       
       # Subset CohortMethodData for each period ------------------------------------------------
-      ParallelLogger::logInfo(sprintf("Subsetting CohortMethodData for all periods for exposure %s", targetId))
+      ParallelLogger::logInfo(sprintf("Subsetting CohortMethodData for all periods for target %s and comparator %s", targetId, comparatorId))
       cluster <- ParallelLogger::makeCluster(min(3, maxCores))
       ParallelLogger::clusterRequire(cluster, "Eumaeus")
       invisible(ParallelLogger::clusterApply(cluster = cluster, 
@@ -115,7 +115,7 @@ runCohortMethod <- function(connectionDetails,
 
       # Fit shared propensity models per period ----------------------------------------------
       if (!crude) {
-        ParallelLogger::logInfo(sprintf("Fitting propensity models across all periods for exposure %s", targetId))
+        ParallelLogger::logInfo(sprintf("Fitting propensity models across all periods for target %s and comparator %s", targetId, comparatorId))
         cluster <- ParallelLogger::makeCluster(min(max(1, floor(maxCores/8)), 3))
         invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                                x = timePeriods$folder, 
@@ -143,14 +143,14 @@ runCohortMethod <- function(connectionDetails,
       for (i in 1:nrow(timePeriods)) {
         periodEstimatesFile <- file.path(targetComparatorFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
         if (!file.exists(periodEstimatesFile)) {
-          ParallelLogger::logInfo(sprintf("Executing cohort method for exposure %s and period: %s", targetId, timePeriods$label[i]))
+          ParallelLogger::logInfo(sprintf("Executing cohort method for target %s, comparator %s, and period: %s", targetId, comparatorId, timePeriods$label[i]))
           periodFolder <- file.path(targetComparatorFolder, sprintf("cmOutput_t%d", timePeriods$seqId[i]))
           estimates <- computeCohortMethodEstimates(targetId = targetId,
                                                     comparatorId = comparatorId,
                                                     outcomeIds = controls$outcomeId,
                                                     periodFolder = periodFolder,
                                                     maxCores = maxCores,
-                                                    crude = crude)
+                                                    comparatorType = comparison$comparatorType2)
           readr::write_csv(estimates, periodEstimatesFile)
         } else {
           estimates <- loadCmEstimates(periodEstimatesFile)
@@ -169,15 +169,7 @@ runCohortMethod <- function(connectionDetails,
   }
   delta <- Sys.time() - start
   writeLines(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
-  
-  analysisDesc <- tibble(analysisId = c(1, 
-                                        2),
-                         description = c("Crude cohort method",
-                                         "1-on-1 matching"))
-  readr::write_csv(analysisDesc, file.path(outputFolder, "cmAnalysisDesc.csv"))
 }
-
-cache <- new.env()
 
 getCohortMethodData <- function(cohortMethodDataFile) {
   if (exists("cohortMethodData", envir = cache)) {
@@ -267,9 +259,9 @@ computeCohortMethodEstimates <- function(targetId,
                                          outcomeIds,
                                          periodFolder,
                                          maxCores,
-                                         crude) {
+                                         comparatorType) {
   
-  cmAnalysisList <- createCmAnalysisList(crude = crude)
+  cmAnalysisList <- createCmAnalysisList(comparatorType = comparatorType)
   
   tcosList <- list()
   tcosList[[1]] <- CohortMethod::createTargetComparatorOutcomes(targetId = targetId,
@@ -295,7 +287,18 @@ computeCohortMethodEstimates <- function(targetId,
   return(estimates)
 }
 
-createCmAnalysisList <- function(crude) {
+createCmAnalysisList <- function(comparatorType) {
+  if (comparatorType == "Visit-anchored crude") {
+    analysisId <- 1
+  } else if (comparatorType == "Visit-anchored age-sex stratified") {
+    analysisId <- 2  
+  } else if (comparatorType == "Random day crude") {
+    analysisId <- 3
+  } else if (comparatorType == "Random day age-sex stratified") {
+    analysisId <- 4  
+  }
+    
+  
   # Not used. CohortMethodData object already created earlier for efficiency.
   getDbCmDataArgs <- CohortMethod::createGetDbCohortMethodDataArgs(covariateSettings = NULL)
   
@@ -312,8 +315,8 @@ createCmAnalysisList <- function(crude) {
                                                                  modelType = "cox",
                                                                  stratified = FALSE)
   
-  if (crude) {
-    cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = 1,
+  if (analysisId %in% c(1,3)) {
+    cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = analysisId,
                                                   description = "Crude cohort method",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs,
@@ -326,7 +329,7 @@ createCmAnalysisList <- function(crude) {
     
     matchOnPsArgs <- CohortMethod::createMatchOnPsArgs(maxRatio = 1)
     
-    cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = 2,
+    cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = analysisId,
                                                   description = "1-on-1 matching",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs,

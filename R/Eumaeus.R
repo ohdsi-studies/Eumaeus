@@ -20,3 +20,5 @@
 #' @importFrom rlang .data
 #' @import dplyr
 NULL
+
+cache <- new.env()

@@ -22,55 +22,56 @@ analyseResults <- function(outputFolder) {
   
   method <- "HistComp"
   estimates <- loadEstimates(file.path(outputFolder, "hcSummary.csv"))
-  analysisDesc <- readr::read_csv(file.path(outputFolder, "hcAnalysisDesc.csv"), col_types = readr::cols())
   analyseMethodResults(method = method,
                        estimates = estimates, 
-                       analysisDesc = analysisDesc,
-                       aucVariable = "llr",
                        outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
   
   method <- "CohortMethod"
   estimates <- loadEstimates(file.path(outputFolder, "cmSummary.csv"))
-  analysisDesc <- readr::read_csv(file.path(outputFolder, "cmAnalysisDesc.csv"), col_types = readr::cols())
   analyseMethodResults(method = method,
                        estimates = estimates, 
-                       analysisDesc = analysisDesc,
-                       aucVariable = "llr",
                        outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
   
   method <- "SCCS"
   estimates <- loadEstimates(file.path(outputFolder, "sccsSummary.csv"))
-  analysisDesc <- readr::read_csv(system.file("settings", "Analyses.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
-    filter(.data$method == !!method)
   analyseMethodResults(method = method,
                        estimates = estimates, 
-                       analysisDesc = analysisDesc,
-                       aucVariable = "llr",
                        outputFolder = outputFolder,
                        resultsFolder = resultsFolder,
                        maxCores = maxCores)
+  
+  method <- "CaseControl"
+  estimates <- loadEstimates(file.path(outputFolder, "ccSummary.csv"))
+  analyseMethodResults(method = method,
+                       estimates = estimates, 
+                       outputFolder = outputFolder,
+                       resultsFolder = resultsFolder,
+                       maxCores = maxCores)
+  
 }
 
 analyseMethodResults <- function(method,
                                  estimates,
-                                 analysisDesc,
-                                 aucVariable,
                                  outputFolder,
                                  resultsFolder,
                                  maxCores) {
+  analysisDesc <- readr::read_csv(system.file("settings", "Analyses.csv", package = "Eumaeus"), 
+                                  col_types = readr::cols()) %>%
+    filter(.data$method == !!method)
+  
   allControls <- loadAllControls(outputFolder)
   exposures <- loadExposureCohorts(outputFolder)
   
   estimates <- select(allControls, baseExposureId = .data$exposureId, .data$outcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
     inner_join(select(exposures, .data$exposureId, .data$baseExposureId, .data$exposureName), by = "baseExposureId") %>%
     left_join(estimates, by = c("exposureId", "outcomeId")) 
-    
   
-  # analysisId <- 3
+  
+  # analysisId <- 1
   analyseAnalysis <- function(analysisId) {
     analysisSubset <- estimates %>%
       filter(.data$analysisId == !!analysisId)
@@ -85,19 +86,17 @@ analyseMethodResults <- function(method,
       exposureId <- subset$exposureId[1]
       exposureName <- subset$exposureName[1]
       title <-  sprintf("%s, Analysis %d (%s)", exposureName, analysisId, description)
-      if ("llr" %in% colnames(subset)) {
-        # fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_time.png", method, exposureId, analysisId))
-        # plotLrr(subset = subset, title = title, scale = "time", fileName = fileName)
-        # 
-        # fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_events.png", method, exposureId, analysisId))
-        # plotLrr(subset = subset, title = title, scale = "events", fileName = fileName)
-        
-        fileName <- file.path(resultsFolder, sprintf("sensSpec_m%s_e%s_a%s.png", method, exposureId, analysisId))
-        plotSensSpec(subset = subset, title = title, fileName = fileName, resultsFolder = resultsFolder, maxCores = maxCores)
-        
-      }
-      fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s.png", method, exposureId, analysisId))
-      plotAuc(subset = subset, title = title, aucVariable = aucVariable, fileName = fileName)
+      # fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_time.png", method, exposureId, analysisId))
+      # plotLrr(subset = subset, title = title, scale = "time", fileName = fileName)
+      # 
+      # fileName <- file.path(resultsFolder, sprintf("llr_m%s_e%s_a%s_events.png", method, exposureId, analysisId))
+      # plotLrr(subset = subset, title = title, scale = "events", fileName = fileName)
+      
+      # fileName <- file.path(resultsFolder, sprintf("sensSpec_m%s_e%s_a%s.png", method, exposureId, analysisId))
+      # plotSensSpec(subset = subset, title = title, fileName = fileName, resultsFolder = resultsFolder, maxCores = maxCores)
+      
+      # fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s.png", method, exposureId, analysisId))
+      # plotAuc(subset = subset, title = title, aucVariable = "llr", fileName = fileName)
       # 
       # fileName <- file.path(resultsFolder, sprintf("auc_m%s_e%s_a%s_llr.png", method, exposureId, analysisId))
       # plotAuc(subset = subset, title = title, aucVariable = "llr", fileName = fileName)
@@ -280,13 +279,14 @@ plotAuc <- function(subset, title, aucVariable, fileName) {
 
 plotBias <- function(subset = subset, title = title, fileName = fileName) {
   ncs <- subset %>%
-    filter(.data$targetEffectSize == 1 & .data$expectedOutcomes > 1) %>%
+    # filter(.data$targetEffectSize == 1 & .data$expectedOutcomes > 1) %>%
+    filter(.data$targetEffectSize == 1) %>%
     mutate(treatment = 0) %>%
     arrange(.data$seqId)
   
   plot <- EvidenceSynthesis::plotEmpiricalNulls(logRr = ncs$logRr,
                                                 seLogRr = ncs$seLogRr,
-                                                labels = ncs$period,
+                                                labels = ncs$seqId,
                                                 showCis = F)
   
   ggplot2::ggsave(fileName,
@@ -298,12 +298,13 @@ plotBias <- function(subset = subset, title = title, fileName = fileName) {
 
 plotNcs <- function(subset = subset, title = title, fileName = fileName) {
   ncs <- subset %>%
-    filter(.data$targetEffectSize == 1 & .data$expectedOutcomes > 1) %>%
+    # filter(.data$targetEffectSize == 1 & .data$expectedOutcomes > 1) %>%
+    filter(.data$targetEffectSize == 1) %>%
     mutate(treatment = 0) %>%
     arrange(.data$seqId)
   
   lastNcs <- ncs %>%
-    filter(.data$seqId == max(ncs$seqId))
+    filter(.data$seqId == max(.data$seqId))
   
   EmpiricalCalibration::plotCalibrationEffect(logRrNegatives = lastNcs$logRr,
                                               seLogRrNegatives = lastNcs$seLogRr,
@@ -320,12 +321,12 @@ plotNcs <- function(subset = subset, title = title, fileName = fileName) {
 
 plotNcsAndPcs <- function(subset = subset, title = title, fileName = fileName) {
   controls <- subset %>%
-    filter(.data$expectedOutcomes > 1) %>%
+    # filter(.data$expectedOutcomes > 1) %>%
     mutate(treatment = 0) %>%
     arrange(.data$seqId)
   
   lastControls <- controls %>%
-    filter(.data$seqId == max(controls$seqId))
+    filter(.data$seqId == max(.data$seqId))
   
   EmpiricalCalibration::plotCiCalibrationEffect(logRr = lastControls$logRr,
                                                 seLogRr = lastControls$seLogRr,
