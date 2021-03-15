@@ -247,12 +247,26 @@ createSccsAnalysesList <- function(startDate, endDate) {
   createStudyPopulationArgs <- SelfControlledCaseSeries::createCreateStudyPopulationArgs(naivePeriod = 365,
                                                                                          firstOutcomeOnly = FALSE)
   
-  covarExposureOfInt <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
-                                                                             includeEraIds = "exposureId",
-                                                                             start = 1,
-                                                                             startAnchor = "era start",
-                                                                             end = 28,
-                                                                             endAnchor = "era start")
+  covarExposureOfInt1_28 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
+                                                                                 includeEraIds = "exposureId",
+                                                                                 start = 1,
+                                                                                 startAnchor = "era start",
+                                                                                 end = 28,
+                                                                                 endAnchor = "era start")
+  
+  covarExposureOfInt1_42 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
+                                                                                 includeEraIds = "exposureId",
+                                                                                 start = 1,
+                                                                                 startAnchor = "era start",
+                                                                                 end = 42,
+                                                                                 endAnchor = "era start")
+  
+  covarExposureOfInt0_1 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
+                                                                                includeEraIds = "exposureId",
+                                                                                start = 0,
+                                                                                startAnchor = "era start",
+                                                                                end = 1,
+                                                                                endAnchor = "era start")
   
   covarPreExp <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure",
                                                                       includeEraIds = "exposureId",
@@ -260,88 +274,246 @@ createSccsAnalysesList <- function(startDate, endDate) {
                                                                       end = -1,
                                                                       endAnchor = "era start")
   
-  covarExposureOfInt2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
-                                                                              includeEraIds = "exposureId2",
-                                                                              start = 1,
-                                                                              startAnchor = "era start",
-                                                                              end = 28,
-                                                                              endAnchor = "era start")
+  covarExposureOfInt2nd1_28 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
+                                                                                    includeEraIds = "exposureId2",
+                                                                                    start = 1,
+                                                                                    startAnchor = "era start",
+                                                                                    end = 28,
+                                                                                    endAnchor = "era start")
   
-  covarPreExp2 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure second",
+  covarExposureOfInt2nd1_42 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
+                                                                                    includeEraIds = "exposureId2",
+                                                                                    start = 1,
+                                                                                    startAnchor = "era start",
+                                                                                    end = 42,
+                                                                                    endAnchor = "era start")
+  
+  covarExposureOfInt2nd0_1 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
+                                                                                   includeEraIds = "exposureId2",
+                                                                                   start = 0,
+                                                                                   startAnchor = "era start",
+                                                                                   end = 1,
+                                                                                   endAnchor = "era start")
+  
+  covarPreExp2nd <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure second",
                                                                        includeEraIds = "exposureId2",
                                                                        start = -30,
                                                                        end = -1,
                                                                        endAnchor = "era start")
   
-  createSccsIntervalDataArgs1 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
-                                                                                                                        covarPreExp,
-                                                                                                                        covarExposureOfInt2,
-                                                                                                                        covarPreExp2))
+  createSccsIntervalDataArgsSimple1_28 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_28,
+                                covarPreExp,
+                                covarExposureOfInt2nd1_28,
+                                covarPreExp2nd)
+  )
+  
+  createSccsIntervalDataArgsSimple1_42 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_42,
+                                covarPreExp,
+                                covarExposureOfInt2nd1_42,
+                                covarPreExp2nd)
+  )
+
+  createSccsIntervalDataArgsSimple0_1 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt0_1,
+                                covarPreExp,
+                                covarExposureOfInt2nd0_1,
+                                covarPreExp2nd)
+  )
+  
   ageSettings <- SelfControlledCaseSeries::createAgeCovariateSettings(ageKnots = 5, 
                                                                       computeConfidenceIntervals = FALSE)
   
   seasonalitySettings <- SelfControlledCaseSeries::createSeasonalityCovariateSettings(seasonKnots = 5, 
                                                                                       computeConfidenceIntervals = FALSE)
+
+  createSccsIntervalDataArgsAgeSeason1_28 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_28,
+                                covarPreExp,
+                                covarExposureOfInt2nd1_28,
+                                covarPreExp2nd),
+    ageCovariateSettings = ageSettings,
+    seasonalityCovariateSettings = seasonalitySettings
+  )
+
+  createSccsIntervalDataArgsAgeSeason1_42 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_42,
+                                covarPreExp,
+                                covarExposureOfInt2nd1_42,
+                                covarPreExp2nd),
+    ageCovariateSettings = ageSettings,
+    seasonalityCovariateSettings = seasonalitySettings
+  )
   
-  createSccsIntervalDataArgs2 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
-                                                                                                                        covarPreExp,
-                                                                                                                        covarExposureOfInt2,
-                                                                                                                        covarPreExp2),
-                                                                                            ageCovariateSettings = ageSettings,
-                                                                                            seasonalityCovariateSettings = seasonalitySettings)
+  createSccsIntervalDataArgsAgeSeason0_1 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt0_1,
+                                covarPreExp,
+                                covarExposureOfInt2nd0_1,
+                                covarPreExp2nd),
+    ageCovariateSettings = ageSettings,
+    seasonalityCovariateSettings = seasonalitySettings
+  )
   
-  controlIntervalSettings1 <- SelfControlledCaseSeries::createControlIntervalSettings(includeEraIds = c("exposureId", "exposureId2"),
-                                                                                      start = -43,
-                                                                                      startAnchor = "era start",
-                                                                                      end = -15,
-                                                                                      endAnchor = "era start")
+
+  controlIntervalSettings1 <- SelfControlledCaseSeries::createControlIntervalSettings(
+    includeEraIds = c("exposureId", "exposureId2"),
+    start = -43,
+    startAnchor = "era start",
+    end = -15,
+    endAnchor = "era start"
+  )
   
-  createScriIntervalDataArgs1 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
-                                                                                                                        covarExposureOfInt2),
-                                                                                            controlIntervalSettings = controlIntervalSettings1)
+  createScriIntervalDataArgs1_28 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_28,
+                                covarExposureOfInt2nd1_28),
+    controlIntervalSettings = controlIntervalSettings1
+  )
+
+  createScriIntervalDataArgs1_42 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_42,
+                                covarExposureOfInt2nd1_42),
+    controlIntervalSettings = controlIntervalSettings1
+  )
+
+  createScriIntervalDataArgs0_1 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt0_1,
+                                covarExposureOfInt2nd0_1),
+    controlIntervalSettings = controlIntervalSettings1
+  )
   
-  controlIntervalSettings2 <- SelfControlledCaseSeries::createControlIntervalSettings(includeEraIds = c("exposureId", "exposureId2"),
-                                                                                      start = 43,
-                                                                                      startAnchor = "era start",
-                                                                                      end = 71,
-                                                                                      endAnchor = "era start")
+  controlIntervalSettings2 <- SelfControlledCaseSeries::createControlIntervalSettings(
+    includeEraIds = c("exposureId", "exposureId2"),
+    start = 43,
+    startAnchor = "era start",
+    end = 71,
+    endAnchor = "era start"
+  )
   
-  createScriIntervalDataArgs2 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(eraCovariateSettings = list(covarExposureOfInt,
-                                                                                                                        covarExposureOfInt2),
-                                                                                            controlIntervalSettings = controlIntervalSettings2)
+  createScriIntervalDataArgsPost1_28 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_28,
+                                covarExposureOfInt2nd1_28),
+    controlIntervalSettings = controlIntervalSettings2
+  )
+  
+  createScriIntervalDataArgsPost1_42 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_42,
+                                covarExposureOfInt2nd1_42),
+    controlIntervalSettings = controlIntervalSettings2
+  )
+  
+  createScriIntervalDataArgsPost0_1 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt0_1,
+                                covarExposureOfInt2nd0_1),
+    controlIntervalSettings = controlIntervalSettings2
+  )
   
   fitSccsModelArgs <- SelfControlledCaseSeries::createFitSccsModelArgs()
   
   sccsAnalysis1 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 1,
-                                                                description = "SCCS",
+                                                                description = "SCCS, tar 1-28 days",
                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
-                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgs1,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsSimple1_28,
                                                                 fitSccsModelArgs = fitSccsModelArgs)
   
   sccsAnalysis2 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 2,
-                                                                description = "SCCS adjusting for age and season",
+                                                                description = "SCCS adjusting for age and season, tar 1-28 days",
                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
-                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgs2,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsAgeSeason1_28,
                                                                 fitSccsModelArgs = fitSccsModelArgs)
   
   sccsAnalysis3 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 3,
-                                                                description = "SCRI with prior control interval",
+                                                                description = "SCRI with prior control interval, tar 1-28 days",
                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
                                                                 design = "SCRI",
-                                                                createScriIntervalDataArgs = createScriIntervalDataArgs1,
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgs1_28,
                                                                 fitSccsModelArgs = fitSccsModelArgs)
   
   sccsAnalysis4 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 4,
-                                                                description = "SCRI with posterior control interval",
+                                                                description = "SCRI with posterior control interval, tar 1-28 days",
                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
                                                                 design = "SCRI",
-                                                                createScriIntervalDataArgs = createScriIntervalDataArgs1,
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgsPost1_28,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+
+  
+  sccsAnalysis5 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 5,
+                                                                description = "SCCS, tar 1-42 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsSimple1_42,
                                                                 fitSccsModelArgs = fitSccsModelArgs)
   
-  sccsAnalysisList <- list(sccsAnalysis1, sccsAnalysis2, sccsAnalysis3, sccsAnalysis4)
+  sccsAnalysis6 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 6,
+                                                                description = "SCCS adjusting for age and season, tar 1-42 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsAgeSeason1_42,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis7 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 7,
+                                                                description = "SCRI with prior control interval, tar 1-42 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                design = "SCRI",
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgs1_42,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis8 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 8,
+                                                                description = "SCRI with posterior control interval, tar 1-42 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                design = "SCRI",
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgsPost1_42,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  
+  sccsAnalysis9 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 9,
+                                                                description = "SCCS, tar 0-1 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsSimple0_1,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis10 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 10,
+                                                                description = "SCCS adjusting for age and season, tar 0-1 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                createSccsIntervalDataArgs = createSccsIntervalDataArgsAgeSeason0_1,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis11 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 11,
+                                                                description = "SCRI with prior control interval, tar 0-1 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                design = "SCRI",
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgs0_1,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis12 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 12,
+                                                                description = "SCRI with posterior control interval, tar 0-1 days",
+                                                                getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                design = "SCRI",
+                                                                createScriIntervalDataArgs = createScriIntervalDataArgsPost0_1,
+                                                                fitSccsModelArgs = fitSccsModelArgs)
+  
+    
+  sccsAnalysisList <- list(sccsAnalysis1, 
+                           sccsAnalysis2, 
+                           sccsAnalysis3, 
+                           sccsAnalysis4, 
+                           sccsAnalysis5, 
+                           sccsAnalysis6, 
+                           sccsAnalysis7, 
+                           sccsAnalysis8, 
+                           sccsAnalysis9, 
+                           sccsAnalysis10, 
+                           sccsAnalysis11, 
+                           sccsAnalysis12)
   return(sccsAnalysisList)
 }

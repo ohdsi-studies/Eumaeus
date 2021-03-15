@@ -209,20 +209,46 @@ createCcAnalysesList <- function(startDate, endDate) {
   
   getDbExposureDataArgs1 <- CaseControl::createGetDbExposureDataArgs(covariateSettings = covariateSettings1)
   
-  createCaseControlDataArgs1 <- CaseControl::createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
-                                                                             riskWindowStart = -28,
-                                                                             riskWindowEnd = -1, 
-                                                                             exposureWashoutPeriod = 365)
+  createCaseControlDataArgs1_28 <- CaseControl::createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
+                                                                                riskWindowStart = -28,
+                                                                                riskWindowEnd = -1, 
+                                                                                exposureWashoutPeriod = 365)
+  
+  createCaseControlDataArgs1_42 <- CaseControl::createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
+                                                                                riskWindowStart = -42,
+                                                                                riskWindowEnd = -1, 
+                                                                                exposureWashoutPeriod = 365)
+  
+  createCaseControlDataArgs0_1 <- CaseControl::createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
+                                                                               riskWindowStart = -1,
+                                                                               riskWindowEnd = 0, 
+                                                                               exposureWashoutPeriod = 365)
   
   fitCaseControlModelArgs1 <- CaseControl::createFitCaseControlModelArgs(useCovariates = TRUE,
                                                                          prior = prior)
   
   ccAnalysis1 <- CaseControl::createCcAnalysis(analysisId = 1,
-                                               description = "Sampling, adj. for age & sex",
+                                               description = "Sampling, adj. for age & sex, tar 1-28 days",
                                                getDbCaseDataArgs = getDbCaseDataArgs1,
                                                selectControlsArgs = selectControlsArgs1,
                                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1_28,
+                                               fitCaseControlModelArgs = fitCaseControlModelArgs1)
+
+  ccAnalysis3 <- CaseControl::createCcAnalysis(analysisId = 3,
+                                               description = "Sampling, adj. for age & sex, tar 1-42 days",
+                                               getDbCaseDataArgs = getDbCaseDataArgs1,
+                                               selectControlsArgs = selectControlsArgs1,
+                                               getDbExposureDataArgs = getDbExposureDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1_42,
+                                               fitCaseControlModelArgs = fitCaseControlModelArgs1)
+  
+  ccAnalysis5 <- CaseControl::createCcAnalysis(analysisId = 5,
+                                               description = "Sampling, adj. for age & sex, tar 0-1 days",
+                                               getDbCaseDataArgs = getDbCaseDataArgs1,
+                                               selectControlsArgs = selectControlsArgs1,
+                                               getDbExposureDataArgs = getDbExposureDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs0_1,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
   
   matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = 4,
@@ -238,13 +264,29 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                                          prior = prior)
   
   ccAnalysis2 <- CaseControl::createCcAnalysis(analysisId = 2,
-                                               description = "Matching on age & sex",
+                                               description = "Matching on age & sex, tar 1-28 days",
+                                               getDbCaseDataArgs = getDbCaseDataArgs1,
+                                               selectControlsArgs = selectControlsArgs2,
+                                               getDbExposureDataArgs = getDbExposureDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               fitCaseControlModelArgs = fitCaseControlModelArgs2)
+
+  ccAnalysis4 <- CaseControl::createCcAnalysis(analysisId = 4,
+                                               description = "Matching on age & sex, tar 1-42 days",
+                                               getDbCaseDataArgs = getDbCaseDataArgs1,
+                                               selectControlsArgs = selectControlsArgs2,
+                                               getDbExposureDataArgs = getDbExposureDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               fitCaseControlModelArgs = fitCaseControlModelArgs2)
+
+  ccAnalysis6 <- CaseControl::createCcAnalysis(analysisId = 6,
+                                               description = "Matching on age & sex, tar 0-1 days",
                                                getDbCaseDataArgs = getDbCaseDataArgs1,
                                                selectControlsArgs = selectControlsArgs2,
                                                getDbExposureDataArgs = getDbExposureDataArgs1,
                                                createCaseControlDataArgs = createCaseControlDataArgs1,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
   
-  ccAnalysisList <- list(ccAnalysis1, ccAnalysis2)
+  ccAnalysisList <- list(ccAnalysis1, ccAnalysis2, ccAnalysis3, ccAnalysis4, ccAnalysis5, ccAnalysis6)
   return(ccAnalysisList)
 }
