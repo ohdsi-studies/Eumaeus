@@ -3,16 +3,6 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::word_document2:
-    toc: yes
-  bookdown::html_document2:
-    df_print: paged
-    toc: yes
-    toc_depth: 2
-    toc_float: yes
-    number_sections: yes
-    number_tables: yes
-    css: "style.css"
   bookdown::pdf_document2:
     keep_tex: yes
     latex_engine: xelatex
@@ -21,6 +11,16 @@ output:
     # citation_package: natbib
     includes:
       before_body: title.tex
+  bookdown::html_document2:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    number_sections: yes
+    number_tables: yes
+    css: "style.css"
+  bookdown::word_document2:
+    toc: yes
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -50,7 +50,7 @@ longtable: yes
 mainfont: Arial
 bibliography: Protocol.bib
 params:
-  date: '2020-09-24'
+  date: '2021-03-14'
   version: 0.1.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
@@ -156,7 +156,7 @@ if (knitr::is_latex_output()) {
 This study is undertaken within Observational Health Data Sciences and Informatics (OHDSI), an open collaboration.
 **GH** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from Janssen Research and Development.
 **PBR** and **MJS** are employees of Janssen Research and Development and shareholders in John & Johnson.
-**MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from Janssen Research and Development and IQVIA.
+**MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from the US Department of Veterans Affairs, Janssen Research and Development and IQVIA.
 
 # Abstract
 
@@ -548,7 +548,7 @@ We will also prepare multiple scientific publications for clinical, informatics 
 
 We believe in sharing our findings that will guide clinical care with the general public.
 EUMAEUS will use social-media (Twitter) to facilitate this.
-With dedicated support from the OHDSI communications specialist, we will deliver regular press releases at key project stages, distributed via the extensive media networks of UCLA, Columbia and Yale.
+With dedicated support from the OHDSI communications specialist, we will deliver regular press releases at key project stages, distributed via the extensive media networks of UCLA and Columbia.
 
 # Lists of Tables and Figures
 
