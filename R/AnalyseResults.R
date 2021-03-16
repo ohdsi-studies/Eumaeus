@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-analyseResults <- function(outputFolder) {
+analyseResults <- function(outputFolder, maxCores) {
   resultsFolder <- file.path(outputFolder , "results")
   if (!file.exists(resultsFolder)) {
     dir.create(resultsFolder)
@@ -222,7 +222,7 @@ plotSensSpec <- function(subset = subset, title = title, fileName = fileName, re
   
   plot <- ggplot2::ggplot(results, ggplot2::aes(x = .data$seqId, y = .data$value, color = .data$metric, group = .data$metric)) +
     ggplot2::geom_line(alpha = 0.8) +
-    ggplot2::geom_hline(ggplot2::aes(yintercept = y, color = .data$metric), data = nominal, linetype = "dashed") +
+    ggplot2::geom_hline(ggplot2::aes(yintercept = .data$y, color = .data$metric), data = nominal, linetype = "dashed") +
     ggplot2::geom_label(ggplot2::aes(y = .data$y, x = .data$x, label = .data$label), data = nominal, hjust = 0, color = "black", fill = rgb(1, 1, 1, alpha = 0.9)) +
     ggplot2::scale_x_continuous("Accumulated time", breaks = periods$seqId, labels = periods$period) +
     ggplot2::scale_y_continuous("Sensitivity or specificity") +

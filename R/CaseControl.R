@@ -268,7 +268,7 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                getDbCaseDataArgs = getDbCaseDataArgs1,
                                                selectControlsArgs = selectControlsArgs2,
                                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1_28,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
 
   ccAnalysis4 <- CaseControl::createCcAnalysis(analysisId = 4,
@@ -276,7 +276,7 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                getDbCaseDataArgs = getDbCaseDataArgs1,
                                                selectControlsArgs = selectControlsArgs2,
                                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs1_42,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
 
   ccAnalysis6 <- CaseControl::createCcAnalysis(analysisId = 6,
@@ -284,7 +284,7 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                getDbCaseDataArgs = getDbCaseDataArgs1,
                                                selectControlsArgs = selectControlsArgs2,
                                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                               createCaseControlDataArgs = createCaseControlDataArgs1,
+                                               createCaseControlDataArgs = createCaseControlDataArgs0_1,
                                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
   
   ccAnalysisList <- list(ccAnalysis1, ccAnalysis2, ccAnalysis3, ccAnalysis4, ccAnalysis5, ccAnalysis6)

@@ -227,10 +227,10 @@ computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALS
   # print(outcomeId)
   
   target <- ratesExposed %>%
-    filter(outcomeId == !!outcomeId) 
+    filter(.data$outcomeId == !!outcomeId) 
   
   comparator <- ratesBackground %>%
-    filter(outcomeId == !!outcomeId) 
+    filter(.data$outcomeId == !!outcomeId) 
   
   estimateRow <- bind_cols(summarize(target, targetOutcomes = as.numeric(sum(.data$cohortCount)),
                            targetYears = sum(.data$personYears)),
@@ -260,8 +260,8 @@ computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALS
         mutate(comparatorRate = .data$cohortCount / .data$personYears) %>%
         select(.data$comparatorRate, .data$stratumId) %>%
         inner_join(target, by = "stratumId") %>%
-        mutate(expectedOutcomes = personYears * comparatorRate) %>%
-        summarize(expectedOutcomes = sum(expectedOutcomes)) %>%
+        mutate(expectedOutcomes = .data$personYears * .data$comparatorRate) %>%
+        summarize(expectedOutcomes = sum(.data$expectedOutcomes)) %>%
         pull()
       
     } else {
