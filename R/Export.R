@@ -14,23 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-#' Export all results to tables
-#'
-#' @description
-#' Outputs all results to a folder called 'export', and zips them.
-#'
-#' @param outputFolder          Name of local folder to place results; make sure to use forward slashes
-#'                              (/). Do not use a folder on a network drive since this greatly impacts
-#'                              performance.
-#' @param databaseId            A short string for identifying the database (e.g. 'Synpuf').
-#' @param databaseName          The full name of the database.
-#' @param databaseDescription   A short description (several sentences) of the database.
-#' @param minCellCount          The minimum cell count for fields contains person counts or fractions.
-#' @param maxCores              How many parallel cores should be used? If more cores are made
-#'                              available this can speed up the analyses.
-#'
-#' @export
 exportResults <- function(outputFolder,
                           connectionDetails,
                           cdmDatabaseSchema,

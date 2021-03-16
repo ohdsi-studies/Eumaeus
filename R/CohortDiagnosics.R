@@ -28,55 +28,31 @@
 #' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
 #'                             Note that for SQL Server, this should include both the database and
 #'                             schema name, for example 'cdm_data.dbo'.
-#' @param outcomeDatabaseSchema Schema name where outcome data can be stored. You will need to have
-#'                             write privileges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param outcomeTable          The name of the table that will be created in the outcomeDatabaseSchema.
-#'                             This table will hold the outcome cohorts used in this
-#'                             study.
-#' @param exposureDatabaseSchema For PanTher only: Schema name where exposure data can be stored. You will need to have
+#' @param cohortDatabaseSchema Schema name where outcome data can be stored. You will need to have
 #'                             write priviliges in this schema. Note that for SQL Server, this should
 #'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param exposureTable          For PanTher only: The name of the table that will be created in the exposureDatabaseSchema
-#'                             This table will hold the exposure cohorts used in this
-#'                             study.
-#' @param nestingCohortDatabaseSchema Schema name where nesting cohort data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param nestingCohortTable          The name of the table that will be created in the nestingCohortDatabaseSchema
-#'                             This table will hold the nesting cohorts used in this
+#' @param cohortTable          The name of the table that will be created in the \code{cohortDatabaseSchema}.
+#'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
 #' @param databaseName         A short string for identifying the database (e.g.
 #'                             'Synpuf').
-#' @param maxCores             How many parallel cores should be used? If more cores are made available
-#'                             this can speed up the analyses.
-#' @param cdmVersion           Version of the Common Data Model used. Currently only version 5 is supported.
 #' @param createCohorts        Create the exposure and outcome?
-#' @param imputeExposureLengthForPanther      For PanTher only: impute exposure length?
-#' @param synthesizePositiveControls          Should positive controls be synthesized?
-#' @param runCohortMethod                     Perform the cohort method analyses?
-#' @param runSelfControlledCaseSeries                     Perform the SCCS analyses?
-#' @param runSelfControlledCohort                     Perform the SCC analyses?
-#' @param runCaseControl                     Perform the case-control analyses?
-#' @param runCaseCrossover       Perform the case-crossover analyses?
-#' @param createCharacterization       Create a general characterization of the database population?
-#' @param packageResults       Should results be packaged for later sharing and viewing?
+#' @param runCohortDiagnostics Run cohort diagnostics?
 #'
 #' @export
-assessFeasibility <- function(connectionDetails,
-                              cdmDatabaseSchema,
-                              cohortDatabaseSchema,
-                              cohortTable,
-                              outputFolder,
-                              databaseId,
-                              databaseName = databaseId,
-                              databaseDescription = databaseId,
-                              cdmVersion = "5",
-                              createCohorts = TRUE,
-                              runCohortDiagnostics = TRUE) {
+runCohortDiagnostics <- function(connectionDetails,
+                                 cdmDatabaseSchema,
+                                 cohortDatabaseSchema,
+                                 cohortTable,
+                                 outputFolder,
+                                 databaseId,
+                                 databaseName = databaseId,
+                                 databaseDescription = databaseId,
+                                 createCohorts = TRUE,
+                                 runCohortDiagnostics = TRUE) {
     cohortDiagnosticsFolder <- file.path(outputFolder, "cohortDiagnostics")
     if (!file.exists(cohortDiagnosticsFolder)) {
         dir.create(cohortDiagnosticsFolder, recursive = TRUE)
@@ -88,18 +64,20 @@ assessFeasibility <- function(connectionDetails,
     on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
     
     if (createCohorts) {
-        ParallelLogger::logInfo("Creating negative control cohorts")
-        Eumaeus:::createCohorts(connectionDetails = connectionDetails,
-                      cdmDatabaseSchema = cdmDatabaseSchema,
-                      cohortDatabaseSchema = cohortDatabaseSchema,
-                      cohortTable = cohortTable,
-                      outputFolder = outputFolder)
+        ParallelLogger::logInfo("Creating base exposure cohorts")
+        connection <- DatabaseConnector::connect(connectionDetails)
+        Eumaeus:::.createCohorts(connection = connection,
+                                 cdmDatabaseSchema = cdmDatabaseSchema,
+                                 cohortDatabaseSchema = cohortDatabaseSchema,
+                                 cohortTable = cohortTable,
+                                 outputFolder = outputFolder)
+        DatabaseConnector::disconnect(connection)
     }
     
     if (runCohortDiagnostics) {
         ParallelLogger::logInfo("Running cohort diagnostics")
         CohortDiagnostics::runCohortDiagnostics(packageName = "Eumaeus",
-                                                cohortToCreateFile = "settings/AllExposureCohorts.csv",
+                                                cohortToCreateFile = "settings/CohortsToCreate.csv",
                                                 connectionDetails = connectionDetails,
                                                 cdmDatabaseSchema = cdmDatabaseSchema,
                                                 cohortDatabaseSchema = cohortDatabaseSchema,
@@ -109,14 +87,14 @@ assessFeasibility <- function(connectionDetails,
                                                 databaseName = databaseName,
                                                 databaseDescription = databaseDescription,
                                                 runInclusionStatistics = FALSE,
-                                                runBreakdownIndexEvents = FALSE,
+                                                runBreakdownIndexEvents = TRUE,
                                                 runCohortCharacterization = TRUE,
                                                 runIncludedSourceConcepts = FALSE,
                                                 runCohortOverlap = FALSE,
                                                 runIncidenceRate = TRUE,
                                                 runOrphanConcepts = FALSE,
                                                 runTemporalCohortCharacterization = TRUE,
-                                                runTimeDistributions = TRUE,
+                                                runTimeDistributions = FALSE,
                                                 runVisitContext = FALSE)
     }
 }

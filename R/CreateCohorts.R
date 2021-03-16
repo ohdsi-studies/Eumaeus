@@ -19,8 +19,7 @@
                            vocabularyDatabaseSchema = cdmDatabaseSchema,
                            cohortDatabaseSchema,
                            cohortTable,
-                           outputFolder,
-                           exposureIds) {
+                           outputFolder) {
   
   # Create study cohort table structure:
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateCohortTable.sql",
@@ -33,8 +32,7 @@
   
   
   # Instantiate cohorts:
-  cohortsToCreate <- loadCohortsToCreate() %>%
-    filter(.data$cohortId %in% exposureIds)
+  cohortsToCreate <- loadCohortsToCreate() 
   for (i in 1:nrow(cohortsToCreate)) {
     ParallelLogger::logInfo(paste("Creating cohort:", cohortsToCreate$name[i]))
     sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),

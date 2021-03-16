@@ -32,51 +32,37 @@ getExposuresOfInterest <- function() {
 #' @details
 #' This function executes the Study.
 #'
-#' The \code{createCohorts}, \code{synthesizePositiveControls}, \code{runAnalyses}, and \code{runDiagnostics} arguments
-#' are intended to be used to run parts of the full study at a time, but none of the parts are considerd to be optional.
-#'
 #' @param connectionDetails    An object of type \code{connectionDetails} as created using the
 #'                             \code{\link[DatabaseConnector]{createConnectionDetails}} function in the
 #'                             DatabaseConnector package.
 #' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
 #'                             Note that for SQL Server, this should include both the database and
 #'                             schema name, for example 'cdm_data.dbo'.
-#' @param outcomeDatabaseSchema Schema name where outcome data can be stored. You will need to have
+#' @param cohortDatabaseSchema Schema name where outcome data can be stored. You will need to have
 #'                             write priviliges in this schema. Note that for SQL Server, this should
 #'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param outcomeTable          The name of the table that will be created in the outcomeDatabaseSchema.
-#'                             This table will hold the outcome cohorts used in this
-#'                             study.
-#' @param exposureDatabaseSchema For PanTher only: Schema name where exposure data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param exposureTable          For PanTher only: The name of the table that will be created in the exposureDatabaseSchema
-#'                             This table will hold the exposure cohorts used in this
-#'                             study.
-#' @param nestingCohortDatabaseSchema Schema name where nesting cohort data can be stored. You will need to have
-#'                             write priviliges in this schema. Note that for SQL Server, this should
-#'                             include both the database and schema name, for example 'cdm_data.dbo'.
-#' @param nestingCohortTable          The name of the table that will be created in the nestingCohortDatabaseSchema
-#'                             This table will hold the nesting cohorts used in this
+#' @param cohortTable          The name of the table that will be created in the \code{cohortDatabaseSchema}.
+#'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
-#' @param databaseName         A short string for identifying the database (e.g.
-#'                             'Synpuf').
+#' @param databaseId            A short string for identifying the database (e.g. 'Synpuf').
+#' @param databaseName          The full name of the database.
+#' @param databaseDescription   A short description (several sentences) of the database.
+#' @param minCellCount          The minimum cell count for fields contains person counts or fractions.
 #' @param maxCores             How many parallel cores should be used? If more cores are made available
 #'                             this can speed up the analyses.
-#' @param cdmVersion           Version of the Common Data Model used. Currently only version 5 is supported.
+#' @param exposureIds          The IDs of the exposure cohorts to include. See \code{\link{getExposuresOfInterest}}
+#'                             for the available exposure cohorts and their IDs.
 #' @param createCohorts        Create the exposure and outcome cohorts?
-#' @param imputeExposureLengthForPanther      For PanTher only: impute exposure length?
 #' @param synthesizePositiveControls          Should positive controls be synthesized?
 #' @param runCohortMethod                     Perform the cohort method analyses?
-#' @param runSelfControlledCaseSeries                     Perform the SCCS analyses?
-#' @param runSelfControlledCohort                     Perform the SCC analyses?
+#' @param runSccs                     Perform the SCCS and SCRI analyses?
 #' @param runCaseControl                     Perform the case-control analyses?
-#' @param runCaseCrossover       Perform the case-crossover analyses?
-#' @param createCharacterization       Create a general characterization of the database population?
-#' @param packageResults       Should results be packaged for later sharing and viewing?
+#' @param runHistoricalComparator       Perform the historical comparator analyses?
+#' @param createDbCharacterization  Create a high-level characterization of the database?
+#' @param exportResults       Export the results to a single zip file (containing several CSV files) for sharing?
 #'
 #' @export
 execute <- function(connectionDetails,
@@ -87,8 +73,8 @@ execute <- function(connectionDetails,
                     databaseId,
                     databaseName = databaseId,
                     databaseDescription = databaseId,
+                    minCellCount = 5,
                     maxCores = 1,
-                    cdmVersion = "5",
                     exposureIds = getExposuresOfInterest()$exposureId,
                     createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
@@ -96,7 +82,8 @@ execute <- function(connectionDetails,
                     runSccs = TRUE,
                     runCaseControl = TRUE,
                     runHistoricalComparator = TRUE,
-                    packageResults = TRUE) {
+                    createDbCharacterization = TRUE,
+                    exportResults = TRUE) {
   if (!file.exists(outputFolder)) {
     dir.create(outputFolder, recursive = TRUE)
   }
@@ -140,21 +127,21 @@ execute <- function(connectionDetails,
   if (runSccs) {
     ParallelLogger::logInfo("Running SelfControlledCaseSeries")
     Eumaeus:::runSccs(connectionDetails = connectionDetails,
-                              cdmDatabaseSchema = cdmDatabaseSchema,
-                              cohortDatabaseSchema = cohortDatabaseSchema,
-                              cohortTable = cohortTable,
-                              outputFolder = outputFolder,
-                              maxCores = maxCores)
+                      cdmDatabaseSchema = cdmDatabaseSchema,
+                      cohortDatabaseSchema = cohortDatabaseSchema,
+                      cohortTable = cohortTable,
+                      outputFolder = outputFolder,
+                      maxCores = maxCores)
   }
   
   if (runCaseControl) {
     ParallelLogger::logInfo("Running CaseControl")
     Eumaeus:::runCaseControl(connectionDetails = connectionDetails,
-                              cdmDatabaseSchema = cdmDatabaseSchema,
-                              cohortDatabaseSchema = cohortDatabaseSchema,
-                              cohortTable = cohortTable,
-                              outputFolder = outputFolder,
-                              maxCores = maxCores)
+                             cdmDatabaseSchema = cdmDatabaseSchema,
+                             cohortDatabaseSchema = cohortDatabaseSchema,
+                             cohortTable = cohortTable,
+                             outputFolder = outputFolder,
+                             maxCores = maxCores)
   }
   
   if (runHistoricalComparator) {
@@ -167,10 +154,22 @@ execute <- function(connectionDetails,
                               maxCores = maxCores)
   }
   
-  if (packageResults) {
+  if (createDbCharacterization) {
+    ParallelLogger::logInfo("Creating database characterization")
+    createDbCharacterization(connectionDetails = connectionDetails,
+                             cdmDatabaseSchema = cdmDatabaseSchema,
+                             outputFolder = outputFolder)
+  }
+  
+  if (exportResults) {
     ParallelLogger::logInfo("Packaging results")
-    packageResults(outputFolder = outputFolder,
-                   exportFolder = file.path(outputFolder, "export"),
-                   databaseName = databaseName)
+    exportResults(outputFolder = outputFolder,
+                  connectionDetails = connectionDetails,
+                  cdmDatabaseSchema = cdmDatabaseSchema,
+                  databaseId = databaseId,
+                  databaseName = databaseName,
+                  databaseDescription = databaseDescription,
+                  minCellCount = minCellCount,
+                  maxCores = maxCores)
   }
 }

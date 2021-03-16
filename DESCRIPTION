@@ -8,6 +8,7 @@ Description: Similar to our previous research on the evaluation of causal effect
 Depends:
     DatabaseConnector
 Imports:
+    Andromeda,
     Cyclops,
     CohortDiagnostics,
     MethodEvaluation,
@@ -17,9 +18,12 @@ Imports:
     SelfControlledCaseSeries,
     EmpiricalCalibration,
     dplyr,
+    plyr,
     rlang,
     tidyr,
     purrr,
+    readr,
+    survival,
     ParallelLogger,
     SqlRender,
     ggplot2,

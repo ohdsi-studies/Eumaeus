@@ -13,13 +13,17 @@ execute(
   databaseId,
   databaseName = databaseId,
   databaseDescription = databaseId,
+  minCellCount = 5,
   maxCores = 1,
-  cdmVersion = "5",
   exposureIds = getExposuresOfInterest()$exposureId,
   createCohorts = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,
-  packageResults = TRUE
+  runSccs = TRUE,
+  runCaseControl = TRUE,
+  runHistoricalComparator = TRUE,
+  createDbCharacterization = TRUE,
+  exportResults = TRUE
 )
 }
 \arguments{
@@ -31,17 +35,31 @@ DatabaseConnector package.}
 Note that for SQL Server, this should include both the database and
 schema name, for example 'cdm_data.dbo'.}
 
+\item{cohortDatabaseSchema}{Schema name where outcome data can be stored. You will need to have
+write priviliges in this schema. Note that for SQL Server, this should
+include both the database and schema name, for example 'cdm_data.dbo'.}
+
+\item{cohortTable}{The name of the table that will be created in the \code{cohortDatabaseSchema}.
+This table will hold the exposure and outcome cohorts used in this
+study.}
+
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts
 performance.}
 
-\item{databaseName}{A short string for identifying the database (e.g.
-'Synpuf').}
+\item{databaseId}{A short string for identifying the database (e.g. 'Synpuf').}
+
+\item{databaseName}{The full name of the database.}
+
+\item{databaseDescription}{A short description (several sentences) of the database.}
+
+\item{minCellCount}{The minimum cell count for fields contains person counts or fractions.}
 
 \item{maxCores}{How many parallel cores should be used? If more cores are made available
 this can speed up the analyses.}
 
-\item{cdmVersion}{Version of the Common Data Model used. Currently only version 5 is supported.}
+\item{exposureIds}{The IDs of the exposure cohorts to include. See \code{\link{getExposuresOfInterest}}
+for the available exposure cohorts and their IDs.}
 
 \item{createCohorts}{Create the exposure and outcome cohorts?}
 
@@ -49,50 +67,19 @@ this can speed up the analyses.}
 
 \item{runCohortMethod}{Perform the cohort method analyses?}
 
-\item{packageResults}{Should results be packaged for later sharing and viewing?}
-
-\item{outcomeDatabaseSchema}{Schema name where outcome data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{outcomeTable}{The name of the table that will be created in the outcomeDatabaseSchema.
-This table will hold the outcome cohorts used in this
-study.}
-
-\item{exposureDatabaseSchema}{For PanTher only: Schema name where exposure data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{exposureTable}{For PanTher only: The name of the table that will be created in the exposureDatabaseSchema
-This table will hold the exposure cohorts used in this
-study.}
-
-\item{nestingCohortDatabaseSchema}{Schema name where nesting cohort data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{nestingCohortTable}{The name of the table that will be created in the nestingCohortDatabaseSchema
-This table will hold the nesting cohorts used in this
-study.}
-
-\item{imputeExposureLengthForPanther}{For PanTher only: impute exposure length?}
-
-\item{runSelfControlledCaseSeries}{Perform the SCCS analyses?}
-
-\item{runSelfControlledCohort}{Perform the SCC analyses?}
+\item{runSccs}{Perform the SCCS and SCRI analyses?}
 
 \item{runCaseControl}{Perform the case-control analyses?}
 
-\item{runCaseCrossover}{Perform the case-crossover analyses?}
+\item{runHistoricalComparator}{Perform the historical comparator analyses?}
 
-\item{createCharacterization}{Create a general characterization of the database population?}
+\item{createDbCharacterization}{Create a high-level characterization of the database?}
+
+\item{exportResults}{Export the results to a single zip file (containing several CSV files) for sharing?}
 }
 \description{
 Execute the Study
 }
 \details{
 This function executes the Study.
-
-The \code{createCohorts}, \code{synthesizePositiveControls}, \code{runAnalyses}, and \code{runDiagnostics} arguments
-are intended to be used to run parts of the full study at a time, but none of the parts are considerd to be optional.
 }

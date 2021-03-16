@@ -28,8 +28,7 @@ createCohorts <- function(connectionDetails,
                  cdmDatabaseSchema = cdmDatabaseSchema,
                  cohortDatabaseSchema = cohortDatabaseSchema,
                  cohortTable = cohortTable,
-                 outputFolder = outputFolder,
-                 exposureIds = exposureIds)
+                 outputFolder = outputFolder)
   
   ParallelLogger::logInfo("Creating derived exposure cohorts")
   exposuresOfInterest <- loadExposuresofInterest(exposureIds)
