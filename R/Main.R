@@ -22,9 +22,9 @@
 #' @export
 getExposuresOfInterest <- function() {
   loadExposuresofInterest() %>% 
-        select(.data$exposureId,
-               .data$exposureName) %>%
-        return()
+    select(.data$exposureId,
+           .data$exposureName) %>%
+    return()
 }
 
 #' Execute the Study
@@ -93,55 +93,84 @@ execute <- function(connectionDetails,
                     createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runCohortMethod = TRUE,
+                    runSccs = TRUE,
+                    runCaseControl = TRUE,
+                    runHistoricalComparator = TRUE,
                     packageResults = TRUE) {
-    if (!file.exists(outputFolder)) {
-        dir.create(outputFolder, recursive = TRUE)
-    }
-
-    ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
-    ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
-    on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
-    on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
-
-    if (createCohorts) {
-        ParallelLogger::logInfo("Creating exposure and outcome cohorts")
-        Eumaeus:::createCohorts(connectionDetails = connectionDetails,
-                      cdmDatabaseSchema = cdmDatabaseSchema,
-                      cohortDatabaseSchema = cohortDatabaseSchema,
-                      cohortTable = cohortTable,
-                      outputFolder = outputFolder,
-                      exposureIds = exposureIds)
-       
-    }
-
-    if (synthesizePositiveControls) {
-        ParallelLogger::logInfo("Synthesizing positive controls")
-        Eumaeus:::synthesizePositiveControls(connectionDetails = connectionDetails,
-                                   cdmDatabaseSchema = cdmDatabaseSchema,
-                                   cohortDatabaseSchema = cohortDatabaseSchema,
-                                   cohortTable = cohortTable,
-                                   outputFolder = outputFolder,
-                                   maxCores = maxCores)
-    }
-
-    if (runCohortMethod) {
-        ParallelLogger::logInfo("Running CohortMethod")
-        runCohortMethod(connectionDetails = connectionDetails,
-                        cdmDatabaseSchema = cdmDatabaseSchema,
-                        oracleTempSchema = oracleTempSchema,
-                        outcomeDatabaseSchema = outcomeDatabaseSchema,
-                        outcomeTable = outcomeTable,
-                        outputFolder = outputFolder,
-                        cdmVersion = cdmVersion,
-                        maxCores = maxCores)
-    }
-
-   
-
-    if (packageResults) {
-        ParallelLogger::logInfo("Packaging results")
-        packageResults(outputFolder = outputFolder,
-                       exportFolder = file.path(outputFolder, "export"),
-                       databaseName = databaseName)
-    }
+  if (!file.exists(outputFolder)) {
+    dir.create(outputFolder, recursive = TRUE)
+  }
+  
+  ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
+  ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
+  on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
+  on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
+  
+  if (createCohorts) {
+    ParallelLogger::logInfo("Creating exposure and outcome cohorts")
+    Eumaeus:::createCohorts(connectionDetails = connectionDetails,
+                            cdmDatabaseSchema = cdmDatabaseSchema,
+                            cohortDatabaseSchema = cohortDatabaseSchema,
+                            cohortTable = cohortTable,
+                            outputFolder = outputFolder,
+                            exposureIds = exposureIds)
+    
+  }
+  
+  if (synthesizePositiveControls) {
+    ParallelLogger::logInfo("Synthesizing positive controls")
+    Eumaeus:::synthesizePositiveControls(connectionDetails = connectionDetails,
+                                         cdmDatabaseSchema = cdmDatabaseSchema,
+                                         cohortDatabaseSchema = cohortDatabaseSchema,
+                                         cohortTable = cohortTable,
+                                         outputFolder = outputFolder,
+                                         maxCores = maxCores)
+  }
+  
+  if (runCohortMethod) {
+    ParallelLogger::logInfo("Running CohortMethod")
+    Eumaeus:::runCohortMethod(connectionDetails = connectionDetails,
+                              cdmDatabaseSchema = cdmDatabaseSchema,
+                              cohortDatabaseSchema = cohortDatabaseSchema,
+                              cohortTable = cohortTable,
+                              outputFolder = outputFolder,
+                              maxCores = maxCores)
+  }
+  
+  if (runSccs) {
+    ParallelLogger::logInfo("Running SelfControlledCaseSeries")
+    Eumaeus:::runSccs(connectionDetails = connectionDetails,
+                              cdmDatabaseSchema = cdmDatabaseSchema,
+                              cohortDatabaseSchema = cohortDatabaseSchema,
+                              cohortTable = cohortTable,
+                              outputFolder = outputFolder,
+                              maxCores = maxCores)
+  }
+  
+  if (runCaseControl) {
+    ParallelLogger::logInfo("Running CaseControl")
+    Eumaeus:::runCaseControl(connectionDetails = connectionDetails,
+                              cdmDatabaseSchema = cdmDatabaseSchema,
+                              cohortDatabaseSchema = cohortDatabaseSchema,
+                              cohortTable = cohortTable,
+                              outputFolder = outputFolder,
+                              maxCores = maxCores)
+  }
+  
+  if (runHistoricalComparator) {
+    ParallelLogger::logInfo("Running HistoricalComparator")
+    Eumaeus:::runCohortMethod(connectionDetails = connectionDetails,
+                              cdmDatabaseSchema = cdmDatabaseSchema,
+                              cohortDatabaseSchema = cohortDatabaseSchema,
+                              cohortTable = cohortTable,
+                              outputFolder = outputFolder,
+                              maxCores = maxCores)
+  }
+  
+  if (packageResults) {
+    ParallelLogger::logInfo("Packaging results")
+    packageResults(outputFolder = outputFolder,
+                   exportFolder = file.path(outputFolder, "export"),
+                   databaseName = databaseName)
+  }
 }

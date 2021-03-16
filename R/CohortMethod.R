@@ -33,6 +33,7 @@ runCohortMethod <- function(connectionDetails,
   if (!file.exists(cmSummaryFile)) {
     toExcludeFile <- file.path(outputFolder, "ToExclude.csv")
     if (!file.exists(toExcludeFile)) {
+      ParallelLogger::logInfo("Comparing target to comparator cohorts to identify covariates to exclude")
       compareCohorts(connectionDetails = connectionDetails,
                      cdmDatabaseSchema = cdmDatabaseSchema,
                      cohortDatabaseSchema = cohortDatabaseSchema,
