@@ -220,7 +220,7 @@ ParallelLogger::stopCluster(cluster)
 
 
 
-# Abstract Poisson ----------------------------------------------------------------------
+# Abstract Poisson (historic comparator method) -------------------------------------------------------------
 parameters <- data.frame(n = 1000000, # Subjects
                          rate = 0.0001)
 
@@ -354,3 +354,119 @@ mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters =
 # [1] 0.054
 
 ParallelLogger::stopCluster(cluster)
+
+
+
+
+# Case-control  -------------------------------------------
+# Simulation parameters
+parameters <- data.frame(n = 10000, # Number of subjects
+                         exposureRate = 0.01, 
+                         backgroundOutcomeRate = 0.0001,
+                         tar = 10, # Time at risk for each exposure
+                         rr = 1,  # Relative risk
+                         maxT = 100)
+
+simulate <- function(seed, parameters, method = "llr-binomial", looks = 10) {
+  set.seed(seed)
+  
+  computeAtT <- function(t) {
+    cases <- tOutcome < t
+    controls <- which(!cases)
+    if (length(controls) > sum(cases) * 4) {
+      controls <- sample(controls,  sum(cases) * 4, replace = FALSE)
+    }
+    tCases <- tOutcome[cases]
+    tControls <- sample(tCases, length(controls), replace = TRUE)
+    exposureCases <- tExposure[cases] > tCases -parameters$tar & tExposure[cases] < tCases
+    exposureControls <- tExposure[controls] > tControls -parameters$tar & tExposure[controls] < tControls
+    data <- data.frame(outcome = c(rep(1, sum(cases)), rep(0, length(controls))),
+                       exposure = c(exposureCases, exposureControls))
+    cyclopsData <- Cyclops::createCyclopsData(outcome ~ exposure, modelType = "lr", data = data)
+    
+    fit <- Cyclops::fitCyclopsModel(cyclopsData)
+    # exp(coef(fit))
+    # exp(confint(fit, "exposureTRUE"))
+    if (fit$return_flag != "SUCCESS") {
+      return(data.frame(logRr = NA,
+                        lb = 0,
+                        llr = 0,
+                        cases = sum(cases),
+                        controls = length(controls),
+                        exposedCases = sum(exposureCases),
+                        exposedControls = sum(exposureControls)))
+    } else {
+      ci <- confint(fit, "exposureTRUE", level = .90)
+      if (coef(fit)["exposureTRUE"] > 0) {
+        llNull <- Cyclops::getCyclopsProfileLogLikelihood(object = fit,
+                                                          parm = "exposureTRUE",
+                                                          x = 0,
+                                                          includePenalty = FALSE)$value
+        
+        llr <- fit$log_likelihood - llNull
+      } else {
+        llr <- 0
+      }
+      return(data.frame(logRr = coef(fit)["exposureTRUE"],
+                        lb = ci[2],
+                        llr,
+                        cases = sum(cases),
+                        controls = length(controls),
+                        exposedCases = sum(exposureCases),
+                        exposedControls = sum(exposureControls)))
+    }
+  }
+  
+  tExposure = rexp(parameters$n,  parameters$exposureRate)
+  tOutcome <- rexp(parameters$n,  parameters$backgroundOutcomeRate)
+  idxAfterTar <- tOutcome > tExposure + (parameters$tar * parameters$rr)
+  idxDuringTar <- tOutcome > tExposure & tOutcome <= tExposure + (parameters$tar * parameters$rr)
+  tOutcome[idxAfterTar] <- tOutcome[idxAfterTar] - ((1 - parameters$rr) * parameters$tar)
+  tOutcome[idxDuringTar] <- tExposure[idxDuringTar] + ((tOutcome[idxDuringTar] - tExposure[idxDuringTar]) / parameters$rr)
+  
+  t <- seq(0, parameters$maxT, length.out = looks + 1)[-1]                 
+  results <- purrr::map_dfr(t, computeAtT)
+  
+  # Perform sequential testing
+  if (method == "ci") {    
+    return(any(results$lb > 0, na.rm = TRUE))
+  } else if (method == "llr-binomial") {
+    sampleSizeUpperLimit <- max(results$cases, na.rm = TRUE)
+    if (sampleSizeUpperLimit <= 5) {
+      return(FALSE)
+    }
+    cases <- results$cases
+    if (looks > 1) {
+      cases[2:looks] <- cases[2:looks] - cases[1:(looks-1)]
+      cases <- cases[cases != 0]
+    }
+    cv <- Sequential::CV.Binomial(N = sampleSizeUpperLimit,
+                                  M = 1,
+                                  z = max(results$controls) / max(results$cases),
+                                  GroupSizes = cases)$cv
+    return(any(results$llr > cv, na.rm = TRUE))
+  } else if (method == "llr-chisq") {
+    return(any(1 - pchisq(2 * results$llr, df = 1) < 0.1, na.rm = TRUE))
+  }
+}
+
+# Compute type I error (probability of a signal when the null is true). Should be 0.05:
+cluster <- ParallelLogger::makeCluster(10)
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", looks = 1)), na.rm = TRUE)
+# [1] 0.04
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-binomial", looks = 10)), na.rm = TRUE)
+# [1] 0.062
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", looks = 1)), na.rm = TRUE)
+# [1] 0.04
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "ci", looks = 10)), na.rm = TRUE)
+# [1] 0.2062062
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", looks = 1)), na.rm = TRUE)
+# [1] 0.04
+
+mean(unlist(ParallelLogger::clusterApply(cluster, 1:1000, simulate, parameters = parameters, method = "llr-chisq", looks = 10)), na.rm = TRUE)
+# [1] 0.2072072
