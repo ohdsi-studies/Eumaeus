@@ -18,6 +18,9 @@
 "_PACKAGE"
 
 #' @importFrom rlang .data
+#' @importFrom grDevices rgb
+#' @importFrom stats aggregate coef confint density pnorm qnorm quantile
+#' @importFrom utils read.csv setTxtProgressBar txtProgressBar write.csv write.table
 #' @import dplyr
 NULL
 

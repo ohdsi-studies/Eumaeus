@@ -6,8 +6,7 @@ Author: Martijn J. Schuemie [aut, cre]
 Maintainer: Martijn J. Schuemie <schuemie@ohdsi.org>
 Description: Similar to our previous research on the evaluation of causal effect estimation methods, this study aims to systematically evaluate methods for (safety) surveillance of vaccines.
 Depends:
-    DatabaseConnector,
-    survival
+    DatabaseConnector
 Imports:
     Cyclops,
     CohortDiagnostics,

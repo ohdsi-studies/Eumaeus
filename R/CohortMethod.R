@@ -117,7 +117,7 @@ runCohortMethod <- function(connectionDetails,
       # Fit shared propensity models per period ----------------------------------------------
       if (!crude) {
         ParallelLogger::logInfo(sprintf("Fitting propensity models across all periods for target %s and comparator %s", targetId, comparatorId))
-        cluster <- ParallelLogger::makeCluster(min(max(1, floor(maxCores/8)), 3))
+        cluster <- ParallelLogger::makeCluster(min(max(1, floor(maxCores/5)), 5))
         invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                                x = timePeriods$folder, 
                                                fun = Eumaeus:::fitSharedPsModel, 

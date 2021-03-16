@@ -108,7 +108,7 @@ deriveExposureCohorts <- function(row, connection, cohortDatabaseSchema, cohortT
     
     sql <- SqlRender::loadRenderTranslateSql("DeriveExposureCohorts.sql",
                                              "Eumaeus",
-                                             dbms = connectionDetails$dbms,
+                                             dbms = connection@dbms,
                                              cohort_database_schema = cohortDatabaseSchema,
                                              cohort_table = cohortTable,
                                              exposure_id = row$exposureId,
@@ -171,7 +171,7 @@ sampleComparatorCohorts <- function(row,
   
   sql <- SqlRender::loadRenderTranslateSql("SampleComparators.sql",
                                            "Eumaeus",
-                                           dbms = connectionDetails$dbms,
+                                           dbms = connection@dbms,
                                            cdm_database_schema = cdmDatabaseSchema,
                                            cohort_database_schema = cohortDatabaseSchema,
                                            cohort_table = cohortTable,
