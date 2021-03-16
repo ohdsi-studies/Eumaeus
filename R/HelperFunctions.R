@@ -108,7 +108,7 @@ loadExposuresofInterest <- function(exposureIds = NULL) {
 }
 
 loadEstimates <- function(fileName) {
-  estimates <- readr::read_csv(fileName, col_types = readr::cols())
+  estimates <- readr::read_csv(fileName, col_types = readr::cols(), guess_max = 1e4)
   return(estimates)
 }
 
@@ -117,9 +117,3 @@ loadCmEstimates <- function(fileName) {
   return(estimates)
 }
 
-llr <- function(observed, expected) {
-  result <- rep(0, length(observed))
-  idx <- !is.na(observed) & !is.na(expected) & observed >= expected
-  result[idx] <- (expected[idx] - observed[idx]) + observed[idx] * log(observed[idx] / expected[idx])
-  return(result)
-}

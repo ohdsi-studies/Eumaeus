@@ -26,9 +26,9 @@ exposureIds <- c(21184) # For development only!
 
 # For bulk uploading synthetic outcomes:
 Sys.setenv("AWS_OBJECT_KEY" = "bulk")
-Sys.setenv("AWS_ACCESS_KEY_ID" = Sys.getenv("bulkUploadS3Key"))
-Sys.setenv("AWS_SECRET_ACCESS_KEY" = Sys.getenv("bulkUploadS3Secret"))
-Sys.setenv("AWS_BUCKET_NAME" = Sys.getenv("bulkUploadS3Bucket"))
+Sys.setenv("AWS_ACCESS_KEY_ID" = keyring::key_get("bulkUploadS3Key"))
+Sys.setenv("AWS_SECRET_ACCESS_KEY" = keyring::key_get("bulkUploadS3Secret"))
+Sys.setenv("AWS_BUCKET_NAME" = keyring::key_get("bulkUploadS3Bucket"))
 Sys.setenv("AWS_DEFAULT_REGION" = "us-east-1")
 Sys.setenv("AWS_SSE_TYPE" = "AES256")
 Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)

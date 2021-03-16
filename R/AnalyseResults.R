@@ -20,7 +20,7 @@ analyseResults <- function(outputFolder) {
     dir.create(resultsFolder)
   }
   
-  method <- "HistComp"
+  method <- "HistoricalComparator"
   estimates <- loadEstimates(file.path(outputFolder, "hcSummary.csv"))
   analyseMethodResults(method = method,
                        estimates = estimates, 

@@ -69,6 +69,7 @@ runHistoricalComparator <- function(connectionDetails,
         periodEstimatesFile <- file.path(exposureFolder, sprintf("estimates_t%d.csv", timePeriods$seqId[i]))
         if (!file.exists(periodEstimatesFile)) {
           periodEstimates <- list()
+          # exposureId <- exposures$exposureId[1]
           for (exposureId in exposures$exposureId) {
             ParallelLogger::logInfo(sprintf("Computing historical comparator estimates for exposure %s and period: %s", exposureId, timePeriods$label[i]))
             periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d", timePeriods$seqId[i]))
@@ -99,12 +100,6 @@ runHistoricalComparator <- function(connectionDetails,
   }
   delta <- Sys.time() - start
   writeLines(paste("Completed historical comparator analyses in", signif(delta, 3), attr(delta, "units")))
-  
-  analysisDesc <- tibble(analysisId = c(1, 
-                                        2),
-                         description = c("Unadjusted historical comparator",
-                                         "Age + sex adjusted historical comparator"))
-  readr::write_csv(analysisDesc, file.path(outputFolder, "hcAnalysisDesc.csv"))
 }
 
 computeHistoricRates <- function(connectionDetails,
@@ -120,27 +115,92 @@ computeHistoricRates <- function(connectionDetails,
   connection <- DatabaseConnector::connect(connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
-  computeIr <- function(outcomeId) {
-    ParallelLogger::logInfo("- Computing population incidence rates for outcome ", outcomeId)
-    sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
-                                             "Eumaeus",
-                                             dbms = connectionDetails$dbms,
-                                             cdm_database_schema = cdmDatabaseSchema,
-                                             cohort_database_schema = cohortDatabaseSchema,
-                                             cohort_table = cohortTable,
-                                             cohort_id = outcomeId,
-                                             start_date = format(startDate, "%Y%m%d"),
-                                             end_date = format(endDate, "%Y%m%d"),
-                                             washout_period = 365,
-                                             first_occurrence_only = TRUE)
-    DatabaseConnector::executeSql(connection, sql)
-    outcomeRates <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates_summary;", snakeCaseToCamelCase = TRUE)
-    sql <- "TRUNCATE TABLE #rates_summary; DROP TABLE #rates_summary;"
-    DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-    outcomeRates$outcomeId <- outcomeId
-    return(outcomeRates)
-  }
-  populationRates <- purrr::map_dfr(unique(outcomeIds), computeIr)
+  ParallelLogger::logInfo("- Computing population incidence rates without anchoring")
+  sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
+                                           "Eumaeus",
+                                           dbms = connectionDetails$dbms,
+                                           cdm_database_schema = cdmDatabaseSchema,
+                                           cohort_database_schema = cohortDatabaseSchema,
+                                           cohort_table = cohortTable,
+                                           cohort_ids = unique(outcomeIds),
+                                           start_date = format(startDate, "%Y%m%d"),
+                                           end_date = format(endDate, "%Y%m%d"),
+                                           washout_period = 365,
+                                           first_occurrence_only = TRUE,
+                                           rate_type = "population-based")
+  DatabaseConnector::executeSql(connection, sql)
+  ratesNoAnchor <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates;", snakeCaseToCamelCase = TRUE)
+  ratesNoAnchor$tar <- "all time"
+  
+  ParallelLogger::logInfo("- Computing population incidence rates anchoring on visits. Time-at-risk is 1-28 days")
+  sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
+                                           "Eumaeus",
+                                           dbms = connectionDetails$dbms,
+                                           cdm_database_schema = cdmDatabaseSchema,
+                                           cohort_database_schema = cohortDatabaseSchema,
+                                           cohort_table = cohortTable,
+                                           cohort_ids = unique(outcomeIds),
+                                           start_date = format(startDate, "%Y%m%d"),
+                                           end_date = format(endDate, "%Y%m%d"),
+                                           washout_period = 365,
+                                           first_occurrence_only = TRUE,
+                                           rate_type = "visit-based",
+                                           visit_concept_ids = 9202,
+                                           tar_start = 1,
+                                           tar_end = 28)
+  DatabaseConnector::executeSql(connection, sql)
+  ratesVisit1_28 <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates;", snakeCaseToCamelCase = TRUE)
+  ratesVisit1_28$tar <- "1-28"
+  
+  ParallelLogger::logInfo("- Computing population incidence rates anchoring on visits. Time-at-risk is 1-42 days")
+  sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
+                                           "Eumaeus",
+                                           dbms = connectionDetails$dbms,
+                                           cdm_database_schema = cdmDatabaseSchema,
+                                           cohort_database_schema = cohortDatabaseSchema,
+                                           cohort_table = cohortTable,
+                                           cohort_ids = unique(outcomeIds),
+                                           start_date = format(startDate, "%Y%m%d"),
+                                           end_date = format(endDate, "%Y%m%d"),
+                                           washout_period = 365,
+                                           first_occurrence_only = TRUE,
+                                           rate_type = "visit-based",
+                                           visit_concept_ids = 9202,
+                                           tar_start = 1,
+                                           tar_end = 42)
+  DatabaseConnector::executeSql(connection, sql)
+  ratesVisit1_42 <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates;", snakeCaseToCamelCase = TRUE)
+  ratesVisit1_42$tar <- "1-42"
+  
+  ParallelLogger::logInfo("- Computing population incidence rates anchoring on visits. Time-at-risk is 0-1 days")
+  sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
+                                           "Eumaeus",
+                                           dbms = connectionDetails$dbms,
+                                           cdm_database_schema = cdmDatabaseSchema,
+                                           cohort_database_schema = cohortDatabaseSchema,
+                                           cohort_table = cohortTable,
+                                           cohort_ids = unique(outcomeIds),
+                                           start_date = format(startDate, "%Y%m%d"),
+                                           end_date = format(endDate, "%Y%m%d"),
+                                           washout_period = 365,
+                                           first_occurrence_only = TRUE,
+                                           rate_type = "visit-based",
+                                           visit_concept_ids = 9202,
+                                           tar_start =0,
+                                           tar_end = 1)
+  DatabaseConnector::executeSql(connection, sql)
+  ratesVisit0_1 <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates;", snakeCaseToCamelCase = TRUE)
+  ratesVisit0_1$tar <- "0-1"
+
+  sql <- "TRUNCATE TABLE #rates; DROP TABLE #rates;"
+  DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  
+  populationRates <- bind_rows(ratesNoAnchor,
+                               ratesVisit1_28,
+                               ratesVisit1_42,
+                               ratesVisit0_1)
+  
+  
   mapping <- tibble(outcomeId = outcomeIds,
                     newOutcomeId = newOutcomeIds)
   populationRates <- populationRates %>%
@@ -152,6 +212,86 @@ computeHistoricRates <- function(connectionDetails,
   saveRDS(populationRates, ratesFile)
   delta <- Sys.time() - start
   ParallelLogger::logInfo(paste("Completed historical rates took", signif(delta, 3), attr(delta, "units")))
+}
+
+
+llr <- function(observed, expected) {
+  result <- rep(0, length(observed))
+  idx <- !is.na(observed) & !is.na(expected) & observed >= expected
+  result[idx] <- (expected[idx] - observed[idx]) + observed[idx] * log(observed[idx] / expected[idx])
+  return(result)
+}
+
+computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALSE) {
+  # outcomeId <- 432513        
+  # print(outcomeId)
+  
+  target <- ratesExposed %>%
+    filter(outcomeId == !!outcomeId) 
+  
+  comparator <- ratesBackground %>%
+    filter(outcomeId == !!outcomeId) 
+  
+  estimateRow <- bind_cols(summarize(target, targetOutcomes = as.numeric(sum(.data$cohortCount)),
+                           targetYears = sum(.data$personYears)),
+                           summarize(comparator, comparatorOutcomes = as.numeric(sum(.data$cohortCount)),
+                                     comparatorYears = sum(.data$personYears)))
+ 
+  if (estimateRow$targetOutcomes == 0 || estimateRow$comparatorOutcomes == 0) {
+    estimateRow$irr <- NA
+    estimateRow$lb95Ci <- NA
+    estimateRow$ub95Ci <- NA
+    estimateRow$logRr <- NA
+    estimateRow$seLogRr <- NA
+    estimateRow$llr <- NA
+  } else {
+    if (adjusted) {
+      target <- target %>%
+        mutate(stratumId = paste(.data$ageGroup, .data$gender),
+               exposed = 1)
+      comparator <- target %>%
+        mutate(stratumId = paste(.data$ageGroup, .data$gender),
+               exposed = 0)
+      data <- bind_rows(target, comparator)
+      cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + strata(stratumId) + offset(log(personYears)), 
+                                                data = data, 
+                                                modelType = "cpr")
+      expectedOutcomes <- comparator %>%
+        mutate(comparatorRate = .data$cohortCount / .data$personYears) %>%
+        select(.data$comparatorRate, .data$stratumId) %>%
+        inner_join(target, by = "stratumId") %>%
+        mutate(expectedOutcomes = personYears * comparatorRate) %>%
+        summarize(expectedOutcomes = sum(expectedOutcomes)) %>%
+        pull()
+      
+    } else {
+      data <- tibble(cohortCount = c(estimateRow$targetOutcomes, estimateRow$comparatorOutcomes),
+                     personYears = c(estimateRow$targetYears, estimateRow$comparatorYears),
+                     exposed = c(1, 0))
+      cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + offset(log(personYears)), 
+                                                data = data, 
+                                                modelType = "pr")
+      
+      expectedOutcomes <- estimateRow$targetYears * (estimateRow$comparatorOutcomes / estimateRow$comparatorYears)
+    }
+    fit <- Cyclops::fitCyclopsModel(cyclopsData)
+    if (fit$return_flag == "SUCCESS") {
+      beta <- coef(fit)["exposed"]
+      ci <- confint(fit, "exposed") 
+    } else {
+      beta <- NA
+      ci <- c(NA, NA)
+    }
+    estimateRow$irr <- exp(beta)
+    estimateRow$lb95Ci <- exp(ci[2])
+    estimateRow$ub95Ci <- exp(ci[3])
+    estimateRow$logRr <- beta
+    estimateRow$seLogRr <- (ci[3] - ci[2]) / (qnorm(0.975) * 2)
+    estimateRow$llr <- llr(estimateRow$targetOutcomes, expectedOutcomes)
+  }
+  estimateRow <- estimateRow %>%
+    mutate(outcomeId = outcomeId)
+  return(estimateRow)
 }
 
 computeHistoricalComparatorEstimates <- function(connectionDetails,
@@ -171,148 +311,68 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
     dir.create(periodFolder)
   }
   
-  numeratorFile <- file.path(periodFolder, "numerator.rds")
-  denominatorFile <- file.path(periodFolder, "denominator.rds")
-  if (file.exists(numeratorFile) && file.exists(denominatorFile)) {
-    numerator <- readRDS(numeratorFile)
-    denominator <- readRDS(denominatorFile)
-  } else {
-    connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-    
-    ParallelLogger::logInfo("Fetching incidence rates during exposure")
-    sql <- SqlRender::loadRenderTranslateSql("ComputeIncidenceRatesExposed.sql",
+  connection <- DatabaseConnector::connect(connectionDetails)
+  on.exit(DatabaseConnector::disconnect(connection))
+  
+  estimates <- data.frame()
+  tars <- data.frame(start = c(1, 1, 0),
+                     end = c(28, 42, 1),
+                     startAnalysisId = c(1, 5, 9))
+  for (i in 1:nrow(tars)) {
+    sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
                                              "Eumaeus",
                                              dbms = connectionDetails$dbms,
                                              cdm_database_schema = cdmDatabaseSchema,
                                              cohort_database_schema = cohortDatabaseSchema,
                                              cohort_table = cohortTable,
-                                             exposure_id = exposureId,
-                                             outcome_ids = outcomeIds,
+                                             cohort_ids = unique(outcomeIds),
                                              start_date = format(startDate, "%Y%m%d"),
                                              end_date = format(endDate, "%Y%m%d"),
                                              washout_period = 365,
                                              first_occurrence_only = TRUE,
-                                             time_at_risk_start = 1,
-                                             time_at_risk_end = 28)
+                                             rate_type = "exposure-based",
+                                             tar_start = tars$start[i],
+                                             tar_end = tars$end[i],
+                                             exposure_id = exposureId)
     DatabaseConnector::executeSql(connection, sql)
-    numerator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #numerator;", snakeCaseToCamelCase = TRUE)
-    denominator <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #denominator;", snakeCaseToCamelCase = TRUE)
-    sql <- "TRUNCATE TABLE #numerator; DROP TABLE #numerator; TRUNCATE TABLE #denominator; DROP TABLE #denominator;"
-    DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-    saveRDS(numerator, numeratorFile)
-    saveRDS(denominator, denominatorFile)
-  }
+    ratesExposed <- DatabaseConnector::renderTranslateQuerySql(connection, "SELECT * FROM #rates;", snakeCaseToCamelCase = TRUE)
+    
+    # Unadjusted, no anchoring
+    ratesBackground <- historicRates %>%
+      filter(.data$tar == "all time")
   
-  # outcomeId <- 4194207
-  computeIrr <- function(outcomeId, adjusted = FALSE) {
-    # print(outcomeId)
-    targetOutcomes <- numerator %>%
-      filter(outcomeId == !!outcomeId) %>%
-      summarize(count = as.numeric(sum(outcomeEvents))) %>%
-      pull()
-    targetYears <- denominator %>%
-      summarize(count = sum(daysAtRisk) / 365.25) %>%
-      pull()
-    estimateRow <- historicRates %>% 
-      filter(outcomeId == !!outcomeId) %>%
-      summarize(comparatorOutcomes = as.numeric(sum(cohortCount)),
-                comparatorYears = sum(personYears)) %>%
-      mutate(targetOutcomes = targetOutcomes,
-             targetYears = targetYears)
+    estimatesUnadjustedNoAnchoring <- purrr::map_dfr(outcomeIds, computeIrr, ratesExposed = ratesExposed, ratesBackground = ratesBackground, adjusted = FALSE) %>%
+      mutate(analysisId = tars$startAnalysisId[i])
+  
+    # Age-sex adjusted, no anchoring
+    estimatesAdjustedNoAnchoring <- purrr::map_dfr(outcomeIds, computeIrr, ratesExposed = ratesExposed, ratesBackground = ratesBackground, adjusted = TRUE) %>%
+      mutate(analysisId = tars$startAnalysisId[i] + 1)
     
-    estimateRow$expectedOutcomes <- estimateRow$targetYears * (estimateRow$comparatorOutcomes / estimateRow$comparatorYears)
+    # Unadjusted, visit anchoring
+    ratesBackground <- historicRates %>%
+      filter(.data$tar == sprintf("%d-%d", tars$start[i], tars$end[i]))
     
-    if (estimateRow$targetOutcomes == 0 || estimateRow$comparatorOutcomes == 0) {
-      estimateRow$irr <- NA
-      estimateRow$lb95Ci <- NA
-      estimateRow$ub95Ci <- NA
-      estimateRow$logRr <- NA
-      estimateRow$seLogRr <- NA
-    } else {
-      if (adjusted) {
-        dataTarget <- denominator %>%
-          left_join(filter(numerator, outcomeId == !!outcomeId), by = c("ageGroup", "genderConceptId")) %>%
-          mutate(outcomes = ifelse(is.na(.data$outcomeEvents), 0, as.numeric(.data$outcomeEvents)),
-                 years = .data$daysAtRisk / 365.25,
-                 stratumId = paste(.data$ageGroup, .data$gender),
-                 exposed = 1) %>%
-          select(.data$outcomes, .data$years, .data$stratumId, .data$exposed)
-        dataComparator <- historicRates %>%
-          filter(outcomeId == !!outcomeId) %>%
-          mutate(outcomes = as.numeric(.data$cohortCount),
-                 years = .data$personYears,
-                 stratumId = paste(.data$ageGroup, .data$gender),
-                 exposed = 0) %>%
-          select(.data$outcomes, .data$years, .data$stratumId, .data$exposed)
-        data <- bind_rows(dataTarget, dataComparator)
-        cyclopsData <- Cyclops::createCyclopsData(outcomes ~ exposed + strata(stratumId) + offset(log(years)), 
-                                                  data = data, 
-                                                  modelType = "cpr")
-        
-        estimateRow$expectedOutcomes <- dataComparator %>%
-          mutate(comparatorRate = .data$outcomes / .data$years) %>%
-          select(.data$comparatorRate, .data$stratumId) %>%
-          inner_join(dataTarget, by = "stratumId") %>%
-          mutate(expectedOutcomes = years * comparatorRate) %>%
-          summarize(expectedOutcomes = sum(expectedOutcomes)) %>%
-          pull()
-        
-        
-      } else {
-        data <- tibble(outcomes = c(estimateRow$targetOutcomes, estimateRow$comparatorOutcomes),
-                       years = c(estimateRow$targetYears, estimateRow$comparatorYears),
-                       exposed = c(1, 0))
-        cyclopsData <- Cyclops::createCyclopsData(outcomes ~ exposed + offset(log(years)), 
-                                                  data = data, 
-                                                  modelType = "pr")
-      }
-      fit <- Cyclops::fitCyclopsModel(cyclopsData)
-      if (fit$return_flag == "SUCCESS") {
-        beta <- coef(fit)["exposed"]
-        ci <- confint(fit, "exposed") 
-      } else {
-        beta <- NA
-        ci <- c(NA, NA)
-      }
-      estimateRow$irr <- exp(beta)
-      estimateRow$lb95Ci <- exp(ci[2])
-      estimateRow$ub95Ci <- exp(ci[3])
-      estimateRow$logRr <- beta
-      estimateRow$seLogRr <- (ci[3] - ci[2]) / (qnorm(0.975) * 2)
-    }
-    estimateRow$llr <- llr(estimateRow$targetOutcomes, estimateRow$expectedOutcomes)
-    estimateRow <- estimateRow %>%
-      mutate(exposureId = exposureId,
-             outcomeId = outcomeId,
-             analysisId = ifelse(adjusted, 2, 1))
-    return(estimateRow)
+    estimatesUnadjustedVisitAnchoring <- purrr::map_dfr(outcomeIds, computeIrr, ratesExposed = ratesExposed, ratesBackground = ratesBackground, adjusted = FALSE) %>%
+      mutate(analysisId = tars$startAnalysisId[i] + 2)
+    
+    # Age-sex adjusted, no anchoring
+    estimatesAdjustedVisitAnchoring <- purrr::map_dfr(outcomeIds, computeIrr, ratesExposed = ratesExposed, ratesBackground = ratesBackground, adjusted = TRUE) %>%
+      mutate(analysisId = tars$startAnalysisId[i] + 3)
+    
+    estimates <- bind_rows(estimatesUnadjustedNoAnchoring,
+                           estimatesAdjustedNoAnchoring,
+                           estimatesUnadjustedVisitAnchoring,
+                           estimatesAdjustedVisitAnchoring,
+                           estimates)
+    
   }
-  estimatesUnadjusted <- purrr::map_dfr(outcomeIds, computeIrr, adjusted = FALSE)
-  estimatesAdjusted <- purrr::map_dfr(outcomeIds, computeIrr, adjusted = TRUE)
-  estimates <- bind_rows(estimatesUnadjusted, estimatesAdjusted)
+  sql <- "TRUNCATE TABLE #rates; DROP TABLE #rates;"
+  DatabaseConnector::renderTranslateExecuteSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+  
+  estimates <- estimates %>%
+    mutate(exposureId = !!exposureId)
+  
   delta <- Sys.time() - start
   ParallelLogger::logInfo(paste("Completed historical comparator estimates took", signif(delta, 3), attr(delta, "units")))
   return(estimates)
 }
-
-computeIrr <- function() {
-  oe <- observedExpected[observedExpected$outcomeId == 10003, ]
-  oe <- data.frame(outcomeEvents = c(1, 2),
-                   exposed = c(1, 0),
-                   daysAtRisk = c(1000, 1000))
-  fit <- glm(outcomeEvents ~ exposed + offset(log(daysAtRisk)), data = oe, family = "poisson")
-  cyclopsData <- Cyclops::createCyclopsData(outcomeEvents ~ exposed + survival::strata(outcomeId) + offset(log(daysAtRisk)), 
-                                            data = observedExpected, 
-                                            modelType = "cpr")
-  
-  cyclopsData <- Cyclops::createCyclopsData(outcomeEvents ~ exposed + offset(log(daysAtRisk)), 
-                                            data = oe, 
-                                            modelType = "pr")
-  
-  fit <- Cyclops::fitCyclopsModel(cyclopsData)
-  coef(fit)
-  confint(fit, "exposed") 
-  
-}
-
