@@ -23,7 +23,7 @@ createCohorts <- function(connectionDetails,
   connection <- DatabaseConnector::connect(connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
   
-  ParallelLogger::logInfo("Creating base expsosure cohorts")
+  ParallelLogger::logInfo("Creating base exposure cohorts")
   .createCohorts(connection = connection,
                  cdmDatabaseSchema = cdmDatabaseSchema,
                  cohortDatabaseSchema = cohortDatabaseSchema,

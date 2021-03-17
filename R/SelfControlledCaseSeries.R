@@ -225,7 +225,7 @@ summarizeSccsAnalyses <- function(referenceTable, periodFolder) {
         row$exposedSubjects <- covStats$personCount
         row$exposedDays <- covStats$dayCount
         row$exposedOutcomes <- covStats$outcomeCount
-        row$expectedOutcomes <- row$exposedOutcomes / row$rr
+        row$daysObserved <- sccsModel$metaData$daysObserved
         result[[length(result) + 1]] <- row
       }
     } 

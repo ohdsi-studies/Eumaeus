@@ -282,8 +282,8 @@ computeCohortMethodEstimates <- function(targetId,
                                           createPsThreads = 1,
                                           psCvThreads = min(10, maxCores),
                                           trimMatchStratifyThreads = min(10, maxCores),
-                                          fitOutcomeModelThreads = min(max(1, floor(maxCores/8)), 3),
-                                          outcomeCvThreads = min(10, maxCores))
+                                          fitOutcomeModelThreads = min(max(1, floor(maxCores/2)), 5),
+                                          outcomeCvThreads = min(2, maxCores))
   
   estimates <- CohortMethod::summarizeAnalyses(cmResult, periodFolder)
   return(estimates)

@@ -16,12 +16,14 @@ execute(
   minCellCount = 5,
   maxCores = 1,
   exposureIds = getExposuresOfInterest()$exposureId,
+  verifyDependencies = TRUE,
   createCohorts = TRUE,
   synthesizePositiveControls = TRUE,
   runCohortMethod = TRUE,
   runSccs = TRUE,
   runCaseControl = TRUE,
   runHistoricalComparator = TRUE,
+  computeCriticalValues = TRUE,
   createDbCharacterization = TRUE,
   exportResults = TRUE
 )
@@ -61,6 +63,8 @@ this can speed up the analyses.}
 \item{exposureIds}{The IDs of the exposure cohorts to include. See \code{\link{getExposuresOfInterest}}
 for the available exposure cohorts and their IDs.}
 
+\item{verifyDependencies}{Check whether correct package versions are installed?}
+
 \item{createCohorts}{Create the exposure and outcome cohorts?}
 
 \item{synthesizePositiveControls}{Should positive controls be synthesized?}
@@ -72,6 +76,8 @@ for the available exposure cohorts and their IDs.}
 \item{runCaseControl}{Perform the case-control analyses?}
 
 \item{runHistoricalComparator}{Perform the historical comparator analyses?}
+
+\item{computeCriticalValues}{Compute critical values for all methods?}
 
 \item{createDbCharacterization}{Create a high-level characterization of the database?}
 

@@ -16,7 +16,6 @@
 
 library(dplyr)
 source('C:/Users/mschuemi/git/Eumaeus/R/HelperFunctions.R')
-# source('C:/Users/mschuemi/git/Eumaeus/R/CaseControl.R')
 library(Eumaeus)
 options(andromedaTempFolder = "s:/andromedaTemp")
 options(sqlRenderTempEmulationSchema = NULL)
@@ -32,6 +31,18 @@ Sys.setenv("AWS_BUCKET_NAME" = keyring::key_get("bulkUploadS3Bucket"))
 Sys.setenv("AWS_DEFAULT_REGION" = "us-east-1")
 Sys.setenv("AWS_SSE_TYPE" = "AES256")
 Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
+
+# E-mail settings -----------------------------------------------------------------------------
+mailSettings <- list(from = keyring::key_get("mailAddress"),
+                     to = c(keyring::key_get("mailToAddress")),
+                     smtp = list(host.name = keyring::key_get("mailSmtpServer"),
+                                 port = keyring::key_get("mailSmtpPort"),
+                                 user.name = keyring::key_get("mailAddress"),
+                                 passwd = keyring::key_get("mailPassword"),
+                                 ssl = TRUE),
+                     authenticate = TRUE,
+                     send = TRUE)
+ParallelLogger::addDefaultEmailLogger(mailSettings = mailSettings, label = Sys.info()["nodename"])
 
 # Details specific to MDCD:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
@@ -61,31 +72,62 @@ databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database
 # databaseDescription <- "IBM MarketScan® Medicare Supplemental and Coordination of Benefits Database (MDCR) represents health services of retirees in the United States with primary or Medicare supplemental coverage through privately insured fee-for-service, point-of-service, or capitated health plans.  These data include adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy). Additionally, it captures laboratory tests for a subset of the covered lives."
 # 
 # 
+# 
 # # Details specific to CCAE:
 # connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
 #                                                                 connectionString = keyring::key_get("redShiftConnectionStringCcae"),
 #                                                                 user = keyring::key_get("redShiftUserName"),
 #                                                                 password = keyring::key_get("redShiftPassword"))
-# outputFolder <- "s:/VacSurvEval/CCAE"
+# outputFolder <- "d:/Eumaeus/CCAE"
 # cdmDatabaseSchema <- "cdm"
-# cohortDatabaseSchema <- "scratch_mschuemi"
-# cohortTable <- "examplePackage_ccae"
+# cohortDatabaseSchema <- "scratch_mschuemi5"
+# cohortTable <- "mschuemi_vac_surv_ccae"
 # databaseId <- "CCAE"
 # databaseName <- "IBM MarketScan Commercial Claims and Encounters Database"
-# databaseDescription <- "IBM MarketScan® Commercial Claims and Encounters Database (CCAE) represent data from individuals enrolled in United States employer-sponsored insurance health plans. The data includes adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy) as well as enrollment data from large employers and health plans who provide private healthcare coverage to employees, their spouses, and dependents. Additionally, it captures laboratory tests for a subset of the covered lives. This administrative claims database includes a variety of fee-for-service, preferred provider organizations, and capitated health plans." 
+# databaseDescription <- "IBM MarketScan® Commercial Claims and Encounters Database (CCAE) represent data from individuals enrolled in United States employer-sponsored insurance health plans. The data includes adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy) as well as enrollment data from large employers and health plans who provide private healthcare coverage to employees, their spouses, and dependents. Additionally, it captures laboratory tests for a subset of the covered lives. This administrative claims database includes a variety of fee-for-service, preferred provider organizations, and capitated health plans."
 # 
 # 
-# 
-# # Details specific to JMDC:
+# # Details specific to OptumEhr:
 # connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
-#                                                                 connectionString = keyring::key_get("redShiftConnectionStringJmdc"),
+#                                                                 connectionString = keyring::key_get("redShiftConnectionStringOptumEhr"),
 #                                                                 user = keyring::key_get("redShiftUserName"),
 #                                                                 password = keyring::key_get("redShiftPassword"))
+# outputFolder <- "d:/Eumaeus/OptumEhr"
 # cdmDatabaseSchema <- "cdm"
 # cohortDatabaseSchema <- "scratch_mschuemi"
-# databaseId <- "JMDC"
-# databaseName <- "Japan Medical Data Center"
-# databaseDescription <- "Japan Medical Data Center (JDMC) database consists of data from 60 Society-Managed Health Insurance plans covering workers aged 18 to 65 and their dependents (children younger than 18 years old and elderly people older than 65 years old). JMDC data includes membership status of the insured people and claims data provided by insurers under contract (e.g. patient-level demographic information, inpatient and outpatient data inclusive of diagnosis and procedures, and prescriptions as dispensed claims information). Claims data are derived from monthly claims issued by clinics, hospitals and community pharmacies; for claims only the month and year are provided however prescriptions, procedures, admission, discharge, and start of medical care as associated with a full date.\nAll diagnoses are coded using ICD-10. All prescriptions refer to national Japanese drug codes, which have been linked to ATC. Procedures are encoded using local procedure codes, which the vendor has mapped to ICD-9 procedure codes. The annual health checkups report a standard battery of measurements (e.g. BMI), which are not coded but clearly described."
+# cohortTable <- "mschuemi_vac_surv_optum_ehr"
+# databaseId <- "OptumEhr"
+# databaseName <- "Optum de-identified Electronic Health Record Dataset"
+# databaseDescription <- "Optum© de-identified Electronic Health Record Dataset is derived from dozens of healthcare provider organizations in the United States (that include more than 700 hospitals and 7,000 Clinics treating more than 103 million patients) receiving care in the United States. The medical record data includes clinical information, inclusive of prescriptions as prescribed and administered, lab results, vital signs, body measurements, diagnoses, procedures, and information derived from clinical Notes using Natural Language Processing (NLP)."
+# 
+# # Details specific to CPRD:
+# connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
+#                                                                 connectionString = keyring::key_get("redShiftConnectionStringCprd"),
+#                                                                 user = keyring::key_get("redShiftUserName"),
+#                                                                 password = keyring::key_get("redShiftPassword"))
+# outputFolder <- "r:/Eumaeus/Cprd"
+# cdmDatabaseSchema <- "cdm"
+# cohortDatabaseSchema <- "scratch_mschuemi_2"
+# cohortTable <- "mschuemi_vac_surv_cprd"
+# databaseId <- "Cprd"
+# databaseName <- "Clinical Practice Research Datalink (CPRD)"
+# databaseDescription <- "The Clinical Practice Research Datalink (CPRD) is a governmental, not-for-profit research service, jointly funded by the NHS National Institute for Health Research (NIHR) and the Medicines and Healthcare products Regulatory Agency (MHRA), a part of the Department of Health, United Kingdom (UK).  CPRD consists of data collected from UK primary care for all ages.  This includes conditions, observations, measurements, and procedures that the general practitioner is made aware of in additional to any prescriptions as prescribed by the general practitioner.  In addition to primary care, there are also linked secondary care records for a small number of people."
+# 
+# # Details specific to Optum DoD:
+# connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
+#                                                                 connectionString = keyring::key_get("redShiftConnectionStringOptumDod"),
+#                                                                 user = keyring::key_get("redShiftUserName"),
+#                                                                 password = keyring::key_get("redShiftPassword"))
+# outputFolder <- "r:/Eumaeus/OptumDod"
+# cdmDatabaseSchema <- "cdm"
+# cohortDatabaseSchema <- "scratch_mschuemi6"
+# cohortTable <- "mschuemi_vac_surv_optum_dod"
+# databaseId <- "OptumDod"
+# databaseName <- "Optum Clinformatics Extended Data Mart - Date of Death (DOD)"
+# databaseDescription <- "Optum Clinformatics Extended DataMart is an adjudicated US administrative health claims database for members of private health insurance, who are fully insured in commercial plans or in administrative services only (ASOs), Legacy Medicare Choice Lives (prior to January 2006), and Medicare Advantage (Medicare Advantage Prescription Drug coverage starting January 2006).  The population is primarily representative of commercial claims patients (0-65 years old) with some Medicare (65+ years old) however ages are capped at 90 years.  It includes data captured from administrative claims processed from inpatient and outpatient medical services and prescriptions as dispensed, as well as results for outpatient lab tests processed by large national lab vendors who participate in data exchange with Optum.  This dataset also provides date of death (month and year only) for members with both medical and pharmacy coverage from the Social Security Death Master File (however after 2011 reporting frequency changed due to changes in reporting requirements) and location information for patients is at the US state level."
+
+
+
 # 
 # 
 # runCohortDiagnostics(connectionDetails = connectionDetails,

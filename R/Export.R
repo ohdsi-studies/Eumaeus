@@ -151,6 +151,15 @@ exportMetadata <- function(outputFolder,
   colnames(database) <- SqlRender::camelCaseToSnakeCase(colnames(database))
   fileName <- file.path(exportFolder, "database.csv")
   readr::write_csv(database, fileName)
+  
+  ParallelLogger::logInfo("- database_characterization table")
+  pathToCsv <- file.path(outputFolder, "DbCharacterization.csv")
+  table <- readr::read_csv(pathToCsv, col_types = readr::cols())  
+  table$databaseId <- databaseId
+  table <- enforceMinCellValue(table, "count", minValues = minCellCount)
+  colnames(table) <- SqlRender::camelCaseToSnakeCase(colnames(table))
+  fileName <- file.path(exportFolder, "database_characterization.csv")
+  readr::write_csv(table, fileName)
 }
 
 getVocabularyVersion <- function(connection, cdmDatabaseSchema) {
@@ -198,8 +207,33 @@ exportMainResults <- function(outputFolder,
                               maxCores) {
   ParallelLogger::logInfo("Exporting main results")
   
-  
   ParallelLogger::logInfo("- estimate table")
+  columns <- c("databaseId",  "method", "analysisId", "exposureId", "outcomeId", "periodId", "rr", "ci95lb", "ci95ub", "p", "exposureSubjects", "counterfactualSubjects", "exposureDays", "counterfactualDays", "exposureOutcomes", "counterfactualOutcomes", "logRr", "seLogRr", "llr", "criticalValue")
+  
+  ParallelLogger::logInfo("  Adding case-control estimates")
+  hcEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) 
+  
+  
+  
+  
+  estimates <- loadEstimates(file.path(outputFolder, "cmSummary_withCvs.csv")) %>%
+    mutate(method = "CohortMethod")
+  
+  ParallelLogger::logInfo("  Adding case-control estimates")
+  caseControlEstimates <- loadEstimates(file.path(outputFolder, "ccSummary_withCvs.csv")) %>%
+    mutate(databaseId = !!databaseId,
+           method = "CaseControl",
+           periodId = .data$seqId,
+           exposureSubjects = .data$exposedCases + .data$exposedControls,
+           exposureOutcomes = .data$exposedCases,
+           exposureDays = NA,
+           counterfactualSubjects = (.data$cases + .data$controls) - (.data$exposedCases + .data$exposedControls),
+           counterfactualOutcomes = .data$cases - .data$exposedCases,
+           counterfactualDays = NA,
+           llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
+    select(all_of(columns))
+  
+  
   # SCCS
   estimates <- loadEstimates(file.path(outputFolder, "sccsSummary.csv")) %>%
     mutate(method = "SCCS")
@@ -296,6 +330,7 @@ exportMainResults <- function(outputFolder,
   }
   close(pb)
 }
+
 
 calibrate <- function(subset, allControls) {
   # subset <- estimates[estimates$exposureId == 205023 & estimates$method == "SCCS" & estimates$analysisId == 2 & estimates$periodId == 3, ]

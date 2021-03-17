@@ -55,12 +55,14 @@ getExposuresOfInterest <- function() {
 #'                             this can speed up the analyses.
 #' @param exposureIds          The IDs of the exposure cohorts to include. See \code{\link{getExposuresOfInterest}}
 #'                             for the available exposure cohorts and their IDs.
+#' @param verifyDependencies   Check whether correct package versions are installed?
 #' @param createCohorts        Create the exposure and outcome cohorts?
 #' @param synthesizePositiveControls          Should positive controls be synthesized?
 #' @param runCohortMethod                     Perform the cohort method analyses?
 #' @param runSccs                     Perform the SCCS and SCRI analyses?
 #' @param runCaseControl                     Perform the case-control analyses?
 #' @param runHistoricalComparator       Perform the historical comparator analyses?
+#' @param computeCriticalValues Compute critical values for all methods?
 #' @param createDbCharacterization  Create a high-level characterization of the database?
 #' @param exportResults       Export the results to a single zip file (containing several CSV files) for sharing?
 #'
@@ -76,12 +78,14 @@ execute <- function(connectionDetails,
                     minCellCount = 5,
                     maxCores = 1,
                     exposureIds = getExposuresOfInterest()$exposureId,
+                    verifyDependencies = TRUE,
                     createCohorts = TRUE,
                     synthesizePositiveControls = TRUE,
                     runCohortMethod = TRUE,
                     runSccs = TRUE,
                     runCaseControl = TRUE,
                     runHistoricalComparator = TRUE,
+                    computeCriticalValues = TRUE,
                     createDbCharacterization = TRUE,
                     exportResults = TRUE) {
   if (!file.exists(outputFolder)) {
@@ -92,6 +96,11 @@ execute <- function(connectionDetails,
   ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
+  
+  if (verifyDependencies) {
+    ParallelLogger::logInfo("Checking whether correct package versions are installed")
+    verifyDependencies()
+  }
   
   if (createCohorts) {
     ParallelLogger::logInfo("Creating exposure and outcome cohorts")
@@ -154,6 +163,12 @@ execute <- function(connectionDetails,
                               maxCores = maxCores)
   }
   
+  if (computeCriticalValues) {
+    ParallelLogger::logInfo("Computing critical values")
+    computeCriticalValues(outputFolder = outputFolder,
+                          maxCores = maxCores)
+  }
+  
   if (createDbCharacterization) {
     ParallelLogger::logInfo("Creating database characterization")
     createDbCharacterization(connectionDetails = connectionDetails,
@@ -171,5 +186,27 @@ execute <- function(connectionDetails,
                   databaseDescription = databaseDescription,
                   minCellCount = minCellCount,
                   maxCores = maxCores)
+  }
+  ParallelLogger::logFatal("Done")
+}
+
+verifyDependencies <- function() {
+  expected <- RJSONIO::fromJSON("renv.lock")
+  expected <- dplyr::bind_rows(expected[[2]])
+  basePackages <- rownames(installed.packages(priority = "base"))
+  expected <- expected[!expected$Package %in% basePackages, ]
+  observedVersions <- sapply(sapply(expected$Package, packageVersion), paste, collapse = ".")
+  expectedVersions <- sapply(sapply(expected$Version, numeric_version), paste, collapse = ".")
+  mismatchIdx <- which(observedVersions != expectedVersions)
+  if (length(mismatchIdx) > 0) {
+    
+    lines <- sapply(mismatchIdx, function(idx) sprintf("- Package %s version %s should be %s",
+                                                       expected$Package[idx],
+                                                       observedVersions[idx],
+                                                       expectedVersions[idx]))
+    message <- paste(c("Mismatch between required and installed package versions. Did you forget to run renv::restore()?",
+                       lines),
+                     collapse = "\n")
+    stop(message)
   }
 }
