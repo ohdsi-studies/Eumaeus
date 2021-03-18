@@ -3052,7 +3052,7 @@ div.tocify {
 <h1 class="title toc-ignore"><div class="line-block">RESEARCH PROTOCOL<br />
 <br />
 EUMAEUS: Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)</div></h1>
-<h3 class="subtitle">Version: 0.1.0</h3>
+<h3 class="subtitle">Version: 0.2.0</h3>
 
 </div>
 
@@ -3123,6 +3123,14 @@ EHR
 </td>
 <td style="text-align:left;">
 Electronic Health Record
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EMA
+</td>
+<td style="text-align:left;">
+European Medicines Agency
 </td>
 </tr>
 <tr>
@@ -3320,6 +3328,22 @@ Marc A. Suchard
 Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
 </td>
 </tr>
+<tr>
+<td style="text-align:left;width: 10em; ">
+Thamir M Alshammari
+</td>
+<td style="text-align:left;width: 30em; ">
+College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 10em; ">
+Nicole Pratt
+</td>
+<td style="text-align:left;width: 30em; ">
+Quality Use of Medicines and Pharmacy Research Centre, University of South Australia
+</td>
+</tr>
 </tbody>
 <tfoot>
 <tr>
@@ -3333,15 +3357,15 @@ Department of Biostatistics, University of California, Los Angeles, Los Angeles,
 <div id="disclosures" class="section level2" number="2.2">
 <h2><span class="header-section-number">2.2</span> Disclosures</h2>
 <p>This study is undertaken within Observational Health Data Sciences and Informatics (OHDSI), an open collaboration.
-<strong>GH</strong> receives grant funding from the US National Institutes of Health and the US Food &amp; Drug Administration and contracts from Janssen Research and Development.
+<strong>GH</strong> receives grant funding from the US National Institutes of Health and the US Food &amp; Drug Administration.
 <strong>PBR</strong> and <strong>MJS</strong> are employees of Janssen Research and Development and shareholders in John &amp; Johnson.
-<strong>MAS</strong> receives grant funding from the US National Institutes of Health and the US Food &amp; Drug Administration and contracts from Janssen Research and Development and IQVIA.</p>
+<strong>MAS</strong> receives grant funding from the US National Institutes of Health and the US Food &amp; Drug Administration and contracts from the US Department of Veterans Affairs, Janssen Research and Development and IQVIA.</p>
 </div>
 </div>
 <div id="abstract" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Abstract</h1>
 <p><strong>Background and Significance</strong></p>
-<p>As recently approved COVID-19 vaccines are rolled out globally, it is likely that safety signals will be identified from spontaneous reports and other data sources. Although some work has been done on the best methods for vaccine safety surveillance, there is a scarcity of information on how these perform in analyses of real world data.</p>
+<p>As recently approved COVID-19 vaccines are rolled out globally, it is likely that safety signals will be identified from spontaneous reports and other data sources. Although some work has been done on the best methods for vaccine safety surveillance, there is a scarcity of information on how these perform in analyses of real-world data.</p>
 <p><strong>Study Aims</strong></p>
 <p>To study the comparative performance (bias, precision, and timeliness) of different analytical methods for the study of comparative vaccine safety.</p>
 <p><strong>Study Description</strong></p>
@@ -3358,15 +3382,15 @@ Department of Biostatistics, University of California, Los Angeles, Los Angeles,
 </ol></li>
 <li>Metrics:
 <ul>
-<li>Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size.</li>
+<li>Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size. Will be stratified by true effect size of the positive controls.</li>
 <li>Coverage. How often the true effect size is within the 95% confidence interval.</li>
 <li>Mean precision, computed as 1 / (standard error)2</li>
 <li>Mean squared error (MSE). Mean squared error between the log of the effect size point-estimate and the log of the true effect size.</li>
 <li>Type 1 error. For negative controls, how often was the null rejected (at alpha = 0.05). This is equivalent to the false positive rate and 1 - specificity.</li>
-<li>Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.</li>
+<li>Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity. Will be stratified by true effect size of the positive controls.</li>
 <li>Non-estimable. Measure for how many of the controls was the method unable to produce an estimate</li>
 <li>Sensitivity and specificity based on the MaxSPRT decision rule</li>
-<li>Detection time: the number of months until 80% of all positive controls exceeds the critical value</li>
+<li>Detection time: the number of months until 80% of positive controls exceeds the critical value. Will be stratified by true effect size of the positive controls.</li>
 </ul></li>
 </ul>
 </div>
@@ -3461,14 +3485,15 @@ Many more are in pipeline, and at least two more have reported to date on phase 
 <p>The ENCEPP (European Network of Centres for Pharmacoepidemiology and Pharmacovigilance) methodological guidelines, in their 8th revision,<span class="citation">[<a href="#ref-encepp2010" role="doc-biblioref">11</a>]</span> mention a few documents that set out standards for the conducting of vaccine safety studies.
 Specific aspects related to vaccine safety research are discussed in detail in different materials, including the Report of the CIOMS/WHO Working Group on Definition and Application of Terms for Vaccine Pharmacovigilance (2012), the CIOMS Guide to Active Vaccine Safety Surveillance (2017), the CIOMS Guide to Vaccine Safety Communication (2018), the Brighton Collaboration resources, the Module 4 (Surveillance) of the e-learning training course Vaccine Safety Basics by the World Health Organization (WHO), or the recommendations on vaccine-specific aspects of the EU pharmacovigilance system outlined in the Module P.I: Vaccines for prophylaxis against infectious diseases of the Good pharmacovigilance practices (GVP).
 Additionally, the Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE) project has summarized methods for vaccine safety in a bespoke report <span class="citation">[<a href="#ref-advance2014" role="doc-biblioref">12</a>]</span> covering multiple study designs, both experimental and observational in nature.
+The EMA (European Medicines Agency) has also issued guidances <span class="citation">[<a href="#ref-ema2020_1" role="doc-biblioref">13</a>]</span> and a plan <span class="citation">[<a href="#ref-ema2020_2" role="doc-biblioref">14</a>]</span> for pharmacovigilance of COVID-19 vaccines.
 Despite this plethora of literature and guidance, there is a scarcity of methodological studies on the performance of different methods for vaccine safety.</p>
 <p>Given the quick and increasingly global rollout of COVID-19 vaccines internationally, it is highly likely that potential safety signals will emerge, which will need a timely but robust evaluation in ‘real world’ observational studies.
 It is therefore urgent that we conduct large-scale evaluations of methods for vaccine safety, similar to previous work on methods for drug safety. <span class="citation">[<a href="#ref-Schuemie2020-he" role="doc-biblioref">1</a>]</span>
-The results of this evaluation will help us understand how these methods will perform when applied to COVID vaccines.</p>
+The results of this evaluation will help us understand how these methods will perform when applied to COVID-19 vaccines.</p>
 </div>
 <div id="study-objectives" class="section level1" number="7">
 <h1><span class="header-section-number">7</span> Study Objectives</h1>
-<p>The overarching aim is to identify the best methods for the generation of evidence of vaccine safety in observational, real world data.
+<p>The overarching aim is to identify the best methods for the generation of evidence of vaccine safety in observational, real-world data.
 Specific aims:</p>
 <ul>
 <li>To estimate the bias and precision associated with the use of different methods (historic rate, cohort, self-controlled, and case-control) for the study of vaccine safety compared</li>
@@ -3517,10 +3542,10 @@ H1N1 vaccination
 31-05-2010
 </td>
 <td style="text-align:left;">
-01-01-2008
+01-09-2008
 </td>
 <td style="text-align:left;">
-31-12-2008
+31-05-2009
 </td>
 </tr>
 <tr>
@@ -3534,10 +3559,10 @@ Seasonal flu vaccination (Fluvirin)
 31-05-2018
 </td>
 <td style="text-align:left;">
-01-01-2016
+01-09-2016
 </td>
 <td style="text-align:left;">
-31-12-2016
+31-05-2017
 </td>
 </tr>
 <tr>
@@ -3551,10 +3576,10 @@ Seasonal flu vaccination (Fluzone)
 31-05-2018
 </td>
 <td style="text-align:left;">
-01-01-2016
+01-09-2016
 </td>
 <td style="text-align:left;">
-31-12-2016
+31-05-2017
 </td>
 </tr>
 <tr>
@@ -3568,10 +3593,10 @@ Seasonal flu vaccination (All)
 31-05-2018
 </td>
 <td style="text-align:left;">
-01-01-2016
+01-09-2016
 </td>
 <td style="text-align:left;">
-31-12-2016
+31-05-2017
 </td>
 </tr>
 <tr>
@@ -3620,17 +3645,17 @@ The formal cohort definitions of each exposure can be found in Appendix <a href=
 Any effect size estimates for negative control ideally should be close to the null.</p>
 <p>A single set of negative control outcomes is defined for all four vaccine groups.
 To identify negative control outcomes that match the severity and prevalence of suspected vaccine adverse effects, a candidate list of negative controls was generated based on similarity of prevalence and percent of diagnoses that were recorded in an inpatient setting (as a proxy for severity).
-Manual review of this list by clinical experts created the final list of 100 negative control outcomes.
+Manual review of this list by clinical experts created the final list of 93 negative control outcomes.
 The full list of negative control outcomes can be found in Appendix <a href="#negative-controls">B</a></p>
 <p>Negative control outcomes are defined as the first occurrence of the negative control concept or any of its descendants.</p>
 </div>
-<div id="positive-control-outcomes" class="section level3" number="8.1.3">
-<h3><span class="header-section-number">8.1.3</span> Positive control outcomes</h3>
+<div id="synthetic-positive-control-outcomes" class="section level3" number="8.1.3">
+<h3><span class="header-section-number">8.1.3</span> Synthetic positive control outcomes</h3>
 <p>Positive controls are outcomes known to be caused by vaccines, and ideally would be detected as signals by a safety surveillance system as early as possible.
 For various reasons, real positive controls are problematic.<span class="citation">[<a href="#ref-Schuemie2018-zi" role="doc-biblioref">3</a>]</span>
 Instead, here we will rely on synthetic positive controls,<span class="citation">[<a href="#ref-Schuemie2020-he" role="doc-biblioref">1</a>,<a href="#ref-Schuemie2018-hq" role="doc-biblioref">5</a>]</span> created by modifying a negative control through injection of additional, simulated occurrences of the outcome.
 To preserve (measured) confounding, simulated outcome occurrences are sampled from the probability distribution derived from a predictive model fitted on the data.
-Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, so using the 100 negative controls we are able to construct 100 * 3 = 300 positive control outcomes.
+Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, so using the 93 negative controls we are able to construct 93 <span class="math inline">\(\times\)</span> 3 = 279 positive control outcomes.
 The hazard for the outcome is simulated to be increased by the target ratio for the period starting 1 day after vaccination until 28 days after vaccinations, with a constant hazard ratio during that time.
 This increased risk is applied both for the first and second injection of multi-dose vaccines.</p>
 </div>
@@ -3667,7 +3692,7 @@ Data capture process and short description
 </tr>
 </thead>
 <tbody>
-<tr grouplength="5">
+<tr grouplength="4">
 <td colspan="5" style="border-bottom: 1px solid;">
 <strong>Administrative claims</strong>
 </td>
@@ -3725,23 +3750,6 @@ Adjudicated health insurance claims for Medicaid enrollees from multiple states 
 </tr>
 <tr>
 <td style="text-align:left;">
-Japan Medical Data Center (JMDC)
-</td>
-<td style="text-align:left;">
-Japan, general
-</td>
-<td style="text-align:left;">
-5.5M
-</td>
-<td style="text-align:left;">
-2005 –
-</td>
-<td style="text-align:left;">
-Data from 60 society-managed health insurance plans covering workers aged 18 to 65 and their dependents.
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 Optum Clinformatics Data Mart (Optum)
 </td>
 <td style="text-align:left;">
@@ -3779,23 +3787,6 @@ US, general
 Clinical information, prescriptions, lab results, vital signs, body measurements, diagnoses and procedures derived from clinical notes using natural language processing.
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Clinical Practice Research Datalink (CPRD) GOLD
-</td>
-<td style="text-align:left;">
-UK, NHS primary care
-</td>
-<td style="text-align:left;">
-10M
-</td>
-<td style="text-align:left;">
-1995 –
-</td>
-<td style="text-align:left;">
-Primary care EHR.
-</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -3808,16 +3799,21 @@ Primary care EHR.
 <p>Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. We will use the historic period indicated in Table <a href="#tab:exposures-of-interest">8.1</a>.
 We will evaluate two variants:</p>
 <ul>
-<li>Using a single rate for the entire population.</li>
-<li>Stratifying by age (in 5 year increments) and sex, allowing the expected rate to be adjusted for the demographics of the vaccinated.</li>
+<li>Unadjusted, entire year. Using a single rate computed across the entire historic year for the entire population.</li>
+<li>Age and sex adjusted, entire year. Using a rate stratifying by age (in 5 year increments) and sex, computed across the entire historic year. This allows the expected rate to be adjusted for the demographics of the vaccinated.</li>
+<li>Unadjusted, time-at-risk relative to outpatient visit. Using a single rate computed during the time-at-risk relative to a random outpatient visit in the historic year.</li>
+<li>Age and sex adjusted, time-at-risk relative to outpatient visit. Using a rate stratifying by age and sex, computed during the time-at-risk relative to a random outpatient visit in the historic year.</li>
 </ul>
 <p><strong>Cohort method using a contemporary non-user comparator</strong></p>
 <p>A comparator cohort study most closely emulates a randomized clinical trial, comparing the target cohort (those vaccinated) to some comparator cohort.
-We define a non-user comparator cohort as having an outpatient visit on the index date, and having no vaccinations for the same disease as the target vaccine during the study period.
-We will evaluate two variants:</p>
+We define two types of non-user comparator cohort, one having an outpatient visit on the index date, and another having a random date as the index date.
+For both comparator variants we exclude subjects having a vaccinations for the same disease as the target vaccine on or before the index date.
+We will evaluate four method variants:</p>
 <ul>
-<li>Crude comparison. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.</li>
-<li>Using 1-on-1 propensity score (PS) matching. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. <span class="citation">[<a href="#ref-Tian2018-xy" role="doc-biblioref">6</a>]</span></li>
+<li>Unadjusted comparison to random outpatient visit. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.</li>
+<li>1-on-1 propensity score (PS) matched outpatient visit. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. <span class="citation">[<a href="#ref-Tian2018-xy" role="doc-biblioref">6</a>]</span></li>
+<li>Unadjusted comparison to random date. The comparator cohort will be a random sample (of random dates) of equal size as the target cohort.</li>
+<li>1-on-1 propensity score (PS) matched random date. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. <span class="citation">[<a href="#ref-Tian2018-xy" role="doc-biblioref">6</a>]</span></li>
 </ul>
 <p><strong>Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI)</strong></p>
 <p>The SCCS and SCRI designs are self-controlled, comparing the time-at-risk (the time shortly following the vaccination) to some other time in the same patient’s record.
@@ -3836,13 +3832,14 @@ We will evaluate four variants:</p>
 We will evaluate two variants:</p>
 <ul>
 <li>Using up to four age and sex matched controls per case. For age we will use a two-year caliper.</li>
-<li>By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model. The control sample will be four time the number of controls. Age will be modeled as one variable per 5-year age category.</li>
+<li>By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model. The control sample will be four times the number of controls. Age will be modeled as one variable per 5-year age category.</li>
 </ul>
 </div>
 <div id="time-at-risk" class="section level3" number="8.3.2">
 <h3><span class="header-section-number">8.3.2</span> Time-at-risk</h3>
 <p>The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination.
-Time-at-risk windows will be constructed both for the first and second dose. The time-at-risk for one dose will be censored at the time of the next dose.</p>
+Time-at-risk windows will be constructed both for the first and second dose.
+The time-at-risk for one dose will be censored at the time of the next dose.</p>
 </div>
 <div id="statistic" class="section level3" number="8.3.3">
 <h3><span class="header-section-number">8.3.3</span> Statistic</h3>
@@ -3858,23 +3855,26 @@ Empirical calibration will be done using leave-one-out: when calibrating the est
 <div id="decision-rule" class="section level3" number="8.3.4">
 <h3><span class="header-section-number">8.3.4</span> Decision rule</h3>
 <p>To identify ‘signals’ we need a decision rule, for example in the shape of a threshold value on one of the estimates statistics.
-In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.01, using a binomial model.
-For this we will use the <a href="https://cran.r-project.org/web/packages/Sequential/index.html"><code>Sequential</code> package in CRAN</a>.</p>
+In our experiment we will consider one decision rule, which is the critical value computed for the LLR at an alpha of 0.05.
+For the historical rates method we will use a Poisson model assuming the counterfactual is known without uncertainty.
+For all other methods we will use a binomial model.
+All critical values will be computed using the <a href="https://cran.r-project.org/web/packages/Sequential/index.html"><code>Sequential</code> package in CRAN</a>.</p>
 </div>
 </div>
 <div id="metrics" class="section level2" number="8.4">
 <h2><span class="header-section-number">8.4</span> Metrics</h2>
 <p>Similar to our previous study, we will compute the following metrics based on the effect size estimates: <span class="citation">[<a href="#ref-Schuemie2020-wx" role="doc-biblioref">4</a>]</span></p>
 <ul>
-<li>Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size.</li>
+<li>Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size. This will be stratified by true effect size of the positive controls.</li>
 <li>Coverage. How often the true effect size is within the 95% confidence interval.</li>
 <li>Mean precision. Precision is computed as 1 / (standard error)2, higher precision means narrower confidence intervals. We use the geometric mean to account for the skewed distribution of the precision.</li>
 <li>Mean squared error (MSE). Mean squared error between the log of the effect size point-estimate and the log of the true effect size.</li>
 <li>Type 1 error. For negative controls, how often was the null rejected (at alpha = 0.05). This is equivalent to the false positive rate and 1 - specificity.</li>
-<li>Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity.</li>
+<li>Type 2 error. For positive controls, how often was the null not rejected (at alpha = 0.05). This is equivalent to the false negative rate and 1 - sensitivity. This will be stratified by true effect size of the positive controls.</li>
 <li>Non-estimable. For how many of the controls was the method unable to produce an estimate? There can be various reasons why an estimate cannot be produced, for example because there were no subjects left after propensity score matching, or because no subjects remained having the outcome.</li>
 </ul>
-<p>In addition, based on the MaxSPRT decision rule, we will compute sensitivity, specificity, as well as the number of months until 80% of all positive controls exceeds the critical value (detection time).</p>
+<p>In addition, based on the MaxSPRT decision rule, we will compute sensitivity, specificity, as well as the number of months until 80% of all positive controls exceeds the critical value (detection time).
+These will be stratified by true effect size of the positive controls.</p>
 <div id="timeliness" class="section level3" number="8.4.1">
 <h3><span class="header-section-number">8.4.1</span> Timeliness</h3>
 <p>To understand the time it takes for a method the identify signals, the study period for each vaccine will be divided into calendar months.
@@ -3894,14 +3894,14 @@ For each month the methods will be executed using the data that had accumulated 
 <h2><span class="header-section-number">8.5</span> Overview of analyses</h2>
 <p>In total, we will evaluate:</p>
 <ul>
-<li>10 counterfactuals</li>
+<li>14 counterfactuals</li>
 <li>3 times at risk (0-1, 1-28, and 1-42 days)</li>
 <li>6 vaccines, with a total of 9 + 9 + 9 + 9 + 12 + 12 = 60 time periods</li>
-<li>100 negative controls</li>
-<li>3 * 100 = 300 positive controls</li>
+<li>93 negative controls</li>
+<li>3 <span class="math inline">\(\times\)</span> 93 = 279 positive controls</li>
 <li>3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.</li>
 </ul>
-<p>Resulting in a total of 10 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3) * (100 + 300) = 1,296,000 effect-size estimates. Each estimate will contain:</p>
+<p>Resulting in a total of 14 <span class="math inline">\(\times\)</span> 3 <span class="math inline">\(\times\)</span> [(9 + 9 + 9 + 9) <span class="math inline">\(\times\)</span> 1 + (12 + 12) <span class="math inline">\(\times\)</span> 3] <span class="math inline">\(\times\)</span> (93 + 279) = 117,695,592 effect-size estimates. Each estimate will contain:</p>
 <ul>
 <li>The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.</li>
 <li>The empirically calibrated effect-size estimate and p-value</li>
@@ -4047,14 +4047,13 @@ Open access to this app will be through a general public facing EUMAEUS web-page
 </div>
 <div id="scientific-meetings-and-publications" class="section level2" number="12.3">
 <h2><span class="header-section-number">12.3</span> Scientific meetings and publications</h2>
-<p>We will deliver multiple presentations annually in scientific venues including the annual meetings of the American Diabetes Association, American College of Cardiology, American Heart Association and American Medical Informatics Association.
-We will also prepare multiple scientific publications for clinical, informatics and statistical journals.</p>
+<p>We will deliver multiple presentations at scientific venues and will also prepare multiple scientific publications for clinical, informatics and statistical journals.</p>
 </div>
 <div id="general-public" class="section level2" number="12.4">
 <h2><span class="header-section-number">12.4</span> General public</h2>
 <p>We believe in sharing our findings that will guide clinical care with the general public.
 EUMAEUS will use social-media (Twitter) to facilitate this.
-With dedicated support from the OHDSI communications specialist, we will deliver regular press releases at key project stages, distributed via the extensive media networks of UCLA, Columbia and Yale.</p>
+With dedicated support from the OHDSI communications specialist, we will deliver regular press releases at key project stages, distributed via the extensive media networks of UCLA and Columbia.</p>
 </div>
 </div>
 <div id="lists-of-tables-and-figures" class="section level1" number="13">
@@ -4097,7 +4096,13 @@ With dedicated support from the OHDSI communications specialist, we will deliver
 <div class="csl-left-margin">11 </div><div class="csl-right-inline">The European Network of Centres for Pharmacoepidemiology and Pharmacovigilance (ENCePP). <span class="nocase"><span>G</span>uide on <span>M</span>ethodological <span>S</span>tandards in <span>P</span>harmacoepidemiology (<span>R</span>evision 8)</span>. 2010. </div>
 </div>
 <div id="ref-advance2014" class="csl-entry">
-<div class="csl-left-margin">12 </div><div class="csl-right-inline">Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE). <span class="nocase">D4.2 Report on appraisal of vaccine safety methods</span>. 2010. </div>
+<div class="csl-left-margin">12 </div><div class="csl-right-inline">Accelerated Development of VAccine beNefit-risk Collaboration in Europe (ADVANCE). <span class="nocase">D4.2 Report on appraisal of vaccine safety methods</span>. 2014. </div>
+</div>
+<div id="ref-ema2020_1" class="csl-entry">
+<div class="csl-left-margin">13 </div><div class="csl-right-inline">European Medicines Agency (EMA). <span class="nocase">Consideration on core requirements for RMPs of COVID19 vaccines</span>. 2020. </div>
+</div>
+<div id="ref-ema2020_2" class="csl-entry">
+<div class="csl-left-margin">14 </div><div class="csl-right-inline">European Medicines Agency (EMA). <span class="nocase">Pharmacovigilance Plan of the EU Regulatory Network for COVID-19 Vaccines</span>. 2020. </div>
 </div>
 </div>
 </div>
@@ -4124,8 +4129,8 @@ With dedicated support from the OHDSI communications specialist, we will deliver
 <h3><span class="header-section-number">A.1.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-h1n1-vaccine" class="section level3" number="14.1.4">
-<h3><span class="header-section-number">A.1.4</span> Concept: H1N1 vaccine</h3>
+<div id="concept-set-h1n1-vaccine" class="section level3" number="14.1.4">
+<h3><span class="header-section-number">A.1.4</span> Concept set: H1N1 vaccine</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4430,8 +4435,8 @@ NO
 <h3><span class="header-section-number">A.2.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-fluvirin" class="section level3" number="14.2.4">
-<h3><span class="header-section-number">A.2.4</span> Concept: Fluvirin</h3>
+<div id="concept-set-fluvirin" class="section level3" number="14.2.4">
+<h3><span class="header-section-number">A.2.4</span> Concept set: Fluvirin</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4506,8 +4511,8 @@ NO
 <h3><span class="header-section-number">A.3.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-fluzone" class="section level3" number="14.3.4">
-<h3><span class="header-section-number">A.3.4</span> Concept: Fluzone</h3>
+<div id="concept-set-fluzone" class="section level3" number="14.3.4">
+<h3><span class="header-section-number">A.3.4</span> Concept set: Fluzone</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -4582,8 +4587,8 @@ NO
 <h3><span class="header-section-number">A.4.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-seasonal-flu-vaccine" class="section level3" number="14.4.4">
-<h3><span class="header-section-number">A.4.4</span> Concept: Seasonal flu vaccine</h3>
+<div id="concept-set-seasonal-flu-vaccine" class="section level3" number="14.4.4">
+<h3><span class="header-section-number">A.4.4</span> Concept set: Seasonal flu vaccine</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -5278,8 +5283,8 @@ NO
 <h3><span class="header-section-number">A.5.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-gardasil-9" class="section level3" number="14.5.4">
-<h3><span class="header-section-number">A.5.4</span> Concept: Gardasil 9</h3>
+<div id="concept-set-gardasil-9" class="section level3" number="14.5.4">
+<h3><span class="header-section-number">A.5.4</span> Concept set: Gardasil 9</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -5445,8 +5450,8 @@ NO
 <h3><span class="header-section-number">A.6.3</span> Cohort Eras</h3>
 <p>Entry events will be combined into cohort eras if they are within 0 days of each other.</p>
 </div>
-<div id="concept-shingrix" class="section level3" number="14.6.4">
-<h3><span class="header-section-number">A.6.4</span> Concept: Shingrix</h3>
+<div id="concept-set-shingrix" class="section level3" number="14.6.4">
+<h3><span class="header-section-number">A.6.4</span> Concept set: Shingrix</h3>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -5638,730 +5643,10 @@ Outcome Name
 <tbody>
 <tr>
 <td style="text-align:right;">
-4032787
-</td>
-<td style="text-align:left;">
-Hyperosmolarity
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438730
-</td>
-<td style="text-align:left;">
-Alkalosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443721
-</td>
-<td style="text-align:left;">
-Sickle cell-hemoglobin C disease with crisis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-432594
-</td>
-<td style="text-align:left;">
-Osteomalacia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-77650
-</td>
-<td style="text-align:left;">
-Aseptic necrosis of bone
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-75924
-</td>
-<td style="text-align:left;">
-Osteodystrophy
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4284533
-</td>
-<td style="text-align:left;">
-Vitamin D-dependent rickets
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-765053
-</td>
-<td style="text-align:left;">
-Lump in right breast
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-199764
-</td>
-<td style="text-align:left;">
-Benign neoplasm of ovary
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4311499
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of respiratory tract
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-133424
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of thyroid gland
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-441258
-</td>
-<td style="text-align:left;">
-Anemia in neoplastic disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-199754
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of pancreas
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-317510
-</td>
-<td style="text-align:left;">
-Leukemia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-436635
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of sigmoid colon
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195500
-</td>
-<td style="text-align:left;">
-Benign neoplasm of uterus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-433716
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of testis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-200348
-</td>
-<td style="text-align:left;">
-Secondary malignant neoplasm of large intestine
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-23731
-</td>
-<td style="text-align:left;">
-Benign neoplasm of larynx
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4239873
-</td>
-<td style="text-align:left;">
-Benign neoplasm of ciliary body
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196044
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of stomach
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-256646
-</td>
-<td style="text-align:left;">
-Primary malignant neoplasm of middle lobe, bronchus or lung
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-40482801
-</td>
-<td style="text-align:left;">
-Type II diabetes mellitus uncontrolled
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4226238
-</td>
-<td style="text-align:left;">
-Hyperosmolar coma due to diabetes mellitus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438120
-</td>
-<td style="text-align:left;">
-Opioid dependence
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434327
-</td>
-<td style="text-align:left;">
-Cannabis abuse
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-200461
-</td>
-<td style="text-align:left;">
-Endometriosis of uterus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-377877
-</td>
-<td style="text-align:left;">
-Esotropia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-378165
-</td>
-<td style="text-align:left;">
-Nystagmus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-78497
-</td>
-<td style="text-align:left;">
-Cellulitis and abscess of toe
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-440320
-</td>
-<td style="text-align:left;">
-Infection due to Escherichia coli
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4108371
-</td>
-<td style="text-align:left;">
-Peripheral gangrene
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4288241
-</td>
-<td style="text-align:left;">
-Salmonella enterica subspecies arizonae infection
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443204
-</td>
-<td style="text-align:left;">
-Human ehrlichiosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-192357
-</td>
-<td style="text-align:left;">
-Paralytic ileus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-192953
-</td>
-<td style="text-align:left;">
-Intestinal adhesions with obstruction
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-442190
-</td>
-<td style="text-align:left;">
-Hemorrhage of colon
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434085
-</td>
-<td style="text-align:left;">
-Obstruction of duodenum
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-45757269
-</td>
-<td style="text-align:left;">
-Sclerosing mesenteritis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196347
-</td>
-<td style="text-align:left;">
-Intestinal parasitism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-193521
-</td>
-<td style="text-align:left;">
-Tropical sprue
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-194149
-</td>
-<td style="text-align:left;">
-Hirschsprung’s disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4145627
-</td>
-<td style="text-align:left;">
-Biliary calculus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4090272
-</td>
-<td style="text-align:left;">
-Anuria
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-443421
-</td>
-<td style="text-align:left;">
-Gallbladder and bile duct calculi
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4308394
-</td>
-<td style="text-align:left;">
-Infection and inflammatory reaction due to prosthetic device, implant and graft in urinary system
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-137977
-</td>
-<td style="text-align:left;">
-Jaundice
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-197494
-</td>
-<td style="text-align:left;">
-Viral hepatitis C
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-196625
-</td>
-<td style="text-align:left;">
-Viral hepatitis A without hepatic coma
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-200762
-</td>
-<td style="text-align:left;">
-Autoimmune hepatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-201612
-</td>
-<td style="text-align:left;">
-Alcoholic liver damage
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-194997
-</td>
-<td style="text-align:left;">
-Prostatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-193530
-</td>
-<td style="text-align:left;">
-Follicular cyst of ovary
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-314962
-</td>
-<td style="text-align:left;">
-Raynaud’s disease
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-197032
-</td>
-<td style="text-align:left;">
-Hyperplasia of prostate
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-43020475
-</td>
-<td style="text-align:left;">
-High risk heterosexual behavior
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-438688
-</td>
-<td style="text-align:left;">
-Sarcoidosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4284982
-</td>
-<td style="text-align:left;">
-Calculus of bile duct without obstruction
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-138690
-</td>
-<td style="text-align:left;">
-Infestation by Pediculus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4068241
-</td>
-<td style="text-align:left;">
-Chronic instability of knee
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4094822
-</td>
-<td style="text-align:left;">
-Foreign body in respiratory tract
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4098292
-</td>
-<td style="text-align:left;">
-Antiphospholipid syndrome
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-80286
-</td>
-<td style="text-align:left;">
-Prosthetic joint loosening
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4058397
-</td>
-<td style="text-align:left;">
-Claustrophobia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-37018294
-</td>
-<td style="text-align:left;">
-Residual osteitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-30365
-</td>
-<td style="text-align:left;">
-Panhypopituitarism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4206338
-</td>
-<td style="text-align:left;">
-Chronic salpingitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195864
-</td>
-<td style="text-align:left;">
-Diverticulum of bladder
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4299408
-</td>
-<td style="text-align:left;">
-Gouty tophus
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-435371
-</td>
-<td style="text-align:left;">
-Hypothermia
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74722
-</td>
-<td style="text-align:left;">
-Secondary localized osteoarthrosis of pelvic region
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-43020446
-</td>
-<td style="text-align:left;">
-Sedative withdrawal
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-440367
-</td>
-<td style="text-align:left;">
-Plasmacytosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-195596
-</td>
-<td style="text-align:left;">
-Chronic pancreatitis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4151134
-</td>
-<td style="text-align:left;">
-Cyst of pancreas
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-434319
-</td>
-<td style="text-align:left;">
-Premature ejaculation
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-201346
-</td>
-<td style="text-align:left;">
-Edema of penis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4152376
-</td>
-<td style="text-align:left;">
-Intentional self poisoning
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-442149
-</td>
-<td style="text-align:left;">
-Poisoning by bee sting
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4314086
-</td>
-<td style="text-align:left;">
-Poisoning due to sting of ant
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-439233
-</td>
-<td style="text-align:left;">
-Poisoning by antidiabetic agent
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
 438945
 </td>
 <td style="text-align:left;">
 Accidental poisoning by benzodiazepine-based tranquilizer
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-316211
-</td>
-<td style="text-align:left;">
-Acquired spondylolisthesis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-74194
-</td>
-<td style="text-align:left;">
-Sprain of spinal ligament
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-73302
-</td>
-<td style="text-align:left;">
-Curvature of spine
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-77638
-</td>
-<td style="text-align:left;">
-Displacement of intervertebral disc without myelopathy
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4147660
-</td>
-<td style="text-align:left;">
-Postural kyphosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4001454
-</td>
-<td style="text-align:left;">
-Cervical spine ankylosis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-135215
-</td>
-<td style="text-align:left;">
-Hashimoto thyroiditis
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-140362
-</td>
-<td style="text-align:left;">
-Hypoparathyroidism
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-4194207
-</td>
-<td style="text-align:left;">
-Tailor’s bunion
 </td>
 </tr>
 <tr>
@@ -6374,18 +5659,34 @@ Acquired claw toes
 </tr>
 <tr>
 <td style="text-align:right;">
-74816
+316211
 </td>
 <td style="text-align:left;">
-Contusion of toe
+Acquired spondylolisthesis
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-74719
+201612
 </td>
 <td style="text-align:left;">
-Ulcer of foot
+Alcoholic liver damage
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+438730
+</td>
+<td style="text-align:left;">
+Alkalosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+441258
+</td>
+<td style="text-align:left;">
+Anemia in neoplastic disease
 </td>
 </tr>
 <tr>
@@ -6406,10 +5707,58 @@ Ankle ulcer
 </tr>
 <tr>
 <td style="text-align:right;">
-4147016
+4098292
 </td>
 <td style="text-align:left;">
-Open wound of buttock
+Antiphospholipid syndrome
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+77650
+</td>
+<td style="text-align:left;">
+Aseptic necrosis of bone
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4239873
+</td>
+<td style="text-align:left;">
+Benign neoplasm of ciliary body
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+23731
+</td>
+<td style="text-align:left;">
+Benign neoplasm of larynx
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+199764
+</td>
+<td style="text-align:left;">
+Benign neoplasm of ovary
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195500
+</td>
+<td style="text-align:left;">
+Benign neoplasm of uterus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4145627
+</td>
+<td style="text-align:left;">
+Biliary calculus
 </td>
 </tr>
 <tr>
@@ -6422,6 +5771,334 @@ Burn of digit of hand
 </tr>
 <tr>
 <td style="text-align:right;">
+75121
+</td>
+<td style="text-align:left;">
+Burn of lower leg
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4284982
+</td>
+<td style="text-align:left;">
+Calculus of bile duct without obstruction
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434327
+</td>
+<td style="text-align:left;">
+Cannabis abuse
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+78497
+</td>
+<td style="text-align:left;">
+Cellulitis and abscess of toe
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4001454
+</td>
+<td style="text-align:left;">
+Cervical spine ankylosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4068241
+</td>
+<td style="text-align:left;">
+Chronic instability of knee
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195596
+</td>
+<td style="text-align:left;">
+Chronic pancreatitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4206338
+</td>
+<td style="text-align:left;">
+Chronic salpingitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4058397
+</td>
+<td style="text-align:left;">
+Claustrophobia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74816
+</td>
+<td style="text-align:left;">
+Contusion of toe
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+73302
+</td>
+<td style="text-align:left;">
+Curvature of spine
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4151134
+</td>
+<td style="text-align:left;">
+Cyst of pancreas
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+77638
+</td>
+<td style="text-align:left;">
+Displacement of intervertebral disc without myelopathy
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+195864
+</td>
+<td style="text-align:left;">
+Diverticulum of bladder
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+201346
+</td>
+<td style="text-align:left;">
+Edema of penis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+200461
+</td>
+<td style="text-align:left;">
+Endometriosis of uterus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+377877
+</td>
+<td style="text-align:left;">
+Esotropia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+193530
+</td>
+<td style="text-align:left;">
+Follicular cyst of ovary
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4094822
+</td>
+<td style="text-align:left;">
+Foreign body in respiratory tract
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+443421
+</td>
+<td style="text-align:left;">
+Gallbladder and bile duct calculi
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4299408
+</td>
+<td style="text-align:left;">
+Gouty tophus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+135215
+</td>
+<td style="text-align:left;">
+Hashimoto thyroiditis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+442190
+</td>
+<td style="text-align:left;">
+Hemorrhage of colon
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+43020475
+</td>
+<td style="text-align:left;">
+High risk heterosexual behavior
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+194149
+</td>
+<td style="text-align:left;">
+Hirschsprung’s disease
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+443204
+</td>
+<td style="text-align:left;">
+Human ehrlichiosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4226238
+</td>
+<td style="text-align:left;">
+Hyperosmolar coma due to diabetes mellitus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4032787
+</td>
+<td style="text-align:left;">
+Hyperosmolarity
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+197032
+</td>
+<td style="text-align:left;">
+Hyperplasia of prostate
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+140362
+</td>
+<td style="text-align:left;">
+Hypoparathyroidism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+435371
+</td>
+<td style="text-align:left;">
+Hypothermia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+138690
+</td>
+<td style="text-align:left;">
+Infestation by Pediculus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4152376
+</td>
+<td style="text-align:left;">
+Intentional self poisoning
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+192953
+</td>
+<td style="text-align:left;">
+Intestinal adhesions with obstruction
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+196347
+</td>
+<td style="text-align:left;">
+Intestinal parasitism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+137977
+</td>
+<td style="text-align:left;">
+Jaundice
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+317510
+</td>
+<td style="text-align:left;">
+Leukemia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+765053
+</td>
+<td style="text-align:left;">
+Lump in right breast
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+378165
+</td>
+<td style="text-align:left;">
+Nystagmus
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434085
+</td>
+<td style="text-align:left;">
+Obstruction of duodenum
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4147016
+</td>
+<td style="text-align:left;">
+Open wound of buttock
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
 4129404
 </td>
 <td style="text-align:left;">
@@ -6430,10 +6107,282 @@ Open wound of upper arm
 </tr>
 <tr>
 <td style="text-align:right;">
-75121
+438120
 </td>
 <td style="text-align:left;">
-Burn of lower leg
+Opioid dependence
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+75924
+</td>
+<td style="text-align:left;">
+Osteodystrophy
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+432594
+</td>
+<td style="text-align:left;">
+Osteomalacia
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+30365
+</td>
+<td style="text-align:left;">
+Panhypopituitarism
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4108371
+</td>
+<td style="text-align:left;">
+Peripheral gangrene
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+440367
+</td>
+<td style="text-align:left;">
+Plasmacytosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+439233
+</td>
+<td style="text-align:left;">
+Poisoning by antidiabetic agent
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+442149
+</td>
+<td style="text-align:left;">
+Poisoning by bee sting
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4314086
+</td>
+<td style="text-align:left;">
+Poisoning due to sting of ant
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4147660
+</td>
+<td style="text-align:left;">
+Postural kyphosis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+434319
+</td>
+<td style="text-align:left;">
+Premature ejaculation
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+199754
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of pancreas
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4311499
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of respiratory tract
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+436635
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of sigmoid colon
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+196044
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of stomach
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+433716
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of testis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+133424
+</td>
+<td style="text-align:left;">
+Primary malignant neoplasm of thyroid gland
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+194997
+</td>
+<td style="text-align:left;">
+Prostatitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80286
+</td>
+<td style="text-align:left;">
+Prosthetic joint loosening
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+443274
+</td>
+<td style="text-align:left;">
+Psychostimulant dependence
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+314962
+</td>
+<td style="text-align:left;">
+Raynaud’s disease
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+37018294
+</td>
+<td style="text-align:left;">
+Residual osteitis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4288241
+</td>
+<td style="text-align:left;">
+Salmonella enterica subspecies arizonae infection
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+45757269
+</td>
+<td style="text-align:left;">
+Sclerosing mesenteritis
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74722
+</td>
+<td style="text-align:left;">
+Secondary localized osteoarthrosis of pelvic region
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+200348
+</td>
+<td style="text-align:left;">
+Secondary malignant neoplasm of large intestine
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+43020446
+</td>
+<td style="text-align:left;">
+Sedative withdrawal
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74194
+</td>
+<td style="text-align:left;">
+Sprain of spinal ligament
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4194207
+</td>
+<td style="text-align:left;">
+Tailor’s bunion
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+193521
+</td>
+<td style="text-align:left;">
+Tropical sprue
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+40482801
+</td>
+<td style="text-align:left;">
+Type II diabetes mellitus uncontrolled
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+74719
+</td>
+<td style="text-align:left;">
+Ulcer of foot
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+196625
+</td>
+<td style="text-align:left;">
+Viral hepatitis A without hepatic coma
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+197494
+</td>
+<td style="text-align:left;">
+Viral hepatitis C
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4284533
+</td>
+<td style="text-align:left;">
+Vitamin D-dependent rickets
 </td>
 </tr>
 </tbody>
