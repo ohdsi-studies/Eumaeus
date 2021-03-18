@@ -45,7 +45,7 @@ exportResults <- function(outputFolder,
                  databaseDescription = databaseDescription,
                  minCellCount = minCellCount)
   
-  exportMainResults(outputFolder = outputFolder,
+  Eumaeus:::exportMainResults(outputFolder = outputFolder,
                     exportFolder = exportFolder,
                     databaseId = databaseId,
                     minCellCount = minCellCount,
@@ -210,16 +210,49 @@ exportMainResults <- function(outputFolder,
   ParallelLogger::logInfo("- estimate table")
   columns <- c("databaseId",  "method", "analysisId", "exposureId", "outcomeId", "periodId", "rr", "ci95lb", "ci95ub", "p", "exposureSubjects", "counterfactualSubjects", "exposureDays", "counterfactualDays", "exposureOutcomes", "counterfactualOutcomes", "logRr", "seLogRr", "llr", "criticalValue")
   
-  ParallelLogger::logInfo("  Adding case-control estimates")
-  hcEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) 
+  ParallelLogger::logInfo("  - Adding cohort method estimates")
+  historicComparatorEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) %>%
+    mutate(databaseId = !!databaseId,
+           method = "HistoricComparator",
+           periodId = .data$seqId,
+           exposureSubjects = .data$targetSubjects,
+           exposureOutcomes = .data$targetOutcomes,
+           exposureDays = .data$targetYears * 365.25,
+           counterfactualSubjects = .data$comparatorSubjects,
+           counterfactualOutcomes = .data$comparatorOutcomes,
+           counterfactualDays = .data$comparatorYears * 365.25,
+           rr = .data$irr,
+           ci95lb = .data$lb95Ci,
+           ci95ub = .data$ub95Ci,
+           p = 2 * pmin(pnorm(.data$logRr/.data$seLogRr), 1 - pnorm(.data$logRr/.data$seLogRr))) %>%
+    select(all_of(columns))
+
+  ParallelLogger::logInfo("  - Adding cohort method estimates")
+  exposures <- loadExposureCohorts(outputFolder) 
+  mapping <- exposures %>%
+    filter(.data$sampled == FALSE) %>%
+    select(nonSampleExposureId = .data$exposureId, .data$baseExposureId, .data$shot, .data$comparator) %>%
+    inner_join(exposures %>%
+                 filter(.data$sampled == TRUE), 
+               by = c("baseExposureId", "shot", "comparator")) %>%
+    select(.data$nonSampleExposureId, .data$exposureId) 
   
-  
-  
-  
-  estimates <- loadEstimates(file.path(outputFolder, "cmSummary_withCvs.csv")) %>%
-    mutate(method = "CohortMethod")
-  
-  ParallelLogger::logInfo("  Adding case-control estimates")
+  cohortMethodEstimates <- loadEstimates(file.path(outputFolder, "cmSummary_withCvs.csv")) %>%
+    inner_join(mapping, by = "exposureId") %>%
+    mutate(databaseId = !!databaseId,
+           method = "CohortMethod",
+           periodId = .data$seqId,
+           exposureId = .data$nonSampleExposureId,
+           exposureSubjects = .data$target,
+           exposureOutcomes = .data$eventsTarget,
+           exposureDays = .data$targetDays,
+           counterfactualSubjects = .data$comparator,
+           counterfactualOutcomes = .data$eventsComparator,
+           counterfactualDays = .data$comparatorDays,
+           llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
+    select(all_of(columns))
+
+  ParallelLogger::logInfo("  - Adding case-control estimates")
   caseControlEstimates <- loadEstimates(file.path(outputFolder, "ccSummary_withCvs.csv")) %>%
     mutate(databaseId = !!databaseId,
            method = "CaseControl",
@@ -233,12 +266,26 @@ exportMainResults <- function(outputFolder,
            llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
     select(all_of(columns))
   
+  ParallelLogger::logInfo("  - Adding SCCS / SCRI estimates")
+  sccsEstimates <- loadEstimates(file.path(outputFolder, "sccsSummary_withCvs.csv")) %>%
+    mutate(databaseId = !!databaseId,
+           method = "SCCS",
+           periodId = .data$seqId,
+           exposureSubjects = .data$exposedSubjects,
+           exposureOutcomes = .data$exposedOutcomes,
+           exposureDays = .data$exposedDays,
+           counterfactualSubjects = .data$outcomeSubjects,
+           counterfactualOutcomes = .data$outcomeEvents - .data$exposedOutcomes,
+           counterfactualDays = .data$daysObserved - .data$exposedDays,
+           llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
+    select(all_of(columns))
   
-  # SCCS
-  estimates <- loadEstimates(file.path(outputFolder, "sccsSummary.csv")) %>%
-    mutate(method = "SCCS")
+  estimates <- bind_rows(historicComparatorEstimates,
+                         cohortMethodEstimates,
+                         caseControlEstimates,
+                         sccsEstimates)
   
-  ParallelLogger::logInfo("  Performing empirical calibration on estimates")
+  ParallelLogger::logInfo("  - Performing empirical calibration on estimates using leave-one-out")
   exposures <- loadExposureCohorts(outputFolder) %>%
     select(.data$exposureId, .data$baseExposureId)
   
@@ -246,157 +293,88 @@ exportMainResults <- function(outputFolder,
     select(baseExposureId = .data$exposureId, .data$outcomeId, .data$oldOutcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
     inner_join(exposures, by = "baseExposureId") %>%
     select(-.data$baseExposureId)
-  cluster <- ParallelLogger::makeCluster(min(4, maxCores))
+  
+  estimates <- estimates %>%
+    inner_join(allControls, by = c("exposureId", "outcomeId"))
+  
+  cluster <- ParallelLogger::makeCluster(min(8, maxCores))
   ParallelLogger::clusterRequire(cluster, "dplyr")
   subsets <- split(estimates,
                    paste(estimates$exposureId, estimates$method, estimates$analysisId, estimates$periodId))
   rm(estimates)  # Free up memory
   results <- ParallelLogger::clusterApply(cluster,
                                           subsets,
-                                          calibrate,
-                                          allControls = allControls)
+                                          Eumaeus:::calibrate)
   ParallelLogger::stopCluster(cluster)
   rm(subsets)  # Free up memory
-  results <- bind_rows(results)
-  results$databaseId <- databaseId
-  results <- enforceMinCellValue(results, "targetSubjects", minCellCount)
-  results <- enforceMinCellValue(results, "comparatorSubjects", minCellCount)
-  results <- enforceMinCellValue(results, "targetOutcomes", minCellCount)
-  results <- enforceMinCellValue(results, "comparatorOutcomes", minCellCount)
+  columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr, calibratedSeLogRr", "calibratedP"))
+  results <- bind_rows(results) %>%
+    select(all_of(columns))
+  
+  results <- enforceMinCellValue(results, "exposureSubjects", minCellCount)
+  results <- enforceMinCellValue(results, "counterfactualSubjects", minCellCount)
+  results <- enforceMinCellValue(results, "exposureOutcomes", minCellCount)
+  results <- enforceMinCellValue(results, "counterfactualOutcomes", minCellCount)
   colnames(results) <- SqlRender::camelCaseToSnakeCase(colnames(results))
-  fileName <- file.path(exportFolder, "cohort_method_result.csv")
+  fileName <- file.path(exportFolder, "estimate.csv")
   readr::write_csv(results, fileName)
   rm(results)  # Free up memory
-  
-  ParallelLogger::logInfo("- likelihood_profile table")
-  reference <- readRDS(file.path(outputFolder, "cmOutput", "outcomeModelReference.rds"))
-  fileName <- file.path(exportFolder, "likelihood_profile.csv")
-  if (file.exists(fileName)) {
-    unlink(fileName)
-  }
-  first <- TRUE
-  pb <- txtProgressBar(style = 3)
-  for (i in 1:nrow(reference)) {
-    if (reference$outcomeModelFile[i] != "") {
-      outcomeModel <- readRDS(file.path(outputFolder, "cmOutput", reference$outcomeModelFile[i]))
-      profile <- outcomeModel$logLikelihoodProfile
-      if (!is.null(profile)) {
-        # Custom approximation:
-        # fit <- EvidenceSynthesis:::fitLogLikelihoodFunction(beta = as.numeric(names(profile)),
-        #                                                     ll = profile)
-        # profile <- data.frame(targetId = reference$targetId[i],
-        #                       comparatorId = reference$comparatorId[i],
-        #                       outcomeId = reference$outcomeId[i],
-        #                       analysisId = reference$analysisId[i],
-        #                       mu = fit$mu,
-        #                       sigma = fit$sigma,
-        #                       gamma = fit$gamma)
-        # colnames(profile) <- SqlRender::camelCaseToSnakeCase(colnames(profile))
-        
-        # Grid approximation using many columns (Postgres doesn't like this):
-        # profile <- as.data.frame(t(round(profile, 4)))
-        # colnames(profile) <- paste0("x_", gsub("\\.", "_", gsub("-", "min", sprintf("%0.6f", as.numeric(colnames(profile))))))
-        
-        
-        # Grid approximation using one free-text column:
-        profile <- data.frame(profile = paste(round(profile, 4), collapse = ";"))
-        
-        profile$target_id <- reference$targetId[i]
-        profile$comparator_id <- reference$comparatorId[i]
-        profile$outcome_id <- reference$outcomeId[i]
-        profile$analysis_id <- reference$analysisId[i]
-        profile$database_id <- databaseId
-        
-        # Grid approximation using many rows: (too inefficient)
-        # profile <- data.frame(targetId = reference$targetId[i],
-        #                       comparatorId = reference$comparatorId[i],
-        #                       outcomeId = reference$outcomeId[i],
-        #                       analysisId = reference$analysisId[i],
-        #                       logHazardRatio = round(as.numeric(names(profile)), 4),
-        #                       logLikelihood = round(profile - max(profile), 4))
-        # colnames(profile) <- SqlRender::camelCaseToSnakeCase(colnames(profile))
-        write.table(x = profile,
-                    file = fileName,
-                    row.names = FALSE,
-                    col.names = first,
-                    sep = ",",
-                    dec = ".",
-                    qmethod = "double",
-                    append = !first)
-        first <- FALSE
-      }
-    }
-    setTxtProgressBar(pb, i/nrow(reference))
-  }
-  close(pb)
 }
 
+calibratePLoo <- function(subset, leaveOutId) {
+  subsetMinusOne <- subset[subset$oldOutcomeId != leaveOutId, ]
+  one <- subset[subset$oldOutcomeId == leaveOutId, ]
+  null <- EmpiricalCalibration::fitMcmcNull(logRr = subsetMinusOne$logRr[subsetMinusOne$targetEffectSize == 1], 
+                                            seLogRr = subsetMinusOne$seLogRr[subsetMinusOne$targetEffectSize == 1])
+  caliP <- EmpiricalCalibration::calibrateP(null = null,
+                                            logRr = one$logRr,
+                                            seLogRr = one$seLogRr)
+  one$calibratedP <- caliP[, "p"]
+  return(one)
+}
 
-calibrate <- function(subset, allControls) {
-  # subset <- estimates[estimates$exposureId == 205023 & estimates$method == "SCCS" & estimates$analysisId == 2 & estimates$periodId == 3, ]
-  subset <- subset %>%
-    inner_join(allControls, by = c("exposureId", "outcomeId"))
+calibrateCiLoo <- function(subset, leaveOutId) {
+  subsetMinusOne <- subset[subset$oldOutcomeId != leaveOutId, ]
+  one <- subset[subset$oldOutcomeId == leaveOutId, ]
+  model <- EmpiricalCalibration::fitSystematicErrorModel(logRr = subsetMinusOne$logRr,
+                                                         seLogRr = subsetMinusOne$seLogRr,
+                                                         trueLogRr = log(subsetMinusOne$trueEffectSize),
+                                                         estimateCovarianceMatrix = FALSE)
+  calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = one$logRr,
+                                                                    seLogRr = one$seLogRr,
+                                                                    model = model)
+  one$calibratedRr <- exp(calibratedCi$logRr)
+  one$calibratedCi95Lb <- exp(calibratedCi$logLb95Rr)
+  one$calibratedCi95Ub <- exp(calibratedCi$logUb95Rr)
+  one$calibratedLogRr <- calibratedCi$logRr
+  one$calibratedSeLogRr <- calibratedCi$seLogRr
+  return(one)
+}
+
+calibrate <- function(subset) {
+  # subset <- subsets[[100]]
+  # Performing calibration using leave-one-out (LOO) because this is a methods experiment.
   
   ncs <- subset %>%
     filter(.data$targetEffectSize == 1 & !is.na(.data$seLogRr))
   if (nrow(ncs) > 5) {
-    null <- EmpiricalCalibration::fitMcmcNull(ncs$logRr, ncs$seLogRr)
-    calibratedP <- EmpiricalCalibration::calibrateP(null = null,
-                                                    logRr = subset$logRr,
-                                                    seLogRr = subset$seLogRr)
-    subset$calibratedP <- calibratedP$p
+    subset <- purrr::map_dfr(unique(subset$oldOutcomeId), calibratePLoo, subset = subset)
   } else {
     subset$calibratedP <- rep(NA, nrow(subset))
   }
   
   pcs <- subset %>%
-    inner_join(allControls, by = c("exposureId", "outcomeId")) %>%
     filter(.data$targetEffectSize > 1 & !is.na(.data$seLogRr))
   
   if (nrow(pcs) > 5) {
-    model <- EmpiricalCalibration::fitSystematicErrorModel(logRr = c(ncs$logRr, pcs$logRr),
-                                                           seLogRr = c(ncs$seLogRr,
-                                                                       pcs$seLogRr),
-                                                           trueLogRr = c(rep(0, nrow(ncs)),
-                                                                         log(pcs$trueEffectSize)),
-                                                           estimateCovarianceMatrix = FALSE)
-    calibratedCi <- EmpiricalCalibration::calibrateConfidenceInterval(logRr = subset$logRr,
-                                                                      seLogRr = subset$seLogRr,
-                                                                      model = model)
-    subset$calibratedRr <- exp(calibratedCi$logRr)
-    subset$calibratedCi95Lb <- exp(calibratedCi$logLb95Rr)
-    subset$calibratedCi95Ub <- exp(calibratedCi$logUb95Rr)
-    subset$calibratedLogRr <- calibratedCi$logRr
-    subset$calibratedSeLogRr <- calibratedCi$seLogRr
+    subset <- purrr::map_dfr(unique(subset$oldOutcomeId), calibrateCiLoo, subset = subset)
   } else {
-    subset$calibratedP <- rep(NA, nrow(subset))
     subset$calibratedRr <- rep(NA, nrow(subset))
     subset$calibratedCi95Lb <- rep(NA, nrow(subset))
     subset$calibratedCi95Ub <- rep(NA, nrow(subset))
     subset$calibratedLogRr <- rep(NA, nrow(subset))
     subset$calibratedSeLogRr <- rep(NA, nrow(subset))
   }
-  subset <- subset[, c("exposureId",
-                       "outcomeId",
-                       "analysisId",
-                       "periodId",
-                       "rr",
-                       "ci95Lb",
-                       "ci95Ub",
-                       "p",
-                       "logRr",
-                       "seLogRr",
-                       "calibratedP",
-                       "calibratedRr",
-                       "calibratedCi95Lb",
-                       "calibratedCi95Ub",
-                       "calibratedLogRr",
-                       "calibratedSeLogRr",
-                       "exposedSubjects",
-                       "exposedDays",
-                       "exposedOutcomes",
-                       "expectedOutcomes",
-                       "llr")]
   return(subset)
 }
 

@@ -168,7 +168,7 @@ runCohortMethod <- function(connectionDetails,
     readr::write_csv(allEstimates, cmSummaryFile)
   }
   delta <- Sys.time() - start
-  message(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completed all cohort method analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 getCohortMethodData <- function(cohortMethodDataFile) {
@@ -270,6 +270,9 @@ computeCohortMethodEstimates <- function(targetId,
                                                                 comparatorId = comparatorId,
                                                                 outcomeIds = outcomeIds)
   
+  # Picking a single outcome of interest, so intermediate files will not be generated for all others:
+  outcomeIdsOfInterest <- outcomeIds[1]
+  
   cmResult <- CohortMethod::runCmAnalyses(connectionDetails = NULL,
                                           cdmDatabaseSchema = NULL,
                                           outputFolder = periodFolder,
@@ -283,7 +286,8 @@ computeCohortMethodEstimates <- function(targetId,
                                           psCvThreads = min(10, maxCores),
                                           trimMatchStratifyThreads = min(10, maxCores),
                                           fitOutcomeModelThreads = min(max(1, floor(maxCores/2)), 5),
-                                          outcomeCvThreads = min(2, maxCores))
+                                          outcomeCvThreads = min(2, maxCores),
+                                          outcomeIdsOfInterest = outcomeIdsOfInterest)
   
   estimates <- CohortMethod::summarizeAnalyses(cmResult, periodFolder)
   return(estimates)

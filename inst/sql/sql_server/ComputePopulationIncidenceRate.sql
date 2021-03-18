@@ -86,6 +86,7 @@ SELECT cohort_definition_id AS cohort_id,
 	age_group,
 	gender_concept_id,
 	COUNT(*) AS cohort_count,
+	COUNT(DISTINCT risk_window.person_id) AS cohort_person_count,
 	SUM(DATEDIFF(DAY, outcome.cohort_start_date, risk_window.end_date)) AS days_to_censor
 INTO #event_count
 FROM (
@@ -121,7 +122,8 @@ IF OBJECT_ID('tempdb..#background_time', 'U') IS NOT NULL
 
 SELECT age_group,
 	gender_concept_id,
-	SUM(CAST(DATEDIFF(DAY, start_date, end_date) + 1 AS BIGINT)) AS day_count
+	SUM(CAST(DATEDIFF(DAY, start_date, end_date) + 1 AS BIGINT)) AS day_count,
+	COUNT(DISTINCT person_id) AS person_count
 INTO #background_time
 FROM #risk_window risk_window
 GROUP BY age_group,
@@ -138,10 +140,15 @@ SELECT all_cohorts.cohort_id AS outcome_id,
 		WHEN cohort_count IS NULL THEN 0
 		ELSE cohort_count
 	END AS cohort_count,
+	CASE 
+		WHEN cohort_person_count IS NULL THEN 0
+		ELSE cohort_person_count
+	END AS cohort_person_count,
 	CASE
 		WHEN days_to_censor IS NULL THEN day_count / 365.25
 		ELSE (day_count - days_to_censor) / 365.25
-	END AS person_years
+	END AS person_years,
+	person_count
 INTO #rates
 FROM #background_time background_time
 CROSS JOIN (

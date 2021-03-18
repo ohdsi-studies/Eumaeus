@@ -72,7 +72,6 @@ runHistoricalComparator <- function(connectionDetails,
           # exposureId <- exposures$exposureId[1]
           for (exposureId in exposures$exposureId) {
             ParallelLogger::logInfo(sprintf("Computing historical comparator estimates for exposure %s and period: %s", exposureId, timePeriods$label[i]))
-            periodFolder <- file.path(exposureFolder, sprintf("historicalComparator_t%d", timePeriods$seqId[i]))
             estimates <- computeHistoricalComparatorEstimates(connectionDetails = connectionDetails,
                                                               cdmDatabaseSchema = cdmDatabaseSchema,
                                                               cohortDatabaseSchema = cohortDatabaseSchema,
@@ -81,8 +80,7 @@ runHistoricalComparator <- function(connectionDetails,
                                                               endDate = timePeriods$endDate[i],
                                                               exposureId = exposureId,
                                                               outcomeIds = controls$outcomeId,
-                                                              ratesFile = historicRatesFile,
-                                                              periodFolder = periodFolder)
+                                                              ratesFile = historicRatesFile)
             periodEstimates[[length(periodEstimates) + 1]] <- estimates
           }
           periodEstimates <- bind_rows(periodEstimates)
@@ -99,7 +97,7 @@ runHistoricalComparator <- function(connectionDetails,
     readr::write_csv(allEstimates, hcSummaryFile)
   }
   delta <- Sys.time() - start
-  message(paste("Completed historical comparator analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completing all historical comparator analyses took", signif(delta, 3), attr(delta, "units")))
 }
 
 computeHistoricRates <- function(connectionDetails,
@@ -232,30 +230,31 @@ computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALS
   comparator <- ratesBackground %>%
     filter(.data$outcomeId == !!outcomeId) 
   
-  estimateRow <- bind_cols(summarize(target, targetOutcomes = as.numeric(sum(.data$cohortCount)),
-                           targetYears = sum(.data$personYears)),
-                           summarize(comparator, comparatorOutcomes = as.numeric(sum(.data$cohortCount)),
+  estimateRow <- bind_cols(summarize(target, 
+                                     targetSubjects = as.numeric(sum(.data$personCount)),
+                                     targetOutcomes = as.numeric(sum(.data$cohortCount)),
+                                     targetYears = sum(.data$personYears)),
+                           summarize(comparator, 
+                                     comparatorSubjects = as.numeric(sum(.data$personCount)),
+                                     comparatorOutcomes = as.numeric(sum(.data$cohortCount)),
                                      comparatorYears = sum(.data$personYears)))
  
-  if (estimateRow$targetOutcomes == 0 || estimateRow$comparatorOutcomes == 0) {
+  if (estimateRow$comparatorOutcomes == 0) {
     estimateRow$irr <- NA
     estimateRow$lb95Ci <- NA
     estimateRow$ub95Ci <- NA
     estimateRow$logRr <- NA
     estimateRow$seLogRr <- NA
     estimateRow$llr <- NA
+    estimateRow$expectedOutcomes <- NA
   } else {
     if (adjusted) {
       target <- target %>%
         mutate(stratumId = paste(.data$ageGroup, .data$gender),
                exposed = 1)
-      comparator <- target %>%
+      comparator <- comparator %>%
         mutate(stratumId = paste(.data$ageGroup, .data$gender),
                exposed = 0)
-      data <- bind_rows(target, comparator)
-      cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + strata(stratumId) + offset(log(personYears)), 
-                                                data = data, 
-                                                modelType = "cpr")
       expectedOutcomes <- comparator %>%
         mutate(comparatorRate = .data$cohortCount / .data$personYears) %>%
         select(.data$comparatorRate, .data$stratumId) %>%
@@ -264,18 +263,31 @@ computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALS
         summarize(expectedOutcomes = sum(.data$expectedOutcomes)) %>%
         pull()
       
-    } else {
-      data <- tibble(cohortCount = c(estimateRow$targetOutcomes, estimateRow$comparatorOutcomes),
-                     personYears = c(estimateRow$targetYears, estimateRow$comparatorYears),
-                     exposed = c(1, 0))
-      cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + offset(log(personYears)), 
-                                                data = data, 
-                                                modelType = "pr")
+      if (estimateRow$targetOutcomes > 0) {
+        data <- bind_rows(target, comparator)
+        cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + strata(stratumId) + offset(log(personYears)), 
+                                                  data = data, 
+                                                  modelType = "cpr")
+        fit <- Cyclops::fitCyclopsModel(cyclopsData)
+      } else {
+        fit <- NULL
+      }
       
+    } else {
       expectedOutcomes <- estimateRow$targetYears * (estimateRow$comparatorOutcomes / estimateRow$comparatorYears)
+      if (estimateRow$targetOutcomes > 0) {
+        data <- tibble(cohortCount = c(estimateRow$targetOutcomes, estimateRow$comparatorOutcomes),
+                       personYears = c(estimateRow$targetYears, estimateRow$comparatorYears),
+                       exposed = c(1, 0))
+        cyclopsData <- Cyclops::createCyclopsData(cohortCount ~ exposed + offset(log(personYears)), 
+                                                  data = data, 
+                                                  modelType = "pr")
+        fit <- Cyclops::fitCyclopsModel(cyclopsData)
+      } else {
+        fit <- NULL
+      }
     }
-    fit <- Cyclops::fitCyclopsModel(cyclopsData)
-    if (fit$return_flag == "SUCCESS") {
+    if (!is.null(fit) && fit$return_flag == "SUCCESS") {
       beta <- coef(fit)["exposed"]
       ci <- confint(fit, "exposed") 
     } else {
@@ -288,6 +300,7 @@ computeIrr <- function(outcomeId, ratesExposed, ratesBackground, adjusted = FALS
     estimateRow$logRr <- beta
     estimateRow$seLogRr <- (ci[3] - ci[2]) / (qnorm(0.975) * 2)
     estimateRow$llr <- llr(estimateRow$targetOutcomes, expectedOutcomes)
+    estimateRow$expectedOutcomes <- expectedOutcomes
   }
   estimateRow <- estimateRow %>%
     mutate(outcomeId = outcomeId)
@@ -302,14 +315,9 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                                                  endDate,
                                                  exposureId,
                                                  outcomeIds,
-                                                 ratesFile,
-                                                 periodFolder) {
+                                                 ratesFile) {
   start <- Sys.time()
   historicRates <- readRDS(ratesFile)
-  
-  if (!file.exists(periodFolder)) {
-    dir.create(periodFolder)
-  }
   
   connection <- DatabaseConnector::connect(connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection))
@@ -319,6 +327,7 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
                      end = c(28, 42, 1),
                      startAnalysisId = c(1, 5, 9))
   for (i in 1:nrow(tars)) {
+    ParallelLogger::logInfo(sprintf("- Using time-at-risk of %d-%d days", tars$start[i], tars$end[i]))
     sql <- SqlRender::loadRenderTranslateSql("ComputePopulationIncidenceRate.sql",
                                              "Eumaeus",
                                              dbms = connectionDetails$dbms,
@@ -373,6 +382,6 @@ computeHistoricalComparatorEstimates <- function(connectionDetails,
     mutate(exposureId = !!exposureId)
   
   delta <- Sys.time() - start
-  ParallelLogger::logInfo(paste("Completed historical comparator estimates took", signif(delta, 3), attr(delta, "units")))
+  message(paste("Computing historical comparator estimates took", signif(delta, 3), attr(delta, "units")))
   return(estimates)
 }

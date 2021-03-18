@@ -1,12 +1,13 @@
 Package: Eumaeus
 Title: Evaluating Use of Methods for Adverse Event Under Surveillance
-Version: 0.0.1
-Date: 2021-01-12
+Version: 0.2.0
+Date: 2021-03-18
 Author: Martijn J. Schuemie [aut, cre]
 Maintainer: Martijn J. Schuemie <schuemie@ohdsi.org>
 Description: Similar to our previous research on the evaluation of causal effect estimation methods, this study aims to systematically evaluate methods for (safety) surveillance of vaccines.
 Depends:
-    DatabaseConnector
+    DatabaseConnector,
+    survival
 Imports:
     Andromeda,
     Cyclops,
@@ -23,7 +24,6 @@ Imports:
     tidyr,
     purrr,
     readr,
-    survival,
     ParallelLogger,
     SqlRender,
     ggplot2,

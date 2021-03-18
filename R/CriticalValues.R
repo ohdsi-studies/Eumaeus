@@ -25,7 +25,7 @@ computeCriticalValues <- function(outputFolder, maxCores) {
     ParallelLogger::logInfo("- Computing critical values for historic comparator")
     hcEstimates <- loadEstimates(file.path(outputFolder, "hcSummary.csv")) 
     subsets <- split(hcEstimates, paste(hcEstimates$analysisId, hcEstimates$exposureId, hcEstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, Eumaeus:::computeHistoricalComparatorCv)
+    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeHistoricalComparatorCv)
     cvs <- bind_rows(cvs)
     rm(subsets)
     hcEstimates <- hcEstimates %>%
@@ -151,24 +151,34 @@ computeSccsCv <- function(subset) {
 
 
 computeHistoricalComparatorCv <- function(subset) {
-  # subset <- subsets[[100]]
-  subset <- subset %>%
-    mutate(expectedOutcomes = .data$targetYears * (.data$comparatorOutcomes / .data$comparatorYears))
-  
-  sampleSizeUpperLimit <- max(subset$expectedOutcomes, na.rm = TRUE)
+  # subset <- subsets[[2]]
+  expectedOutcomes <- subset %>%
+    arrange(.data$seqId) %>%
+    pull(.data$expectedOutcomes)
+  looks <- length(expectedOutcomes)
+  if (looks > 1) {
+    expectedOutcomes[2:looks] <- expectedOutcomes[2:looks] - expectedOutcomes[1:(looks-1)]
+    # Per-look expected counts < 1 can lead to CV.Poisson() getting stuck in infinite loop, so combining smaller looks:
+    eos <- c()
+    pending <- 0
+    for (eo in expectedOutcomes) {
+      if (!is.na(eo)) {
+        if (eo + pending >= 1) {
+          eos <- c(eos, eo + pending)
+          pending <- 0
+        } else {
+          pending <- eo + pending
+        }
+      }
+    }
+    expectedOutcomes <- eos
+    sampleSizeUpperLimit <- sum(expectedOutcomes)
+  }
   if (sampleSizeUpperLimit <= 5) {
     cv <- NA
   } else {
-    expectedOutcomes <- subset %>%
-      arrange(.data$seqId) %>%
-      pull(.data$expectedOutcomes)
-    looks <- length(expectedOutcomes)
-    if (looks > 1) {
-      expectedOutcomes[2:looks] <- expectedOutcomes[2:looks] - expectedOutcomes[1:(looks-1)]
-      expectedOutcomes <- expectedOutcomes[expectedOutcomes != 0]
-    }
     cv <- Eumaeus:::computeTruncatedPoissonCv(n = sampleSizeUpperLimit,
-                                               groupSizes = expectedOutcomes)
+                                              groupSizes = expectedOutcomes)
   }
   return(tibble(analysisId = subset$analysisId[1],
                 exposureId = subset$exposureId[1],
