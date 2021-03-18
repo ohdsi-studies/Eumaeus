@@ -99,7 +99,7 @@ runHistoricalComparator <- function(connectionDetails,
     readr::write_csv(allEstimates, hcSummaryFile)
   }
   delta <- Sys.time() - start
-  writeLines(paste("Completed historical comparator analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completed historical comparator analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 computeHistoricRates <- function(connectionDetails,

@@ -151,7 +151,7 @@ computeSccsCv <- function(subset) {
 
 
 computeHistoricalComparatorCv <- function(subset) {
-  # subset <- subsets[[1]]
+  # subset <- subsets[[100]]
   subset <- subset %>%
     mutate(expectedOutcomes = .data$targetYears * (.data$comparatorOutcomes / .data$comparatorYears))
   

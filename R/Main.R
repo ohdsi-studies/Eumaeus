@@ -155,12 +155,12 @@ execute <- function(connectionDetails,
   
   if (runHistoricalComparator) {
     ParallelLogger::logInfo("Running HistoricalComparator")
-    Eumaeus:::runCohortMethod(connectionDetails = connectionDetails,
-                              cdmDatabaseSchema = cdmDatabaseSchema,
-                              cohortDatabaseSchema = cohortDatabaseSchema,
-                              cohortTable = cohortTable,
-                              outputFolder = outputFolder,
-                              maxCores = maxCores)
+    Eumaeus:::runHistoricalComparator(connectionDetails = connectionDetails,
+                                      cdmDatabaseSchema = cdmDatabaseSchema,
+                                      cohortDatabaseSchema = cohortDatabaseSchema,
+                                      cohortTable = cohortTable,
+                                      outputFolder = outputFolder,
+                                      maxCores = maxCores)
   }
   
   if (computeCriticalValues) {

@@ -168,7 +168,7 @@ runCohortMethod <- function(connectionDetails,
     readr::write_csv(allEstimates, cmSummaryFile)
   }
   delta <- Sys.time() - start
-  writeLines(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completed cohort method analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 getCohortMethodData <- function(cohortMethodDataFile) {

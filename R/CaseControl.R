@@ -98,7 +98,7 @@ runCaseControl <- function(connectionDetails,
     readr::write_csv(allEstimates, ccSummaryFile)
   }
   delta <- Sys.time() - start
-  message(paste("Completed SCCS analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completed case-control analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 getCaseData <- function(caseDataFile) {
