@@ -111,6 +111,7 @@ for (table in tables) {
     kable(linesep = "", booktabs = TRUE, longtable = TRUE)
   
   if (knitr::is_latex_output()) {    
+    writeLines("")
     writeLines(header)
     
     writeLines(table %>% 
@@ -120,13 +121,12 @@ for (table in tables) {
                  column_spec(3, width = "3em") %>%
                  column_spec(4, width = "16em"))
   } else if (knitr::is_html_output()) {
+    writeLines("")
     writeLines(header)
     
     writeLines(table %>% 
                  kable_styling(bootstrap_options = "striped"))
-  } else {
-    writeLines(markdown)
-  }
+  } 
 }
 ```
 

@@ -2861,94 +2861,449 @@ Note that the value 0 is permissible, as it identifies no persons.</p>
 <td align="left">No</td>
 <td align="left">The time-at-risk relative to the vaccination date.</td>
 </tr>
+</tbody>
+</table>
+</div>
+<div id="table-database" class="section level2">
+<h2>Table database</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
-<td align="left">## Table databa</td>
-<td align="left">se</td>
-<td align="left"></td>
-<td align="left"></td>
+<td align="left">database_id</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Yes</td>
+<td align="left">A unique identifier for a database, e.g. ‘IBM_MDCD.’</td>
 </tr>
 <tr class="even">
-<td align="left">Field</td>
-<td align="left">Type</td>
-<td align="left"></td>
-<td align="left">Key Description</td>
+<td align="left">database_name</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The full name of the database.</td>
+</tr>
+<tr class="odd">
+<td align="left">description</td>
+<td align="left">TEXT</td>
+<td align="left">No</td>
+<td align="left">A description of the database.</td>
+</tr>
+<tr class="even">
+<td align="left">vocabulary_version</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The version of the vocabulary used in the database.</td>
+</tr>
+<tr class="odd">
+<td align="left">min_obs_period_date</td>
+<td align="left">DATE</td>
+<td align="left">No</td>
+<td align="left">The earliest date the database has information (the minimum of the obervation_period_start_date).</td>
+</tr>
+<tr class="even">
+<td align="left">max_obs_period_date</td>
+<td align="left">DATE</td>
+<td align="left">No</td>
+<td align="left">The latest date the database has information (the maximum of the obervation_period_end_date).</td>
+</tr>
+<tr class="odd">
+<td align="left">study_package_version</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The version of the study package used to generate the results.</td>
+</tr>
+<tr class="even">
+<td align="left">is_meta_analysis</td>
+<td align="left">INTEGER</td>
+<td align="left">No</td>
+<td align="left">Does the record pertain a meta-analysis across databases? (0=no, 1=yes)</td>
 </tr>
 </tbody>
 </table>
-<p>database_id VARCHAR(255) Yes A unique identifier for a database, e.g. ‘IBM_MDCD.’<br />
-database_name VARCHAR(255) No The full name of the database.<br />
-description TEXT No A description of the database.<br />
-vocabulary_version VARCHAR(255) No The version of the vocabulary used in the database.<br />
-min_obs_period_date DATE No The earliest date the database has information (the minimum of the obervation_period_start_date).
-max_obs_period_date DATE No The latest date the database has information (the maximum of the obervation_period_end_date).<br />
-study_package_version VARCHAR(255) No The version of the study package used to generate the results.<br />
-is_meta_analysis INTEGER No Does the record pertain a meta-analysis across databases? (0=no, 1=yes)<br />
-## Table database_characterization
-Field Type Key Description<br />
-————— ————- —- ——————————————–
-subjectCount INTEGER No The count of subjects within a stratum.<br />
-stratum TEXT Yes A unique identifier for a stratum.<br />
-stratification VARCHAR(255) Yes The stratification used.<br />
-database_id VARCHAR(255) Yes Foreign key referencing the database table.
-## Table estimate
-Field Type Key Description<br />
-———————— ————- —- ——————————————————————————————
-database_id VARCHAR(255) Yes Foreign key referencing the database table.<br />
-method VARCHAR(255) Yes A unique name for the method, e.g. ‘CohortMethod.’ References the analysis table<br />
-analysis_id INTEGER Yes Foreign key referencing the analysis table.<br />
-exposure_id INTEGER Yes Foreign key referencing the exposure table.<br />
-outcome_id INTEGER Yes A foreign key referencing the negative_control_outcome or positive_control_outcome table.
-period_id INTEGER Yes Foreign key referencing the time_period table.<br />
-rr NUMERIC No The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio).<br />
-ci_95lb NUMERIC No The lower bound of the 95% confidence interval of the relative risk.<br />
-ci_95ub NUMERIC No The upper bound of the 95% confidence interval of the relative risk.<br />
-p NUMERIC No The two-sided p-value considering the null hypothesis of no effect.<br />
-exposure_subjects BIGINT No The number of subject in the exposure cohort.<br />
-counterfactual_subjects BIGINT No The number of subject in the cohort used to determine the counterfactual.<br />
-exposure_days BIGINT No The number of days in the exposure cohort.<br />
-counterfactual_days BIGINT No The number of days in the cohort used to determine the counterfactual.<br />
-exposure_outcomes BIGINT No The number of outcomes observed in the exposure cohort.<br />
-counterfactual_outcomes BIGINT No The number of outcomes observed in the cohort used to determine the counterfactual.<br />
-log_rr NUMERIC No The log of the relative risk.<br />
-se_log_rr NUMERIC No The standard error of the log of the relative risk.<br />
-llr NUMERIC No The one-sided log-likelihood ratio.<br />
-critical_value NUMERIC No The critical value for the log-likelihood ratio according to MaxSPRT.<br />
-calibrated_rr NUMERIC No The calibrated relative risk.<br />
-calibrated_ci_95_lb NUMERIC No The lower bound of the calibrated 95% confidence interval of the relative risk.<br />
-calibrated_ci_95_ub NUMERIC No The upper bound of the calibrated 95% confidence interval of the relative risk.<br />
-calibrated_log_rr NUMERIC No The log of the calibrated relative risk.<br />
-calibrated_se_log_rr NUMERIC No The standard error of the log of the calibrated relative risk.<br />
-calibrated_p NUMERIC No The calibrated p-value.<br />
-## Table exposure
-Field Type Key Description<br />
-——————- ————- —- ———————————————————————————————————-
-exposure_id INTEGER Yes A unique ID for each exposure. The first, second, and both shots of a vaccine each have a unique ID here.
-exposure_name VARCHAR(255) No The name of the exposure.<br />
-shots INTEGER No The number of shots for a vaccine. (1 or 2)<br />
-base_exposure_id INTEGER Yes A unique identified for the vaccine.<br />
-base_exposure_name VARCHAR(255) No The name of the vaccine.<br />
-shot VARCHAR(255) No Whether this is the ‘First,’ ‘Second,’ or ‘Both’ shots.<br />
-## Table negative_control_outcome
-Field Type Key Description<br />
-————- ————- —- —————————————————————————————————————–
-outcome_id INTEGER Yes A unique identifier for an outcome. Does not overlap with the outcome IDs in the positive_control_outcome table.
-outcome_name VARCHAR(255) No The name of the outcome.<br />
-## Table positive_control_outcome
-Field Type Key Description<br />
-——————– ————- —- ——————————————————————————————————————–
-outcome_id INTEGER Yes A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.<br />
-outcome_name VARCHAR(255) No The name of the outcome.<br />
-exposure_id INTEGER No Foreign key referencing the exposure in the exposure table for which the effect was synthesized.<br />
-negative_control_id INTEGER No A foreign key referencing the outcome in the negative_control_outcome table on which the positive control is based.
-effect_size NUMERIC No The synthesized effect size.<br />
-## Table time_period
-Field Type Key Description<br />
-———— ————- —- ——————————————–
-start_date DATE No The start date of the time period.<br />
-end_date DATE No The end date of the time period.<br />
-period_id INTEGER Yes A unique identifier for the period.<br />
-label VARCHAR(255) No A label for the period.<br />
-exposure_id INTEGER Yes Foreign key referencing the exposure table.</p>
+</div>
+<div id="table-database_characterization" class="section level2">
+<h2>Table database_characterization</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">subjectCount</td>
+<td align="left">INTEGER</td>
+<td align="left">No</td>
+<td align="left">The count of subjects within a stratum.</td>
+</tr>
+<tr class="even">
+<td align="left">stratum</td>
+<td align="left">TEXT</td>
+<td align="left">Yes</td>
+<td align="left">A unique identifier for a stratum.</td>
+</tr>
+<tr class="odd">
+<td align="left">stratification</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Yes</td>
+<td align="left">The stratification used.</td>
+</tr>
+<tr class="even">
+<td align="left">database_id</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the database table.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-estimate" class="section level2">
+<h2>Table estimate</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">database_id</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the database table.</td>
+</tr>
+<tr class="even">
+<td align="left">method</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">Yes</td>
+<td align="left">A unique name for the method, e.g. ‘CohortMethod.’ References the analysis table</td>
+</tr>
+<tr class="odd">
+<td align="left">analysis_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the analysis table.</td>
+</tr>
+<tr class="even">
+<td align="left">exposure_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the exposure table.</td>
+</tr>
+<tr class="odd">
+<td align="left">outcome_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A foreign key referencing the negative_control_outcome or positive_control_outcome table.</td>
+</tr>
+<tr class="even">
+<td align="left">period_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the time_period table.</td>
+</tr>
+<tr class="odd">
+<td align="left">rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio).</td>
+</tr>
+<tr class="even">
+<td align="left">ci_95lb</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The lower bound of the 95% confidence interval of the relative risk.</td>
+</tr>
+<tr class="odd">
+<td align="left">ci_95ub</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The upper bound of the 95% confidence interval of the relative risk.</td>
+</tr>
+<tr class="even">
+<td align="left">p</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The two-sided p-value considering the null hypothesis of no effect.</td>
+</tr>
+<tr class="odd">
+<td align="left">exposure_subjects</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of subject in the exposure cohort.</td>
+</tr>
+<tr class="even">
+<td align="left">counterfactual_subjects</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of subject in the cohort used to determine the counterfactual.</td>
+</tr>
+<tr class="odd">
+<td align="left">exposure_days</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of days in the exposure cohort.</td>
+</tr>
+<tr class="even">
+<td align="left">counterfactual_days</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of days in the cohort used to determine the counterfactual.</td>
+</tr>
+<tr class="odd">
+<td align="left">exposure_outcomes</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of outcomes observed in the exposure cohort.</td>
+</tr>
+<tr class="even">
+<td align="left">counterfactual_outcomes</td>
+<td align="left">BIGINT</td>
+<td align="left">No</td>
+<td align="left">The number of outcomes observed in the cohort used to determine the counterfactual.</td>
+</tr>
+<tr class="odd">
+<td align="left">log_rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The log of the relative risk.</td>
+</tr>
+<tr class="even">
+<td align="left">se_log_rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The standard error of the log of the relative risk.</td>
+</tr>
+<tr class="odd">
+<td align="left">llr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The one-sided log-likelihood ratio.</td>
+</tr>
+<tr class="even">
+<td align="left">critical_value</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The critical value for the log-likelihood ratio according to MaxSPRT.</td>
+</tr>
+<tr class="odd">
+<td align="left">calibrated_rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The calibrated relative risk.</td>
+</tr>
+<tr class="even">
+<td align="left">calibrated_ci_95_lb</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The lower bound of the calibrated 95% confidence interval of the relative risk.</td>
+</tr>
+<tr class="odd">
+<td align="left">calibrated_ci_95_ub</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The upper bound of the calibrated 95% confidence interval of the relative risk.</td>
+</tr>
+<tr class="even">
+<td align="left">calibrated_log_rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The log of the calibrated relative risk.</td>
+</tr>
+<tr class="odd">
+<td align="left">calibrated_se_log_rr</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The standard error of the log of the calibrated relative risk.</td>
+</tr>
+<tr class="even">
+<td align="left">calibrated_p</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The calibrated p-value.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-exposure" class="section level2">
+<h2>Table exposure</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">exposure_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A unique ID for each exposure. The first, second, and both shots of a vaccine each have a unique ID here.</td>
+</tr>
+<tr class="even">
+<td align="left">exposure_name</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The name of the exposure.</td>
+</tr>
+<tr class="odd">
+<td align="left">shots</td>
+<td align="left">INTEGER</td>
+<td align="left">No</td>
+<td align="left">The number of shots for a vaccine. (1 or 2)</td>
+</tr>
+<tr class="even">
+<td align="left">base_exposure_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A unique identified for the vaccine.</td>
+</tr>
+<tr class="odd">
+<td align="left">base_exposure_name</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The name of the vaccine.</td>
+</tr>
+<tr class="even">
+<td align="left">shot</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">Whether this is the ‘First,’ ‘Second,’ or ‘Both’ shots.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-negative_control_outcome" class="section level2">
+<h2>Table negative_control_outcome</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">outcome_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A unique identifier for an outcome. Does not overlap with the outcome IDs in the positive_control_outcome table.</td>
+</tr>
+<tr class="even">
+<td align="left">outcome_name</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The name of the outcome.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-positive_control_outcome" class="section level2">
+<h2>Table positive_control_outcome</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">outcome_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.</td>
+</tr>
+<tr class="even">
+<td align="left">outcome_name</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">The name of the outcome.</td>
+</tr>
+<tr class="odd">
+<td align="left">exposure_id</td>
+<td align="left">INTEGER</td>
+<td align="left">No</td>
+<td align="left">Foreign key referencing the exposure in the exposure table for which the effect was synthesized.</td>
+</tr>
+<tr class="even">
+<td align="left">negative_control_id</td>
+<td align="left">INTEGER</td>
+<td align="left">No</td>
+<td align="left">A foreign key referencing the outcome in the negative_control_outcome table on which the positive control is based.</td>
+</tr>
+<tr class="odd">
+<td align="left">effect_size</td>
+<td align="left">NUMERIC</td>
+<td align="left">No</td>
+<td align="left">The synthesized effect size.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-time_period" class="section level2">
+<h2>Table time_period</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Key</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">start_date</td>
+<td align="left">DATE</td>
+<td align="left">No</td>
+<td align="left">The start date of the time period.</td>
+</tr>
+<tr class="even">
+<td align="left">end_date</td>
+<td align="left">DATE</td>
+<td align="left">No</td>
+<td align="left">The end date of the time period.</td>
+</tr>
+<tr class="odd">
+<td align="left">period_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">A unique identifier for the period.</td>
+</tr>
+<tr class="even">
+<td align="left">label</td>
+<td align="left">VARCHAR(255)</td>
+<td align="left">No</td>
+<td align="left">A label for the period.</td>
+</tr>
+<tr class="odd">
+<td align="left">exposure_id</td>
+<td align="left">INTEGER</td>
+<td align="left">Yes</td>
+<td align="left">Foreign key referencing the exposure table.</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="example-code" class="section level1">
