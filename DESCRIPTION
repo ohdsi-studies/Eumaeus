@@ -18,6 +18,7 @@ Imports:
     CohortMethod,
     SelfControlledCaseSeries,
     EmpiricalCalibration,
+    OhdsiSharing,
     dplyr,
     plyr,
     rlang,

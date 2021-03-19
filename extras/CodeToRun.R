@@ -14,9 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-library(dplyr)
-source('C:/Users/mschuemi/git/Eumaeus/R/HelperFunctions.R')
 library(Eumaeus)
+
 options(andromedaTempFolder = "s:/andromedaTemp")
 options(sqlRenderTempEmulationSchema = NULL)
 
@@ -154,12 +153,14 @@ databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database
 #         outputFolder = outputFolder,
 #         maxCores = maxCores,
 #         exposureIds = getExposuresOfInterest()$exposureId,
+#         verifyDependencies = TRUE,
 #         createCohorts = TRUE,
 #         synthesizePositiveControls = TRUE,
 #         runCohortMethod = TRUE,
 #         runSccs = TRUE,
 #         runCaseControl = TRUE,
 #         runHistoricalComparator = TRUE,
+#         computeCriticalValues = TRUE,
 #         createDbCharacterization = TRUE,
 #         exportResults = TRUE)
 

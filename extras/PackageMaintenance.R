@@ -27,8 +27,9 @@ ROhdsiWebApi::insertCohortDefinitionSetInPackage(fileName = "inst/settings/Cohor
                                                  generateStats = FALSE,
                                                  packageName = "Eumaeus")
 
-# Regenerate protocol
+# Regenerate protocol and results schema description
 rmarkdown::render("Documents/Protocol.rmd", output_dir = "docs")
 
+rmarkdown::render("Documents/ResultsSchema.rmd", output_dir = "docs")
 
 

@@ -35,7 +35,7 @@ createDbCharacterization <- function(connectionDetails,
                                                            cdm_database_schema = cdmDatabaseSchema,
                                                            snakeCaseToCamelCase = TRUE)
     popCount <- popCount %>%
-        mutate(stratum = "",
+        mutate(stratum = "All",
                stratification = "All")
     tables[[length(tables) + 1]] <- popCount
     
@@ -186,8 +186,7 @@ createDbCharacterization <- function(connectionDetails,
     DatabaseConnector::renderTranslateExecuteSql(conn, "TRUNCATE TABLE #years; DROP TABLE #years", progressBar = FALSE, reportOverallTime = FALSE)
     
     
-    table <- bind_rows(tables) %>%
-        rename(count = .data$subjectCount)
+    table <- bind_rows(tables)
     readr::write_csv(table, file.path(outputFolder, "DbCharacterization.csv"))
     
     delta <- Sys.time() - start

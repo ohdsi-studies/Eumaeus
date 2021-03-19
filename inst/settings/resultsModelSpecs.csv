@@ -1,0 +1,61 @@
+tableName,fieldName,type,isRequired,primaryKey,emptyIsNa,description
+analysis,method,VARCHAR(255),Yes,Yes,Yes,"A unique name for the method, e.g. 'CohortMethod'."
+analysis,analysis_id,INTEGER,Yes,Yes,Yes,A unique ID for an analysis (within a method).
+analysis,description,VARCHAR(255),Yes,No,Yes,A short description of the analysis.
+analysis,time_at_risk,VARCHAR(255),Yes,No,Yes,The time-at-risk relative to the vaccination date.
+database,database_id,VARCHAR(255),Yes,Yes,Yes,"A unique identifier for a database, e.g. 'IBM_MDCD'."
+database,database_name,VARCHAR(255),Yes,No,Yes,The full name of the database.
+database,description,TEXT,Yes,No,Yes,A description of the database.
+database,vocabulary_version,VARCHAR(255),Yes,No,Yes,The version of the vocabulary used in the database.
+database,min_obs_period_date,DATE,Yes,No,Yes,The earliest date the database has information (the minimum of the obervation_period_start_date).
+database,max_obs_period_date,DATE,Yes,No,Yes,The latest date the database has information (the maximum of the obervation_period_end_date).
+database,study_package_version,VARCHAR(255),Yes,No,Yes,The version of the study package used to generate the results.
+database,is_meta_analysis,INTEGER,Yes,No,Yes," Does the record pertain a meta-analysis across databases? (0=no, 1=yes)"
+database_characterization,subjectCount,INTEGER,Yes,No,Yes,The count of subjects within a stratum.
+database_characterization,stratum,TEXT,Yes,Yes,Yes,A unique identifier for a stratum.
+database_characterization,stratification,VARCHAR(255),Yes,Yes,Yes,The stratification used.
+database_characterization,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
+estimate,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
+estimate,method,VARCHAR(255),Yes,Yes,Yes,"A unique name for the method, e.g. 'CohortMethod'. References the analysis table"
+estimate,analysis_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the analysis table.
+estimate,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.
+estimate,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+estimate,period_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the time_period table.
+estimate,rr,NUMERIC,No,No,Yes,"The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio)."
+estimate,ci_95lb,NUMERIC,No,No,Yes,The lower bound of the 95% confidence interval of the relative risk. 
+estimate,ci_95ub,NUMERIC,No,No,Yes,The upper bound of the 95% confidence interval of the relative risk.
+estimate,p,NUMERIC,No,No,Yes,The two-sided p-value considering the null hypothesis of no effect.
+estimate,exposure_subjects,BIGINT,No,No,Yes,The number of subject in the exposure cohort.
+estimate,counterfactual_subjects,BIGINT,No,No,Yes,The number of subject in the cohort used to determine the counterfactual.
+estimate,exposure_days,BIGINT,No,No,Yes,The number of days in the exposure cohort.
+estimate,counterfactual_days,BIGINT,No,No,Yes,The number of days in the cohort used to determine the counterfactual.
+estimate,exposure_outcomes,BIGINT,No,No,Yes,The number of outcomes observed in the exposure cohort.
+estimate,counterfactual_outcomes,BIGINT,No,No,Yes,The number of outcomes observed in the cohort used to determine the counterfactual.
+estimate,log_rr,NUMERIC,No,No,Yes,The log of the relative risk.
+estimate,se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of the relative risk. 
+estimate,llr,NUMERIC,No,No,Yes,The one-sided log-likelihood ratio.
+estimate,critical_value,NUMERIC,No,No,Yes,The critical value for the log-likelihood ratio according to MaxSPRT.
+estimate,calibrated_rr,NUMERIC,No,No,Yes,The calibrated relative risk.
+estimate,calibrated_ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the calibrated 95% confidence interval of the relative risk.
+estimate,calibrated_ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the calibrated 95% confidence interval of the relative risk.
+estimate,calibrated_log_rr,NUMERIC,No,No,Yes,The log of the calibrated relative risk.
+estimate,calibrated_se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of the calibrated relative risk.
+estimate,calibrated_p,NUMERIC,No,No,Yes,The calibrated p-value.
+exposure,exposure_id,INTEGER,Yes,Yes,Yes,"A unique ID for each exposure. The first, second, and both shots of a vaccine each have a unique ID here."
+exposure,exposure_name,VARCHAR(255),Yes,No,Yes,The name of the exposure.
+exposure,shots,INTEGER,Yes,No,Yes,The number of shots for a vaccine. (1 or 2)
+exposure,base_exposure_id,INTEGER,Yes,Yes,Yes,A unique identified for the vaccine.
+exposure,base_exposure_name,VARCHAR(255),Yes,No,Yes,The name of the vaccine.
+exposure,shot,VARCHAR(255),Yes,No,Yes,"Whether this is the 'First', 'Second', or 'Both' shots."
+negative_control_outcome,outcome_id,INTEGER,Yes,Yes,Yes,A unique identifier for an outcome. Does not overlap with the outcome IDs in the positive_control_outcome table.
+negative_control_outcome,outcome_name,VARCHAR(255),Yes,No,Yes,The name of the outcome.
+positive_control_outcome,outcome_id,INTEGER,Yes,Yes,Yes,A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.
+positive_control_outcome,outcome_name,VARCHAR(255),Yes,No,Yes,The name of the outcome.
+positive_control_outcome,exposure_id,INTEGER,Yes,No,Yes,Foreign key referencing the exposure in the exposure table for which the effect was synthesized.
+positive_control_outcome,negative_control_id,INTEGER,Yes,No,Yes,A foreign key referencing the outcome in the negative_control_outcome table on which the positive control is based.
+positive_control_outcome,effect_size,NUMERIC,Yes,No,Yes,The synthesized effect size.
+time_period,start_date,DATE,Yes,No,Yes,The start date of the time period.
+time_period,end_date,DATE,Yes,No,Yes,The end date of the time period.
+time_period,period_id,INTEGER,Yes,Yes,Yes,A unique identifier for the period.
+time_period,label,VARCHAR(255),Yes,No,Yes,A label for the period.
+time_period,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.

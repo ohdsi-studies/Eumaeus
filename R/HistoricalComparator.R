@@ -209,7 +209,7 @@ computeHistoricRates <- function(connectionDetails,
     select(-.data$newOutcomeId)
   saveRDS(populationRates, ratesFile)
   delta <- Sys.time() - start
-  ParallelLogger::logInfo(paste("Completed historical rates took", signif(delta, 3), attr(delta, "units")))
+  message(paste("Computing historical rates took", signif(delta, 3), attr(delta, "units")))
 }
 
 

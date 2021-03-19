@@ -1,0 +1,214 @@
+---
+title: "| RESULTS SCHEMA\n| \n| EUMAEUS: Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)\n"
+fontsize: 12pt
+geometry: margin=1in
+output:
+  bookdown::html_document2:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+    number_sections: no
+    number_tables: yes
+    css: "style.css"
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +raw_attribute
+    number_sections: no
+    # citation_package: natbib
+    includes:
+      before_body: title.tex
+  bookdown::word_document2:
+    toc: yes
+header-includes:
+- \usepackage[numbers,sort&compress]{natbib}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{rotating}
+- \usepackage{multirow}
+- \usepackage{mwe,tikz}
+- \usepackage[percent]{overpic}
+- \usepackage{enumitem}
+- \usepackage{hyperref}
+- \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+- \newcommand{\footerDate}{`r params$date`}
+- \input{header.tex}
+longtable: yes
+mainfont: Arial
+bibliography: Protocol.bib
+params:
+  date: '2021-03-14'
+  version: 0.2.0
+subtitle: 'Version: `r params$version`'
+link-citations: true
+csl: jamia.csl
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(kableExtra.latex.load_packages = FALSE)
+library(kableExtra)
+#knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table]{xcolor}', x, fixed = TRUE)})
+library(dplyr)
+options(knitr.kable.NA = "")
+if (!knitr::is_latex_output() && !knitr::is_html_output()) {
+  options(knitr.table.format = "simple")
+}
+
+pdf2png <- function(path) {
+  # only do the conversion for non-LaTeX output
+  if (knitr::is_latex_output()) {
+    return(path)
+  }
+  path2 <- xfun::with_ext(path, "png")
+  img <- magick::image_read_pdf(path)
+  magick::image_write(img, path2, format = "png")
+  path2
+}
+
+
+latex_table_font_size <- 8
+```
+
+# Introduction
+
+This document describes the data model for storing the output of the EUMAEUS (Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)) study. 
+
+## Fields with minimum values
+
+Some fields contain patient counts or fractions that can easily be converted to patient counts. 
+To prevent identifiability, these fields are subject to a minimum value. 
+When the value falls below this minimum, it is replaced with the negative value of the minimum. 
+For example, if the minimum subject count is 5, and the actual count is 2, the value stored in the data model will be -5, which could be represented as '\<5' to the user. 
+Note that the value 0 is permissible, as it identifies no persons.
+
+# Tables
+
+```{r echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+specifications <- readr::read_csv("../inst/settings/resultsModelSpecs.csv")
+tables <- split(specifications, specifications$tableName)
+
+for (table in tables) {
+  header <- sprintf("## Table %s", table$tableName[1])
+  
+  table <- table %>% 
+    select(Field = .data$fieldName, Type = .data$type, Key = .data$primaryKey, Description = .data$description) %>%
+    kable(linesep = "", booktabs = TRUE, longtable = TRUE)
+  
+  if (knitr::is_latex_output()) {    
+    writeLines(header)
+    
+    writeLines(table %>% 
+                 kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
+                 column_spec(1, width = "10em") %>%
+                 column_spec(2, width = "5em") %>%
+                 column_spec(3, width = "3em") %>%
+                 column_spec(4, width = "16em"))
+  } else if (knitr::is_html_output()) {
+    writeLines(header)
+    
+    writeLines(table %>% 
+                 kable_styling(bootstrap_options = "striped"))
+  } else {
+    writeLines(markdown)
+  }
+}
+```
+
+# Example code
+
+Contact Martijn Schuemie to obtain the credentials to query the database. 
+Once these are set, you can execute the following code.
+
+First, create a connection to the database:
+```{r warning=FALSE}
+library(DatabaseConnector)
+library(dplyr)
+connectionDetails <- createConnectionDetails(dbms = "postgresql",
+                                             server = paste(keyring::key_get("eumaeusServer"),
+                                                            keyring::key_get("eumaeusDatabase"),
+                                                            sep = "/"),
+                                             user = keyring::key_get("eumaeusUser"),
+                                             password = keyring::key_get("eumaeusPassword"))
+connection <- connect(connectionDetails)
+```
+
+Next, we can start querying the database. For example, we could get the list of all negative control outcomes:
+
+```{r}
+sql <- "
+SELECT *
+FROM eumaeus.negative_control_outcome;
+"
+
+ncs <- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+head(ncs)
+```
+
+Similarly, we can a list of analyses that was performed:
+
+```{r}
+sql <- "
+SELECT *
+FROM eumaeus.analysis;
+"
+
+analysis <- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+head(analysis)
+```
+
+Or the exposures:
+```{r}
+sql <- "
+SELECT *
+FROM eumaeus.exposure;
+"
+
+exposure <- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+head(exposure)
+```
+
+We may want to retrieve the estimates for the H1N1 vaccination (exposure ID = 21184) with negative control outcome 'Alkalosis' (outcome ID = 438730) in the IBM MDCD database for the unadjusted historical comparator analysis using a time-at-risk of 1-28 days (analysis ID = 1):
+
+```{r}
+sql <- "
+SELECT *
+FROM eumaeus.estimate
+INNER JOIN eumaeus.time_period
+  ON estimate.period_id = time_period.period_id
+    AND estimate.exposure_id = time_period.exposure_id
+WHERE database_id = 'IBM_MDCD'
+  AND method = 'HistoricalComparator'
+  AND analysis_id = 1
+  AND estimate.exposure_id = 21184
+  AND outcome_id = 438730;
+"
+
+estimate <- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
+estimate %>%
+  select(label, exposureSubjects, exposureOutcomes, rr, llr, criticalValue)
+```
+
+Note that in many cases the number of exposed subjects within a time period can be 0, and other values such as the relative risk (rr) cannot be computed and are therefore set to NA. 
+
+Don't forget to close the connetion when you're done:
+
+```{r}
+disconnect(connection)
+```
+

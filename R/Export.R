@@ -45,21 +45,21 @@ exportResults <- function(outputFolder,
                  databaseDescription = databaseDescription,
                  minCellCount = minCellCount)
   
-  Eumaeus:::exportMainResults(outputFolder = outputFolder,
+  exportMainResults(outputFolder = outputFolder,
                     exportFolder = exportFolder,
                     databaseId = databaseId,
                     minCellCount = minCellCount,
                     maxCores = maxCores)
   
-  exportDiagnostics(outputFolder = outputFolder,
-                    exportFolder = exportFolder,
-                    databaseId = databaseId,
-                    minCellCount = minCellCount,
-                    maxCores = maxCores)
+  # exportDiagnostics(outputFolder = outputFolder,
+  #                   exportFolder = exportFolder,
+  #                   databaseId = databaseId,
+  #                   minCellCount = minCellCount,
+  #                   maxCores = maxCores)
   
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")
-  zipName <- file.path(exportFolder, sprintf("Results_%s.zip", databaseId))
+  zipName <- normalizePath(file.path(exportFolder, sprintf("Results_%s.zip", databaseId)), mustWork = FALSE)
   files <- list.files(exportFolder, pattern = ".*\\.csv$")
   oldWd <- setwd(exportFolder)
   on.exit(setwd(oldWd))
@@ -213,7 +213,7 @@ exportMainResults <- function(outputFolder,
   ParallelLogger::logInfo("  - Adding cohort method estimates")
   historicComparatorEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) %>%
     mutate(databaseId = !!databaseId,
-           method = "HistoricComparator",
+           method = "HistoricalComparator",
            periodId = .data$seqId,
            exposureSubjects = .data$targetSubjects,
            exposureOutcomes = .data$targetOutcomes,
@@ -307,7 +307,7 @@ exportMainResults <- function(outputFolder,
                                           Eumaeus:::calibrate)
   ParallelLogger::stopCluster(cluster)
   rm(subsets)  # Free up memory
-  columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr, calibratedSeLogRr", "calibratedP"))
+  columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr", "calibratedSeLogRr", "calibratedP"))
   results <- bind_rows(results) %>%
     select(all_of(columns))
   
