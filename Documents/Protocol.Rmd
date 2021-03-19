@@ -3,16 +3,6 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::word_document2:
-    toc: yes
-  bookdown::pdf_document2:
-    keep_tex: yes
-    latex_engine: xelatex
-    md_extensions: +raw_attribute
-    number_sections: yes
-    # citation_package: natbib
-    includes:
-      before_body: title.tex
   bookdown::html_document2:
     df_print: paged
     toc: yes
@@ -21,6 +11,16 @@ output:
     number_sections: yes
     number_tables: yes
     css: "style.css"
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +raw_attribute
+    number_sections: yes
+    # citation_package: natbib
+    includes:
+      before_body: title.tex
+  bookdown::word_document2:
+    toc: yes
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -50,8 +50,8 @@ longtable: yes
 mainfont: Arial
 bibliography: Protocol.bib
 params:
-  date: '2021-03-14'
-  version: 0.2.0
+  date: '2021-03-19'
+  version: 1.0.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
 csl: jamia.csl
@@ -136,13 +136,13 @@ if (knitr::is_latex_output()) {
 ```{r parties, echo=FALSE, results="asis", warning=FALSE}
 parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Investigator; Institution/Affiliation
+  Thamir M Alshammari; College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia  
   George Hripcsak; Department of Biomedical Informatics, Columbia University, New York, NY, USA
+  Nicole Pratt ; Quality Use of Medicines and Pharmacy Research Centre, University of South Australia   
   Dani Prieto-Alhambra; Centre for Statistics in Medicine, NDORMS, University of Oxford, Oxford, UK
   Patrick B. Ryan; Observational Health Data Analytics, Janssen Research and Development, Titusville, NJ, USA
   Martijn J. Schuemie *; Observational Health Data Analytics, Janssen Research and Development, Titusville, NJ, USA
   Marc A. Suchard; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
-  Thamir M Alshammari; College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia
-  Nicole Pratt ; Quality Use of Medicines and Pharmacy Research Centre, University of South Australia 
 ")
 
 tab <- kable(parties, booktabs = TRUE, linesep = "") %>% 
@@ -162,7 +162,7 @@ if (knitr::is_latex_output()) {
 This study is undertaken within Observational Health Data Sciences and Informatics (OHDSI), an open collaboration.
 **GH** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration.
 **PBR** and **MJS** are employees of Janssen Research and Development and shareholders in John & Johnson.
-**MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from the US Department of Veterans Affairs, Janssen Research and Development and IQVIA.
+**MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from the US Department of Veterans Affairs and Janssen Research and Development.
 
 # Abstract
 
@@ -318,7 +318,7 @@ We will execute EUMAEUS as an OHDSI network study.
 All data partners within OHDSI are encouraged to participate voluntarily and can do so conveniently, because of the community's shared Observational Medical Outcomes Partnership (OMOP) common data model (CDM) and OHDSI tool-stack.
 Many OHDSI community data partners have already committed to participate and we will recruit further data partners through OHDSI’s standard recruitment process, which includes protocol publication on OHDSI’s GitHub, an announcement in OHDSI’s research forum, presentation at the weekly OHDSI all-hands-on meeting and direct requests to data holders.
 
-Table \@ref(tab:data-sources) lists the 13 already committed data sources for EUMAEUS; these sources encompass a large variety of practice types and populations. 
+Table \@ref(tab:data-sources) lists the 5 already committed data sources for EUMAEUS; these sources encompass a large variety of practice types and populations. 
 For each data source, we report a brief description and size of the population it represents.
 All data sources will receive institutional review board approval or exemption for their participation before executing EUMAEUS.
 
