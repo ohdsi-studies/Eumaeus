@@ -508,7 +508,7 @@ IBM MarketScan Multi-State Medicaid Database (MDCD) & New England Institutional 
 Japan Medical Data Center (JMDC) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 Optum Clinformatics Data Mart (Optum) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 Optum Electronic Health Records (OptumEHR) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-Clinical Practice Research Datalink (CPRD) GOLD & Independent Scientific Advisory Committee will review the protocol prior to study execution (TODO: change tense to past after review, and add protocol ID).
+Clinical Practice Research Datalink (CPRD) GOLD & Independent Scientific Advisory Committee will review the protocol prior to study execution.
 ")
 
 tab <- kable(data_sources, booktabs = TRUE, linesep = "",
@@ -562,8 +562,6 @@ We will deliver multiple presentations at scientific venues and will also prepar
 We believe in sharing our findings that will guide clinical care with the general public.
 EUMAEUS will use social-media (Twitter) to facilitate this.
 With dedicated support from the OHDSI communications specialist, we will deliver regular press releases at key project stages, distributed via the extensive media networks of UCLA and Columbia.
-
-# Lists of Tables and Figures
 
 # References {-}
 
