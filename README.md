@@ -1,7 +1,7 @@
 Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)
 =============================================================================
 
-<img src="https://img.shields.io/badge/Study%20Status-Started-blue.svg" alt="Study Status: Started">
+<img src="https://img.shields.io/badge/Study%20Status-Design%20Finalized-brightgreen.svg" alt="Study Status: Design Finalized">
 
 - Analytics use case(s): **Population-Level Estimation**
 - Study type: **Methods Research**

@@ -6,17 +6,17 @@ Author: Martijn J. Schuemie [aut, cre]
 Maintainer: Martijn J. Schuemie <schuemie@ohdsi.org>
 Description: Similar to our previous research on the evaluation of causal effect estimation methods, this study aims to systematically evaluate methods for (safety) surveillance of vaccines.
 Depends:
-    DatabaseConnector,
+    DatabaseConnector (>= 4.0.0),
     survival
 Imports:
     Andromeda,
-    Cyclops,
-    CohortDiagnostics,
-    MethodEvaluation,
+    Cyclops (>= 3.1.0),
+    CohortDiagnostics (>= 2.0.0),
+    MethodEvaluation (>= 2.1.0),
     FeatureExtraction,
     CaseControl (>= 3.1.0),
-    CohortMethod,
-    SelfControlledCaseSeries,
+    CohortMethod (>= 4.1.0),
+    SelfControlledCaseSeries (>= 3.0.0),
     EmpiricalCalibration,
     OhdsiSharing,
     dplyr,

@@ -20,7 +20,6 @@ options(andromedaTempFolder = "s:/andromedaTemp")
 options(sqlRenderTempEmulationSchema = NULL)
 
 maxCores <- parallel::detectCores() - 1
-exposureIds <- c(21184) # For development only!
 
 # For bulk uploading synthetic outcomes:
 Sys.setenv("AWS_OBJECT_KEY" = "bulk")
@@ -143,24 +142,24 @@ databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database
 # CohortDiagnostics::preMergeDiagnosticsFiles(file.path(outputFolder, "cohortDiagnostics"))
 # CohortDiagnostics::launchDiagnosticsExplorer(file.path(outputFolder, "cohortDiagnostics"))
 # 
-# execute(connectionDetails = connectionDetails,
-#         cdmDatabaseSchema = cdmDatabaseSchema,
-#         cohortDatabaseSchema = cohortDatabaseSchema,
-#         cohortTable = cohortTable,
-#         databaseId = databaseId,
-#         databaseName = databaseName,
-#         databaseDescription = databaseDescription,
-#         outputFolder = outputFolder,
-#         maxCores = maxCores,
-#         exposureIds = getExposuresOfInterest()$exposureId,
-#         verifyDependencies = TRUE,
-#         createCohorts = TRUE,
-#         synthesizePositiveControls = TRUE,
-#         runCohortMethod = TRUE,
-#         runSccs = TRUE,
-#         runCaseControl = TRUE,
-#         runHistoricalComparator = TRUE,
-#         computeCriticalValues = TRUE,
-#         createDbCharacterization = TRUE,
-#         exportResults = TRUE)
+execute(connectionDetails = connectionDetails,
+        cdmDatabaseSchema = cdmDatabaseSchema,
+        cohortDatabaseSchema = cohortDatabaseSchema,
+        cohortTable = cohortTable,
+        databaseId = databaseId,
+        databaseName = databaseName,
+        databaseDescription = databaseDescription,
+        outputFolder = outputFolder,
+        maxCores = maxCores,
+        exposureIds = getExposuresOfInterest()$exposureId,
+        verifyDependencies = FALSE,
+        createCohorts = TRUE,
+        synthesizePositiveControls = TRUE,
+        runCohortMethod = TRUE,
+        runSccs = TRUE,
+        runCaseControl = TRUE,
+        runHistoricalComparator = TRUE,
+        computeCriticalValues = TRUE,
+        createDbCharacterization = TRUE,
+        exportResults = TRUE)
 
