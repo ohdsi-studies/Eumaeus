@@ -83,7 +83,7 @@ CREATE TABLE estimate (
 CREATE TABLE exposure (
 			exposure_id INTEGER NOT NULL,
 			exposure_name VARCHAR(255) NOT NULL,
-			shots INTEGER NOT NULL,
+			total_shots INTEGER NOT NULL,
 			base_exposure_id INTEGER NOT NULL,
 			base_exposure_name VARCHAR(255) NOT NULL,
 			shot VARCHAR(255) NOT NULL,

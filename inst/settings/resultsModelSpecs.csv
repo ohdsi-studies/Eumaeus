@@ -43,7 +43,7 @@ estimate,calibrated_se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of
 estimate,calibrated_p,NUMERIC,No,No,Yes,The calibrated p-value.
 exposure,exposure_id,INTEGER,Yes,Yes,Yes,"A unique ID for each exposure. The first, second, and both shots of a vaccine each have a unique ID here."
 exposure,exposure_name,VARCHAR(255),Yes,No,Yes,The name of the exposure.
-exposure,shots,INTEGER,Yes,No,Yes,The number of shots for a vaccine. (1 or 2)
+exposure,total_shots,INTEGER,Yes,No,Yes,The number of shots for a vaccine. (1 or 2)
 exposure,base_exposure_id,INTEGER,Yes,Yes,Yes,A unique identified for the vaccine.
 exposure,base_exposure_name,VARCHAR(255),Yes,No,Yes,The name of the vaccine.
 exposure,shot,VARCHAR(255),Yes,No,Yes,"Whether this is the 'First', 'Second', or 'Both' shots."
