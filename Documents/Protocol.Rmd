@@ -50,7 +50,7 @@ longtable: yes
 mainfont: Arial
 bibliography: Protocol.bib
 params:
-  date: '2021-03-19'
+  date: '2021-03-22'
   version: 1.0.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
@@ -162,6 +162,7 @@ if (knitr::is_latex_output()) {
 This study is undertaken within Observational Health Data Sciences and Informatics (OHDSI), an open collaboration.
 **GH** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration.
 **PBR** and **MJS** are employees of Janssen Research and Development and shareholders in John & Johnson.
+**DPA** reports grants and other from Amgen, grants, non-financial support and other from UCB Biopharma, grants from Les Laboratoires Servier,  outside the submitted work;  and Janssen, on behalf of IMI-funded EHDEN and EMIF consortiums, and Synapse Management Partners have supported training programmes organised by DPA's department and open for external participants.
 **MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from the US Department of Veterans Affairs and Janssen Research and Development.
 
 # Abstract
