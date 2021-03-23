@@ -10,6 +10,7 @@ runCohortDiagnostics(
   cohortDatabaseSchema,
   cohortTable,
   outputFolder,
+  minCellCount,
   databaseId,
   databaseName = databaseId,
   databaseDescription = databaseId,
@@ -38,8 +39,13 @@ study.}
 (/). Do not use a folder on a network drive since this greatly impacts
 performance.}
 
-\item{databaseName}{A short string for identifying the database (e.g.
-'Synpuf').}
+\item{minCellCount}{The minimum cell count for fields contains person counts or fractions.}
+
+\item{databaseId}{A short string for identifying the database (e.g. 'Synpuf').}
+
+\item{databaseName}{The full name of the database.}
+
+\item{databaseDescription}{A short description (several sentences) of the database.}
 
 \item{createCohorts}{Create the exposure and outcome?}
 

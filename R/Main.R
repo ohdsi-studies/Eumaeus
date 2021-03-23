@@ -104,7 +104,7 @@ execute <- function(connectionDetails,
   
   if (createCohorts) {
     ParallelLogger::logInfo("Creating exposure and outcome cohorts")
-    Eumaeus:::createCohorts(connectionDetails = connectionDetails,
+    createCohorts(connectionDetails = connectionDetails,
                             cdmDatabaseSchema = cdmDatabaseSchema,
                             cohortDatabaseSchema = cohortDatabaseSchema,
                             cohortTable = cohortTable,
@@ -115,7 +115,7 @@ execute <- function(connectionDetails,
   
   if (synthesizePositiveControls) {
     ParallelLogger::logInfo("Synthesizing positive controls")
-    Eumaeus:::synthesizePositiveControls(connectionDetails = connectionDetails,
+    synthesizePositiveControls(connectionDetails = connectionDetails,
                                          cdmDatabaseSchema = cdmDatabaseSchema,
                                          cohortDatabaseSchema = cohortDatabaseSchema,
                                          cohortTable = cohortTable,
@@ -125,7 +125,7 @@ execute <- function(connectionDetails,
   
   if (runCohortMethod) {
     ParallelLogger::logInfo("Running CohortMethod")
-    Eumaeus:::runCohortMethod(connectionDetails = connectionDetails,
+    runCohortMethod(connectionDetails = connectionDetails,
                               cdmDatabaseSchema = cdmDatabaseSchema,
                               cohortDatabaseSchema = cohortDatabaseSchema,
                               cohortTable = cohortTable,
@@ -135,7 +135,7 @@ execute <- function(connectionDetails,
   
   if (runSccs) {
     ParallelLogger::logInfo("Running SelfControlledCaseSeries")
-    Eumaeus:::runSccs(connectionDetails = connectionDetails,
+    runSccs(connectionDetails = connectionDetails,
                       cdmDatabaseSchema = cdmDatabaseSchema,
                       cohortDatabaseSchema = cohortDatabaseSchema,
                       cohortTable = cohortTable,
@@ -145,7 +145,7 @@ execute <- function(connectionDetails,
   
   if (runCaseControl) {
     ParallelLogger::logInfo("Running CaseControl")
-    Eumaeus:::runCaseControl(connectionDetails = connectionDetails,
+    runCaseControl(connectionDetails = connectionDetails,
                              cdmDatabaseSchema = cdmDatabaseSchema,
                              cohortDatabaseSchema = cohortDatabaseSchema,
                              cohortTable = cohortTable,
@@ -155,7 +155,7 @@ execute <- function(connectionDetails,
   
   if (runHistoricalComparator) {
     ParallelLogger::logInfo("Running HistoricalComparator")
-    Eumaeus:::runHistoricalComparator(connectionDetails = connectionDetails,
+    runHistoricalComparator(connectionDetails = connectionDetails,
                                       cdmDatabaseSchema = cdmDatabaseSchema,
                                       cohortDatabaseSchema = cohortDatabaseSchema,
                                       cohortTable = cohortTable,

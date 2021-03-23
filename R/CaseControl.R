@@ -79,7 +79,7 @@ runCaseControl <- function(connectionDetails,
             ParallelLogger::clusterRequire(cluster, "Eumaeus")
             invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                                    x = 1:(nrow(timePeriods) - 1), 
-                                                   fun = Eumaeus:::subsetCaseData, 
+                                                   fun = subsetCaseData, 
                                                    timePeriods = timePeriods))
             ParallelLogger::stopCluster(cluster)
           }

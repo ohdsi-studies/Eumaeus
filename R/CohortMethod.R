@@ -106,7 +106,7 @@ runCohortMethod <- function(connectionDetails,
       ParallelLogger::clusterRequire(cluster, "Eumaeus")
       invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                              x = 1:nrow(timePeriods), 
-                                             fun = Eumaeus:::subsetCmData, 
+                                             fun = subsetCmData, 
                                              targetId = targetId, 
                                              comparatorId = comparatorId,
                                              timePeriods = timePeriods,
@@ -119,7 +119,7 @@ runCohortMethod <- function(connectionDetails,
         cluster <- ParallelLogger::makeCluster(min(max(1, floor(maxCores/5)), 5))
         invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                                x = timePeriods$folder, 
-                                               fun = Eumaeus:::fitSharedPsModel, 
+                                               fun = fitSharedPsModel, 
                                                targetId = targetId, 
                                                comparatorId = comparatorId, 
                                                cvThreads = min(10, maxCores))) 

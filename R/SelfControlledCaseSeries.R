@@ -78,7 +78,7 @@ runSccs <- function(connectionDetails,
             ParallelLogger::clusterRequire(cluster, "Eumaeus")
             invisible(ParallelLogger::clusterApply(cluster = cluster, 
                                                    x = sccsDataFiles, 
-                                                   fun = Eumaeus:::subsetSccsData, 
+                                                   fun = subsetSccsData, 
                                                    timePeriods = timePeriods))
             ParallelLogger::stopCluster(cluster)
           }

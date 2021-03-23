@@ -20,17 +20,14 @@ Imports:
     EmpiricalCalibration,
     OhdsiSharing,
     dplyr,
-    plyr,
     rlang,
-    tidyr,
     purrr,
     readr,
     ParallelLogger,
     SqlRender,
-    ggplot2,
-    gridExtra,
-    bit64,
-    Sequential
+    Sequential,
+    RJSONIO,
+    zip
 Suggests:
     testthat
 License: Apache License 2.0

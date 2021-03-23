@@ -38,7 +38,7 @@ computeCriticalValues <- function(outputFolder, maxCores) {
     ParallelLogger::logInfo("- Computing critical values for case-control")
     ccEstimates <- loadEstimates(file.path(outputFolder, "ccSummary.csv")) 
     subsets <- split(ccEstimates, paste(ccEstimates$analysisId, ccEstimates$exposureId, ccEstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, Eumaeus:::computeCaseControlCv)
+    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeCaseControlCv)
     cvs <- bind_rows(cvs)
     rm(subsets)
     ccEstimates <- ccEstimates %>%
@@ -87,7 +87,7 @@ computeCaseControlCv <- function(subset) {
       cases[2:looks] <- cases[2:looks] - cases[1:(looks-1)]
       cases <- cases[cases != 0]
     }
-    cv <- Eumaeus:::computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
+    cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
                                                z = max(subset$controls) / max(subset$cases),
                                                groupSizes = cases)
   }
@@ -114,7 +114,7 @@ computeCohortMethodCv <- function(subset) {
       events <- events[events > 0]
       sampleSizeUpperLimit <- sum(events)
     }
-    cv <- Eumaeus:::computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
+    cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
                                                z = max(subset$comparatorDays) / max(subset$targetDays),
                                                groupSizes = events)
   }
@@ -138,7 +138,7 @@ computeSccsCv <- function(subset) {
       events[2:looks] <- events[2:looks] - events[1:(looks-1)]
       events <- events[events != 0]
     }
-    cv <- Eumaeus:::computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
+    cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
                                                z = max(subset$daysObserved - subset$exposedDays) / max(subset$exposedDays),
                                                groupSizes = events)
   }
@@ -177,7 +177,7 @@ computeHistoricalComparatorCv <- function(subset) {
   if (sampleSizeUpperLimit <= 5) {
     cv <- NA
   } else {
-    cv <- Eumaeus:::computeTruncatedPoissonCv(n = sampleSizeUpperLimit,
+    cv <- computeTruncatedPoissonCv(n = sampleSizeUpperLimit,
                                               groupSizes = expectedOutcomes)
   }
   return(tibble(analysisId = subset$analysisId[1],

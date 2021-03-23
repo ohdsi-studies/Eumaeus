@@ -37,8 +37,10 @@
 #' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
 #'                             (/). Do not use a folder on a network drive since this greatly impacts
 #'                             performance.
-#' @param databaseName         A short string for identifying the database (e.g.
-#'                             'Synpuf').
+#' @param minCellCount          The minimum cell count for fields contains person counts or fractions.
+#' @param databaseId            A short string for identifying the database (e.g. 'Synpuf').
+#' @param databaseName          The full name of the database.
+#' @param databaseDescription   A short description (several sentences) of the database.
 #' @param createCohorts        Create the exposure and outcome?
 #' @param runCohortDiagnostics Run cohort diagnostics?
 #'
@@ -48,6 +50,7 @@ runCohortDiagnostics <- function(connectionDetails,
                                  cohortDatabaseSchema,
                                  cohortTable,
                                  outputFolder,
+                                 minCellCount,
                                  databaseId,
                                  databaseName = databaseId,
                                  databaseDescription = databaseId,
@@ -66,7 +69,7 @@ runCohortDiagnostics <- function(connectionDetails,
     if (createCohorts) {
         ParallelLogger::logInfo("Creating base exposure cohorts")
         connection <- DatabaseConnector::connect(connectionDetails)
-        Eumaeus:::.createCohorts(connection = connection,
+        .createCohorts(connection = connection,
                                  cdmDatabaseSchema = cdmDatabaseSchema,
                                  cohortDatabaseSchema = cohortDatabaseSchema,
                                  cohortTable = cohortTable,
@@ -83,6 +86,7 @@ runCohortDiagnostics <- function(connectionDetails,
                                                 cohortDatabaseSchema = cohortDatabaseSchema,
                                                 cohortTable = cohortTable,
                                                 exportFolder = cohortDiagnosticsFolder,
+                                                minCellCount = minCellCount,
                                                 databaseId = databaseId,
                                                 databaseName = databaseName,
                                                 databaseDescription = databaseDescription,

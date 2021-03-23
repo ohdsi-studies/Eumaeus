@@ -20,9 +20,10 @@
 #' @importFrom rlang .data
 #' @importFrom grDevices rgb
 #' @importFrom stats aggregate coef confint density pnorm qnorm quantile
-#' @importFrom utils read.csv setTxtProgressBar txtProgressBar write.csv write.table
+#' @importFrom utils read.csv setTxtProgressBar txtProgressBar write.csv write.table installed.packages packageVersion
 #' @import dplyr
 #' @import DatabaseConnector
+#' @import survival
 NULL
 
 cache <- new.env()
