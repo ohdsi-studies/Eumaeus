@@ -91,9 +91,10 @@ compareCohorts <- function(connectionDetails,
   }
   unbalanced <- purrr::map_dfr(split(comparisons, 1:nrow(comparisons)), compareCovariates, covariates = covariates, covariateRef = covariateRef)
   readr::write_csv(unbalanced, file.path(outputFolder, "Unbalanced.csv"))
+  # unbalanced <- readr::read_csv(file.path(outputFolder, "Unbalanced.csv"))
   toExclude <- unbalanced %>%
     filter(.data$stdDiff < 0) %>%
-    filter(grepl("immun|vacc|prevent|virus|antibody|antigen", .data$covariateName, ignore.case = TRUE)) %>%
+    filter(grepl("immun|vacc|prevent|virus|antibody|antigen|procedure$", .data$covariateName, ignore.case = TRUE)) %>%
     arrange(-abs(.data$stdDiff))
   readr::write_csv(toExclude, file.path(outputFolder, "ToExclude.csv"))
 }
