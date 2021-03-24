@@ -29,10 +29,10 @@ SCCS,3,"SCRI with prior control interval",1-28
 SCCS,4,"SCRI with posterior control interval",1-28
 SCCS,5,"Simple SCCS",1-42
 SCCS,6,"SCCS adjusting for age and season",1-42
-SCCS,7,"SCRI with prior control interval",1-28
-SCCS,8,"SCRI with posterior control interval",1-28
-SCCS,9,"Simple SCCS",1-90
-SCCS,10,"SCCS adjusting for age and season",1-90
+SCCS,7,"SCRI with prior control interval",1-42
+SCCS,8,"SCRI with posterior control interval",1-42
+SCCS,9,"Simple SCCS",0-1
+SCCS,10,"SCCS adjusting for age and season",0-1
 SCCS,11,"SCRI with prior control interval",0-1
 SCCS,12,"SCRI with posterior control interval",0-1
 CaseControl,1,"age + sex matched case-control",1-28

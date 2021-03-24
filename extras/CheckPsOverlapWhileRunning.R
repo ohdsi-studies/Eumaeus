@@ -14,7 +14,7 @@ findLatestPs <- function(tcFolder) {
   periodFolders <- list.files(tcFolder, pattern = "^cmOutput_t[1-9]+$", full.names = TRUE)  
   seqId <- as.numeric(gsub(".*cmOutput_t", "", periodFolders))
   periodFolders <- periodFolders[order(seqId)]
-  psFiles <- sapply(periodFolders, findPs)
+  psFiles <- unlist(sapply(periodFolders, findPs))
   return(psFiles[length(psFiles)])
 }
 

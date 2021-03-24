@@ -202,7 +202,7 @@ exportMainResults <- function(outputFolder,
   ParallelLogger::logInfo("Exporting main results")
   
   ParallelLogger::logInfo("- estimate table")
-  columns <- c("databaseId",  "method", "analysisId", "exposureId", "outcomeId", "periodId", "rr", "ci95lb", "ci95ub", "p", "exposureSubjects", "counterfactualSubjects", "exposureDays", "counterfactualDays", "exposureOutcomes", "counterfactualOutcomes", "logRr", "seLogRr", "llr", "criticalValue")
+  columns <- c("databaseId",  "method", "analysisId", "exposureId", "outcomeId", "periodId", "rr", "ci95Lb", "ci95Ub", "p", "exposureSubjects", "counterfactualSubjects", "exposureDays", "counterfactualDays", "exposureOutcomes", "counterfactualOutcomes", "logRr", "seLogRr", "llr", "criticalValue")
   
   ParallelLogger::logInfo("  - Adding cohort method estimates")
   historicComparatorEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) %>%
@@ -211,13 +211,13 @@ exportMainResults <- function(outputFolder,
            periodId = .data$seqId,
            exposureSubjects = .data$targetSubjects,
            exposureOutcomes = .data$targetOutcomes,
-           exposureDays = .data$targetYears * 365.25,
+           exposureDays = round(.data$targetYears * 365.25),
            counterfactualSubjects = .data$comparatorSubjects,
            counterfactualOutcomes = .data$comparatorOutcomes,
-           counterfactualDays = .data$comparatorYears * 365.25,
+           counterfactualDays = round(.data$comparatorYears * 365.25),
            rr = .data$irr,
-           ci95lb = .data$lb95Ci,
-           ci95ub = .data$ub95Ci,
+           ci95Lb = .data$lb95Ci,
+           ci95Ub = .data$ub95Ci,
            p = 2 * pmin(pnorm(.data$logRr/.data$seLogRr), 1 - pnorm(.data$logRr/.data$seLogRr))) %>%
     select(all_of(columns))
 
@@ -243,6 +243,8 @@ exportMainResults <- function(outputFolder,
            counterfactualSubjects = .data$comparator,
            counterfactualOutcomes = .data$eventsComparator,
            counterfactualDays = .data$comparatorDays,
+           ci95Lb = .data$ci95lb,
+           ci95Ub = .data$ci95ub,
            llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
     select(all_of(columns))
 
@@ -257,6 +259,8 @@ exportMainResults <- function(outputFolder,
            counterfactualSubjects = (.data$cases + .data$controls) - (.data$exposedCases + .data$exposedControls),
            counterfactualOutcomes = .data$cases - .data$exposedCases,
            counterfactualDays = NA,
+           ci95Lb = .data$ci95lb,
+           ci95Ub = .data$ci95ub,
            llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
     select(all_of(columns))
   
@@ -271,6 +275,8 @@ exportMainResults <- function(outputFolder,
            counterfactualSubjects = .data$outcomeSubjects,
            counterfactualOutcomes = .data$outcomeEvents - .data$exposedOutcomes,
            counterfactualDays = .data$daysObserved - .data$exposedDays,
+           ci95Lb = .data$ci95lb,
+           ci95Ub = .data$ci95ub,
            llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
     select(all_of(columns))
   

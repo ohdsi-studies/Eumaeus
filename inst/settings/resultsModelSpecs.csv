@@ -22,8 +22,8 @@ estimate,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure ta
 estimate,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
 estimate,period_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the time_period table.
 estimate,rr,NUMERIC,No,No,Yes,"The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio)."
-estimate,ci_95lb,NUMERIC,No,No,Yes,The lower bound of the 95% confidence interval of the relative risk. 
-estimate,ci_95ub,NUMERIC,No,No,Yes,The upper bound of the 95% confidence interval of the relative risk.
+estimate,ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the 95% confidence interval of the relative risk. 
+estimate,ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the 95% confidence interval of the relative risk.
 estimate,p,NUMERIC,No,No,Yes,The two-sided p-value considering the null hypothesis of no effect.
 estimate,exposure_subjects,BIGINT,No,No,Yes,The number of subject in the exposure cohort.
 estimate,counterfactual_subjects,BIGINT,No,No,Yes,The number of subject in the cohort used to determine the counterfactual.
