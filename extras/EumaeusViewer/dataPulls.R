@@ -10,18 +10,20 @@ loadEntireTable <- function(connection, schema, tableName) {
 }
 
 
-getEstimates <- function(connection, schema, databaseId, exposureId, periodId, analysisIds, methods, calibrated = FALSE) {
+getEstimates <- function(connection, schema, databaseId, exposureId, periodId = NULL, analysisIds, methods, calibrated = FALSE) {
   sql <- sprintf("SELECT * 
     FROM %s.estimate 
     WHERE database_id = '%s'
       AND exposure_id = '%s'
-      AND period_id = '%s'
-      AND analysis_id IN (%s);",
+      AND analysis_id IN (%s)",
                  schema,
                  databaseId,
                  exposureId,
-                 periodId,
                  paste(analysisIds, collapse = ","))
+  if (!is.null(periodId)) {
+    sql <- paste(sql, sprintf("  AND period_id = '%s'", periodId))
+  }
+  
   subset <- DatabaseConnector::dbGetQuery(connection, sql)
   colnames(subset) <- SqlRender::snakeCaseToCamelCase(colnames(subset))
   idx <- is.na(subset$logRr) | is.infinite(subset$logRr) | is.na(subset$seLogRr) | is.infinite(subset$seLogRr)

@@ -6,6 +6,8 @@ source("plotsAndTables.R")
 
 shinyServer(function(input, output, session) {
   
+  # Effect-size-estimate-based metrics --------------------------------------------------------------------------
+  
   exposureId <- reactive(
     exposure %>%
       filter(.data$exposureName == input$exposure) %>%
@@ -142,21 +144,6 @@ shinyServer(function(input, output, session) {
   })
   
   outputOptions(output, "details", suspendWhenHidden = FALSE)
-  
-  observeEvent(input$showSettings, {
-    subset <- selectedEstimates()
-    method <- as.character(subset$method[1])
-    analysisId <- subset$analysisId[1]
-    description <- analysisRef$description[analysisRef$method == method & analysisRef$analysisId == analysisId]
-    details <- analysisRef$details[analysisRef$method == method & analysisRef$analysisId == analysisId]
-    showModal(modalDialog(
-      title = paste0(method , " analysis. ", analysisId, ": ", description),
-      pre(details),
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l"
-    ))
-  })
   
   output$rocCurves <- renderPlot({
     subset <- selectedEstimates()
@@ -325,5 +312,122 @@ shinyServer(function(input, output, session) {
       HTML(metricInfoHtml)
     ))
   })
+  
+  # MaxSPRT-based metrics --------------------------------------------------------------------------
+  exposureId2 <- reactive(
+    exposure %>%
+      filter(.data$exposureName == input$exposure2) %>%
+      pull(.data$exposureId)
+  )
+  
+  
+  filterEstimates2 <- reactive({
+    analysisIds <- analysis %>%
+      filter(.data$timeAtRisk == input$timeAtRisk2) %>%
+      pull(.data$analysisId)
+    
+    subset <- getEstimates(connection = connectionPool,
+                           schema = schema,
+                           databaseId = input$database2,
+                           exposureId = exposureId2(),
+                           analysisIds = analysisIds,
+                           methods = input$method2)
+
+    subset <- subset %>%
+      filter(.data$exposureOutcomes >= as.numeric(input$minOutcomes))
+    subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
+    return(subset)
+  })
+  
+  selectedEstimates2 <- reactive({
+    if (is.null(input$performanceMetrics2_rows_selected)) {
+      return(NULL)
+    } 
+    subset <- filterEstimates2()
+    if (nrow(subset) == 0) {
+      return(NULL)
+    }
+    subset <- subset[subset$method == performanceMetrics2()$Method[input$performanceMetrics2_rows_selected] & 
+                       subset$analysisId == performanceMetrics2()$'<span title=\"Analysis variant ID\">ID</span>'[input$performanceMetrics2_rows_selected], ]
+    if (nrow(subset) == 0) {
+      return(NULL)
+    } 
+    return(subset)
+  })
+  
+  performanceMetrics2 <- reactive({
+    subset <- filterEstimates2()
+    if (nrow(subset) == 0) {
+      return(data.frame())
+    }
+    combis <- lapply(split(subset, paste(subset$method, subset$analysisId)), 
+                     computeMaxSprtMetrics, 
+                     trueRr = input$trueRr2)
+    combis <- bind_rows(combis)
+    colnames(combis) <- c("Method", 
+                          "<span title=\"Analysis variant ID\">ID</span>", 
+                          "<span title=\"The first period when 80% sensitivity is achieved\">Period 80% Sens</span>", 
+                          "<span title=\"Sensitivity in the period when 80% sensitivity is achieved\">Sensitivity at period</span>", 
+                          "<span title=\"Specifiticity in the period when 80% sensitivity is achieved\">Specifiticity at period</span>")
+    return(combis)
+  })
+  
+  output$performanceMetrics2 <- renderDataTable({
+    selection = list(mode = "single", target = "row")
+    options = list(pageLength = 10, 
+                   searching = FALSE, 
+                   lengthChange = TRUE)
+    isolate(
+      if (!is.null(input$performanceMetrics2_rows_selected)) {
+        selection$selected = input$performanceMetrics2_rows_selected
+        options$displayStart = floor(input$performanceMetrics2_rows_selected[1] / 10) * 10 
+      }
+    )
+    data <- performanceMetrics2()
+    if (nrow(data) == 0) {
+      return(data)
+    }
+    table <- DT::datatable(data, selection = selection, options = options, rownames = FALSE, escape = FALSE) 
+    
+    colors <- c("#f2b4a9", "#b7d3e6", "#b7d3e6")
+    mins <- c(0, 0.8, min(data[, 5], na.rm = TRUE))
+    maxs <- c(max(filterEstimates2()$periodId), 1, 1)
+    for (i in 1:length(colors)) {
+      table <- DT::formatStyle(table = table,
+                               columns = i + 2,
+                               background = styleColorBar(c(mins[i], maxs[i]), colors[i]),
+                               backgroundSize = '98% 88%',
+                               backgroundRepeat = 'no-repeat',
+                               backgroundPosition = 'center')
+    }
+    return(table)
+  })
+  
+  output$details2 <- renderText({
+    subset <- selectedEstimates2()
+    if (is.null(subset)) {
+      return(NULL)
+    }  else {
+      method <- as.character(subset$method[1])
+      analysisId <- subset$analysisId[1]
+      description <- analysis$description[analysis$method == method & analysis$analysisId == analysisId]
+      return(paste0(method , " analysis ", analysisId, ": ", description))
+    }
+  })
+  
+  outputOptions(output, "details2", suspendWhenHidden = FALSE)
+  
+  
+  output$llrs <- renderPlot({
+    subset <- selectedEstimates2()
+    if (is.null(subset)) {
+      return(NULL)
+    }  else {
+      subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
+      print(nrow(subset))
+      return(plotLlrs(subset, trueRr = input$trueRr2))
+    }
+  })
+  
 })
 

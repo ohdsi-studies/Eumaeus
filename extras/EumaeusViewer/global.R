@@ -24,7 +24,9 @@ negativeControlOutcome <- loadEntireTable(connectionPool, schema, "negative_cont
 positiveControlOutcome <- loadEntireTable(connectionPool, schema, "positive_control_outcome")
 time_period <- loadEntireTable(connectionPool, schema, "time_period")
 
-trueRrs <- c("Overall", ">1", 1, unique(positiveControlOutcome$effectSize))
+# estimate <- loadEntireTable(connectionPool, schema, "estimate")
+
+trueRrs <- c("Overall", 1, unique(positiveControlOutcome$effectSize))
 timeAtRisks <- unique(analysis$timeAtRisk)
 
 # evalTypeInfoHtml <- readChar("evalType.html", file.info("evalType.html")$size)

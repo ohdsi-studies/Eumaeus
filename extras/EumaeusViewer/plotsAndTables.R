@@ -170,15 +170,15 @@ plotOverview <- function(metrics, metric, strataSubset, calibrated) {
 }
 
 
-addTrueEffectSize <- function(estimate, negativeControlOutcome, positiveControlOutcome) {
+addTrueEffectSize <- function(estimates, negativeControlOutcome, positiveControlOutcome) {
   allControls <- bind_rows(negativeControlOutcome %>%
                              mutate(effectSize = 1) %>%
                              select(.data$outcomeId, .data$outcomeName, .data$effectSize),
                            positiveControlOutcome %>%
                              select(.data$outcomeId, .data$outcomeName, .data$effectSize))
-  estimate <- estimate %>%
+  estimates <- estimates %>%
     inner_join(allControls, by = "outcomeId")
-  return(estimate)
+  return(estimates)
 }
 
 computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
@@ -190,7 +190,7 @@ computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
   } else if (trueRr == ">1") {
     forEval <- estimates[estimates$effectSize > 1, ]
   } else {
-    forEval <- estimates[estimates$effectSize == trueRr, ]
+    forEval <- estimates[estimates$effectSize == as.numeric(trueRr), ]
   }
   nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
   mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
@@ -210,7 +210,7 @@ computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
     if (trueRr == ">1") {
       negAndPos <- estimates[estimates$effectSize > 1 | estimates$effectSize == 1, ]
     } else {
-      negAndPos <- estimates[estimates$effectSize == trueRr | estimates$effectSize == 1, ]
+      negAndPos <- estimates[estimates$effectSize == as.numeric(trueRr) | estimates$effectSize == 1, ]
     }
     roc <- pROC::roc(negAndPos$effectSize > 1, negAndPos$logRr, algorithm = 3)
     auc <- round(pROC::auc(roc), 2)
@@ -228,51 +228,121 @@ computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
                 type2 = type2, 
                 nonEstimable = nonEstimable))
 }
-  # 
-  #   computeMetrics <- function(i) {
-  #     forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i], ]
-  #     nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
-  #     # forEval <- forEval[forEval$seLogRr < 99, ]
-  #     roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)
-  #     auc <- round(pROC::auc(roc), 2)
-  #     mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
-  #     coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
-  #     meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
-  #     type1 <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
-  #     type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
-  #     return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
-  #   }
-  #   combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
-  # } else {
-  #   # trueRr <- input$trueRr
-  #   computeMetrics <- function(i) {
-  #     if (input$trueRr == "> 1") {
-  #       forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize > 1, ]
-  #     } else {
-  #       forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize == input$trueRr, ]
-  #     }
-  #     nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
-  #     # forEval <- forEval[forEval$seLogRr < 99, ]
-  #     mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
-  #     coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
-  #     meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
-  #     if (input$trueRr == "1") {
-  #       auc <- NA
-  #       type1 <- round(mean(forEval$p < 0.05), 2)  
-  #       type2 <- NA
-  #     } else {
-  #       if (input$trueRr == "> 1") {
-  #         negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize > 1 | subset$effectSize == 1), ]
-  #       } else {
-  #         negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize == input$trueRr | subset$effectSize == 1), ]
-  #       }
-  #       roc <- pROC::roc(negAndPos$effectSize > 1, negAndPos$logRr, algorithm = 3)
-  #       auc <- round(pROC::auc(roc), 2)
-  #       type1 <- NA
-  #       type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)  
-  #     }
-  #     return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
-  #   }
-  #   combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
-  # }
-  # 
+
+computeMaxSprtMetricsPerPeriod <- function(estimates) {
+  timeToSignal <- estimates %>%
+    mutate(signal = .data$llr > .data$criticalValue) %>%
+    filter(.data$signal) %>%
+    group_by(.data$outcomeId) %>%
+    summarize(firstSignalPeriodId = min(.data$periodId))
+  
+  timeToSignal <- estimates %>%
+    distinct(.data$outcomeId, .data$effectSize) %>%
+    left_join(timeToSignal, by = "outcomeId") %>%
+    mutate(firstSignalPeriodId = if_else(is.na(.data$firstSignalPeriodId), Inf, as.numeric(.data$firstSignalPeriodId)))
+  
+  # periodId <- 9
+  computeSensSpec <- function(periodId) {
+    sensitivity <-  timeToSignal %>%
+      filter(.data$effectSize > 1) %>%
+      summarise(sensitivity = mean(.data$firstSignalPeriodId <= periodId)) %>%
+      pull()
+    specificity <-  timeToSignal %>%
+      filter(.data$effectSize == 1) %>%
+      summarise(specificity = 1 - mean(.data$firstSignalPeriodId <= periodId)) %>%
+      pull()
+    return(tibble(periodId = periodId,
+                  sensitivity = sensitivity,
+                  specificity = specificity))
+  }
+  sensSpec <- lapply(1:max(estimates$periodId), computeSensSpec)
+  sensSpec <- bind_rows(sensSpec)
+  return(sensSpec)
+}
+
+# estimates = split(subset, paste(subset$method, subset$analysisId))[[1]]
+# estimates <- subset[estimate$method == "HistoricalComparator" & estimate$analysisId == 1, ]
+# estimates = addTrueEffectSize(estimates, negativeControlOutcome, positiveControlOutcome)
+computeMaxSprtMetrics <- function(estimates, trueRr = "Overall") {
+  if (!"effectSize" %in% colnames(estimates))
+    stop("Must add column 'effectSize' to estimates (e.g. using addTrueEffectSize())")
+  
+  if (trueRr == "Overall") {
+    forEval <- estimates
+  } else if (trueRr == ">1") {
+    forEval <- estimates[estimates$effectSize > 1, ]
+  } else {
+    forEval <- estimates[estimates$effectSize == 1 | estimates$effectSize == as.numeric(trueRr), ]
+  }
+  
+  metricsPerPeriod <- computeMaxSprtMetricsPerPeriod(forEval)
+  firstPeriod80Sens <- metricsPerPeriod %>%
+    filter(.data$sensitivity >= 0.80) %>%
+    summarize(periodId = min(.data$periodId)) %>%
+    pull()
+  if (is.infinite(firstPeriod80Sens)) {
+    result <- tibble(mehod = estimates$method[1],
+                     analysisId = estimates$analysisId[1],
+                     firstPeriod80Sens = NA,
+                     sensitivity = NA,
+                     specificity = NA)
+  } else {
+    result <- metricsPerPeriod %>%
+      filter(.data$periodId == firstPeriod80Sens) %>%
+      transmute(mehod = estimates$method[1],
+             analysisId = estimates$analysisId[1],
+             firstPeriod80Sens = !!firstPeriod80Sens,
+             sensitivity = round(.data$sensitivity, 2),
+             specificity = round(.data$specificity, 2))
+  }
+  return(result)
+}
+
+computeTrueRr <- function(estimates, negativeControlOutcome, positiveControlOutcome) {
+  estimates <- addTrueEffectSize(estimates, negativeControlOutcome, positiveControlOutcome)
+  
+  pcs <- estimates %>%
+    inner_join(select(positiveControlOutcome, .data$negativeControlId, .data$outcomeId), by = "outcomeId") %>%
+    inner_join(select(estimates, periodId = .data$periodId, negativeControlId = .data$outcomeId, negativeControlOutcomes = .data$exposureOutcomes ), by = c("negativeControlId", "periodId")) %>%
+    mutate(trueEffectSize = .data$exposureOutcomes / .data$negativeControlOutcomes) %>%
+    select(-.data$negativeControlId)
+  
+  
+ # pcs[pcs$periodId == 2, c("effectSize", "trueEffectSize", "exposureOutcomes", "negativeControlOutcomes")]
+  
+}
+
+# d <- estimate[estimate$method == "HistoricalComparator" & estimate$analysisId == 1, ]
+# d <- addTrueEffectSize(d, negativeControlOutcome, positiveControlOutcome)
+# d$Group <- as.factor(paste("True effect size =", d$effectSize))
+# d <- d[d$exposureOutcomes >= 3, ]
+plotLlrs <- function(d, trueRr = "Overall") {
+  d$Signal <- !is.na(d$llr) & !is.na(d$criticalValue) & d$llr >= d$criticalValue
+  d$y <- d$llr + 1
+  if (trueRr != "Overall") {
+    d <- d[d$effectSize == 1 | d$effectSize == as.numeric(trueRr), ]
+  }
+
+  theme <- element_text(colour = "#000000", size = 14)
+  themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
+  themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
+  yBreaks <- c(0, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100)
+  plot <- ggplot(d, aes(x = .data$periodId, y = .data$y, group = .data$outcomeId), environment = environment()) +
+    geom_line(size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
+    geom_point(aes(shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
+    scale_shape_manual(name = "Above critical value", values = c(21,16)) +
+    scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
+    scale_y_log10("Log Likelihood ratio", breaks = yBreaks + 1, labels = yBreaks) +
+    coord_cartesian(ylim = c(1, 101)) +
+    facet_grid(. ~ Group) +
+    theme(axis.text.y = themeRA,
+          axis.text.x = theme,
+          axis.title = theme,
+          strip.text.x = theme,
+          strip.text.y = theme,
+          strip.background = element_blank(),
+          legend.text = themeLA,
+          legend.title = themeLA,
+          legend.position = "top")
+  return(plot)
+}
