@@ -9,7 +9,7 @@ shinyUI(
                        br(),
                        p("For review purposes only. Do not use.")
               ),
-              tabPanel("Method performance metrics per vaccine, period and database",
+              tabPanel("Effect-size-estimate-based metrics",
                        fluidRow(
                          column(2,
                                 selectInput("exposure", label = "Vaccine", choices = exposure$exposureName),

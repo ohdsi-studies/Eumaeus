@@ -1,4 +1,5 @@
 library(ggplot2)
+library(dplyr)
 
 plotScatter <- function(d) {
   d$Significant <- d$ci95Lb > d$effectSize | d$ci95Ub < d$effectSize
@@ -125,7 +126,7 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
   
   if (showAucs) {
     aucs <- data.frame(auc = aucs, label = labels) 
-    aucs <- aucs[order(-aucs$label), ]
+    aucs <- aucs[order(aucs$label), ]
     for (i in 1:nrow(aucs)) {
       label <- paste0(aucs$label[i], ": AUC = ", format(round(aucs$auc[i], 2), nsmall = 2))
       plot <- plot + geom_text(label = label, x = 1, y = 0.4 - (i*0.1), hjust = 1, color = "#000000", size = 5)
@@ -167,3 +168,111 @@ plotOverview <- function(metrics, metric, strataSubset, calibrated) {
   }
   return(plot)
 }
+
+
+addTrueEffectSize <- function(estimate, negativeControlOutcome, positiveControlOutcome) {
+  allControls <- bind_rows(negativeControlOutcome %>%
+                             mutate(effectSize = 1) %>%
+                             select(.data$outcomeId, .data$outcomeName, .data$effectSize),
+                           positiveControlOutcome %>%
+                             select(.data$outcomeId, .data$outcomeName, .data$effectSize))
+  estimate <- estimate %>%
+    inner_join(allControls, by = "outcomeId")
+  return(estimate)
+}
+
+computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
+  if (!"effectSize" %in% colnames(estimates))
+    stop("Must add column 'effectSize' to estimates (e.g. using addTrueEffectSize())")
+  
+  if (trueRr == "Overall") {
+    forEval <- estimates
+  } else if (trueRr == ">1") {
+    forEval <- estimates[estimates$effectSize > 1, ]
+  } else {
+    forEval <- estimates[estimates$effectSize == trueRr, ]
+  }
+  nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
+  mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
+  coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
+  meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
+  if (trueRr == "Overall") {
+    roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)
+    auc <- round(pROC::auc(roc), 2)
+    type1 <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
+    type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
+  } else if (trueRr == "1") {
+    roc <- NA
+    auc <- NA
+    type1 <- round(mean(forEval$p < 0.05), 2)  
+    type2 <- NA
+  } else {
+    if (trueRr == ">1") {
+      negAndPos <- estimates[estimates$effectSize > 1 | estimates$effectSize == 1, ]
+    } else {
+      negAndPos <- estimates[estimates$effectSize == trueRr | estimates$effectSize == 1, ]
+    }
+    roc <- pROC::roc(negAndPos$effectSize > 1, negAndPos$logRr, algorithm = 3)
+    auc <- round(pROC::auc(roc), 2)
+    type1 <- NA
+    type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)  
+  }
+  
+  return(tibble(method = estimates$method[1],
+                analysisId = estimates$analysisId[1],
+                auc = auc, 
+                coverage = coverage, 
+                meanP = meanP, 
+                mse = mse, 
+                type1 = type1, 
+                type2 = type2, 
+                nonEstimable = nonEstimable))
+}
+  # 
+  #   computeMetrics <- function(i) {
+  #     forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i], ]
+  #     nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
+  #     # forEval <- forEval[forEval$seLogRr < 99, ]
+  #     roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)
+  #     auc <- round(pROC::auc(roc), 2)
+  #     mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
+  #     coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
+  #     meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
+  #     type1 <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
+  #     type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
+  #     return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
+  #   }
+  #   combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
+  # } else {
+  #   # trueRr <- input$trueRr
+  #   computeMetrics <- function(i) {
+  #     if (input$trueRr == "> 1") {
+  #       forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize > 1, ]
+  #     } else {
+  #       forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize == input$trueRr, ]
+  #     }
+  #     nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
+  #     # forEval <- forEval[forEval$seLogRr < 99, ]
+  #     mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
+  #     coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
+  #     meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
+  #     if (input$trueRr == "1") {
+  #       auc <- NA
+  #       type1 <- round(mean(forEval$p < 0.05), 2)  
+  #       type2 <- NA
+  #     } else {
+  #       if (input$trueRr == "> 1") {
+  #         negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize > 1 | subset$effectSize == 1), ]
+  #       } else {
+  #         negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize == input$trueRr | subset$effectSize == 1), ]
+  #       }
+  #       roc <- pROC::roc(negAndPos$effectSize > 1, negAndPos$logRr, algorithm = 3)
+  #       auc <- round(pROC::auc(roc), 2)
+  #       type1 <- NA
+  #       type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)  
+  #     }
+  #     return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
+  #   }
+  #   combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
+  # }
+  # 

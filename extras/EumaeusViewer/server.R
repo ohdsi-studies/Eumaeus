@@ -2,7 +2,7 @@ library(shiny)
 library(DT)
 library(dplyr)
 
-source("plots.R")
+source("plotsAndTables.R")
 
 shinyServer(function(input, output, session) {
   
@@ -27,53 +27,19 @@ shinyServer(function(input, output, session) {
   ) 
   
   filterEstimates <- reactive({
-    
     analysisIds <- analysis %>%
       filter(.data$timeAtRisk == input$timeAtRisk) %>%
       pull(.data$analysisId)
     
-    sql <- sprintf("SELECT * 
-    FROM %s.estimate 
-    WHERE database_id = '%s'
-      AND exposure_id = '%s'
-      AND period_id = '%s'
-      AND analysis_id IN (%s);",
-                   schema,
-                   input$database,
-                   exposureId(),
-                   periodId(),
-                   paste(analysisIds, collapse = ","))
-    subset <- DatabaseConnector::dbGetQuery(connectionPool, sql)
-    colnames(subset) <- SqlRender::snakeCaseToCamelCase(colnames(subset))
-    idx <- is.na(subset$logRr) | is.infinite(subset$logRr) | is.na(subset$seLogRr) | is.infinite(subset$seLogRr)
-    subset$logRr[idx] <- rep(0, sum(idx))
-    subset$seLogRr[idx] <- rep(999, sum(idx))
-    subset$ci95Lb[idx] <- rep(0, sum(idx))
-    subset$ci95Ub[idx] <- rep(999, sum(idx))
-    subset$p[idx] <- 1
-    idx <- is.na(subset$calibratedLogRr) | is.infinite(subset$calibratedLogRr) | is.na(subset$calibratedSeLogRr) | is.infinite(subset$calibratedSeLogRr)
-    subset$calibratedLogRr[idx] <- rep(0, sum(idx))
-    subset$calibratedSeLogRr[idx] <- rep(999, sum(idx))
-    subset$calibratedCi95Lb[idx] <- rep(0, sum(idx))
-    subset$calibratedCi95Ub [idx] <- rep(999, sum(idx))
-    subset$calibratedP[is.na(subset$calibratedP)] <- rep(1, sum(is.na(subset$calibratedP)))
-    
-    subset <- subset[subset$method %in% input$method, ]
-    
-    if (input$calibrated == "Calibrated") {
-      subset$logRr <- subset$calibratedLogRr
-      subset$seLogRr <- subset$calibratedSeLogRr
-      subset$ci95Lb <- subset$calibratedCi95Lb
-      subset$ci95Ub <- subset$calibratedCi95Ub
-      subset$p <- subset$calibratedP
-    }
-    allControls <- bind_rows(negativeControlOutcome %>%
-                               mutate(effectSize = 1) %>%
-                               select(.data$outcomeId, .data$outcomeName, .data$effectSize),
-                             positiveControlOutcome %>%
-                               select(.data$outcomeId, .data$outcomeName, .data$effectSize))
-    subset <- subset %>%
-      inner_join(allControls, by = "outcomeId")
+    subset <- getEstimates(connection = connectionPool,
+                           schema = schema,
+                           databaseId = input$database,
+                           exposureId = exposureId(),
+                           periodId = periodId(),
+                           analysisIds = analysisIds,
+                           methods = input$method,
+                           calibrated = input$calibrated == "Calibrated")
+    subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
     return(subset)
   })
   
@@ -92,7 +58,7 @@ shinyServer(function(input, output, session) {
     } 
     return(subset)
   })
-
+  
   output$tableCaption <- renderUI({
     subset <- filterEstimates()
     subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
@@ -106,54 +72,10 @@ shinyServer(function(input, output, session) {
     if (nrow(subset) == 0) {
       return(data.frame())
     }
-    combis <- unique(subset[, c("method", "analysisId")])
-    if (input$trueRr == "Overall") {
-      computeMetrics <- function(i) {
-        forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i], ]
-        nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
-        # forEval <- forEval[forEval$seLogRr < 99, ]
-        roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)
-        auc <- round(pROC::auc(roc), 2)
-        mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
-        coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
-        meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
-        type1 <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
-        type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
-        return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
-      }
-      combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
-    } else {
-      # trueRr <- input$trueRr
-      computeMetrics <- function(i) {
-        if (input$trueRr == "> 1") {
-          forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize > 1, ]
-        } else {
-          forEval <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & subset$effectSize == input$trueRr, ]
-        }
-        nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
-        # forEval <- forEval[forEval$seLogRr < 99, ]
-        mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
-        coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
-        meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
-        if (input$trueRr == "1") {
-          auc <- NA
-          type1 <- round(mean(forEval$p < 0.05), 2)  
-          type2 <- NA
-        } else {
-          if (input$trueRr == "> 1") {
-            negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize > 1 | subset$effectSize == 1), ]
-          } else {
-            negAndPos <- subset[subset$method == combis$method[i] & subset$analysisId == combis$analysisId[i] & (subset$effectSize == input$trueRr | subset$effectSize == 1), ]
-          }
-          roc <- pROC::roc(negAndPos$effectSize > 1, negAndPos$logRr, algorithm = 3)
-          auc <- round(pROC::auc(roc), 2)
-          type1 <- NA
-          type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)  
-        }
-        return(c(auc = auc, coverage = coverage, meanP = meanP, mse = mse, type1 = type1, type2 = type2, nonEstimable = nonEstimable))
-      }
-      combis <- cbind(combis, as.data.frame(t(sapply(1:nrow(combis), computeMetrics))))
-    }
+    combis <- lapply(split(subset, paste(subset$method, subset$analysisId)), 
+                     computeEffectEstimateMetrics, 
+                     trueRr = input$trueRr)
+    combis <- bind_rows(combis)
     colnames(combis) <- c("Method", 
                           "<span title=\"Analysis variant ID\">ID</span>", 
                           "<span title=\"Area under the receiver operator curve\">AUC</span>", 
@@ -283,7 +205,7 @@ shinyServer(function(input, output, session) {
                        "-",
                        formatC(point$ci95Ub, digits = 2, format = "f"),
                        ")")
- 
+    
     text <- paste0("<b> outcome: </b>", point$outcomeName, "<br/>",
                    "<b> estimate: </b>", estimate, "<br/>")
     div(
@@ -292,111 +214,7 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  overviewData <- reactive({
-    computeMetrics <- function(forEval, metric = "Mean precision") {
-      if (metric == "AUC")
-        y <- round(pROC::auc(pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)), 2)
-      else if (metric == "Coverage")
-        y <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
-      else if (metric == "Mean precision (1/SE^2)")
-        y <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
-      else if (metric == "Mean squared error (MSE)")
-        y <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
-      else if (metric == "Type I error")
-        y <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
-      else if (metric == "Type II error")
-        y <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
-      else if (metric == "Non-estimable")
-        y <- round(mean(forEval$seLogRr >= 99), 2)
-      return(data.frame(database = forEval$database[1],
-                        method = forEval$method[1],
-                        analysisId = forEval$analysisId[1],
-                        stratum = forEval$stratum[1],
-                        metric = y))
-    }
-    if (input$mdrrOverview != "All") {
-      if (input$evalTypeOverview == "Comparative effect estimation") {
-        subset <- estimates[!is.na(estimates$mdrrTarget) & estimates$mdrrTarget <= input$mdrrOverview & estimates$mdrrComparator <= input$mdrrOverview & estimates$comparative == TRUE, ]
-      } else {
-        subset <- estimates[!is.na(estimates$mdrrTarget) & estimates$mdrrTarget <= input$mdrrOverview, ]
-      }
-    } else {
-      subset <- estimates
-    }
-    if (input$calibratedOverview == "Calibrated") {
-      subset$logRr <- subset$calLogRr
-      subset$seLogRr <- subset$calSeLogRr
-      subset$ci95Lb <- subset$calCi95Lb
-      subset$ci95Ub <- subset$calCi95Ub
-      subset$p <- subset$calP
-    }
-    groups <- split(subset, paste(subset$method, subset$analysisId, subset$database, subset$stratum))
-    metrics <- lapply(groups, computeMetrics, metric = input$metric)
-    metrics <- do.call("rbind", metrics)
-    metrics$stratum <- as.character(metrics$stratum)
-    metrics$stratum[metrics$stratum == "Inflammatory Bowel Disease"] <- "IBD"
-    metrics$stratum[metrics$stratum == "Acute pancreatitis"] <- "Acute\npancreatitis"
-    metrics <- merge(metrics, strataSubset)
-    methods <- unique(metrics$method)
-    methods <- methods[order(methods)]
-    n <- length(methods)
-    methods <- data.frame(method = methods,
-                          offsetX = ((1:n / (n + 1)) - ((n + 1) / 2) / (n + 1)))
-    metrics <- merge(metrics, methods)
-    metrics$x <- metrics$x + metrics$offsetX
-    metrics$tidyMethod <- as.character(metrics$method)
-    metrics$tidyMethod[metrics$tidyMethod == "CaseControl"] <- "Case-control"
-    metrics$tidyMethod[metrics$tidyMethod == "CaseCrossover"] <- "Case-crossover"
-    metrics$tidyMethod[metrics$tidyMethod == "CohortMethod"] <- "Cohort method"
-    metrics$tidyMethod[metrics$tidyMethod == "SelfControlledCaseSeries"] <- "Self-controlled case series (SCCS)"
-    metrics$tidyMethod[metrics$tidyMethod == "SelfControlledCohort"] <- "Self-controlled cohort (SCC)"
-    metrics <- metrics[metrics$metric != 0, ]
-  })
   
-  output$overviewPlot <- renderPlot({
-    data <- overviewData()
-    plotOverview(data, input$metric, strataSubset, input$calibratedOverview)
-  })
-  output$overviewPlotCaption <- renderUI({
-    subset <- filterEstimates()
-    subset <- unique(subset[, c("targetId", "comparatorId", "oldOutcomeId", "effectSize")])
-    ncCount <- sum(subset$effectSize == 1)
-    pcCount <- sum(subset$effectSize != 1)
-    return(HTML(paste0("<strong>Figure S.1</strong> ", input$metric, " per stratum and database. Hover mouse over points for more information.")))
-  })
-  
-  output$hoverOverview <- renderUI({
-    data <- overviewData()
-    if (is.null(data)) {
-      return(NULL)
-    } 
-    hover <- input$plotHoverOverview
-    
-    point <- nearPoints(data, hover, threshold = 50, maxpoints = 1, addDist = TRUE)
-    if (nrow(point) == 0) return(NULL)
-    
-    left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
-    # Shiny was confused by log y scale used for some:
-    if (input$metric %in% c("Mean precision (1/SE^2)", "Mean squared error (MSE)")) {
-      y <- log10(hover$y)
-    } else {
-      y <- hover$y
-    }
-    top_pct <- (hover$domain$top - y) / (hover$domain$top - hover$domain$bottom)
-    left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
-    top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-    style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-                    "left:", left_px - 251, "px; top:", top_px - 150, "px; width:500px;")
-    analysis <- as.character(analysisRef$description[analysisRef$method == point$method & analysisRef$analysisId == point$analysisId])
-    text <- paste0(sprintf("<b> Method: </b>%s<br/>", point$tidyMethod),
-                   sprintf("<b> Analysis ID: </b>%s<br/>", point$analysisId),
-                   sprintf("<b> Description: </b>%s<br/>", analysis),
-                   sprintf("<b> %s: </b>%s<br/>", input$metric, point$metric))
-    div(
-      style = "position: relative; width: 0; height: 0",
-      wellPanel(style = style, p(HTML(text)))
-    )
-  })
   
   observeEvent(input$evalTypeInfo, {
     showModal(modalDialog(

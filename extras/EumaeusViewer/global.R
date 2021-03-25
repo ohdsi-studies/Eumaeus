@@ -1,3 +1,5 @@
+source("dataPulls.R")
+
 connectionPool <- pool::dbPool(drv = DatabaseConnector::DatabaseConnectorDriver(),
                                dbms = "postgresql",
                                server = paste(keyring::key_get("ohdsiPostgresServer"),
@@ -15,25 +17,12 @@ onStop(function() {
 
 schema <- "eumaeus"
 
-loadResultsTable <- function(tableName) {
-  tryCatch({
-    table <- DatabaseConnector::dbReadTable(connectionPool, 
-                                            paste(schema, tableName, sep = "."))
-  }, error = function(err) {
-    stop("Error reading from ", paste(schema, tableName, sep = "."), ": ", err$message)
-  })
-  colnames(table) <- SqlRender::snakeCaseToCamelCase(colnames(table))
-  if (nrow(table) > 0) {
-    assign(SqlRender::snakeCaseToCamelCase(tableName), dplyr::as_tibble(table), envir = .GlobalEnv)
-  }
-}
-
-loadResultsTable("analysis")
-loadResultsTable("database")
-loadResultsTable("exposure")
-loadResultsTable("negative_control_outcome")
-loadResultsTable("positive_control_outcome")
-loadResultsTable("time_period")
+analysis <- loadEntireTable(connectionPool, schema, "analysis")
+database <- loadEntireTable(connectionPool, schema, "database")
+exposure <- loadEntireTable(connectionPool, schema, "exposure")
+negativeControlOutcome <- loadEntireTable(connectionPool, schema, "negative_control_outcome")
+positiveControlOutcome <- loadEntireTable(connectionPool, schema, "positive_control_outcome")
+time_period <- loadEntireTable(connectionPool, schema, "time_period")
 
 trueRrs <- c("Overall", ">1", 1, unique(positiveControlOutcome$effectSize))
 timeAtRisks <- unique(analysis$timeAtRisk)
