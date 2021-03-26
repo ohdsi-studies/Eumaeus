@@ -105,62 +105,62 @@ execute <- function(connectionDetails,
   if (createCohorts) {
     ParallelLogger::logInfo("Creating exposure and outcome cohorts")
     createCohorts(connectionDetails = connectionDetails,
-                            cdmDatabaseSchema = cdmDatabaseSchema,
-                            cohortDatabaseSchema = cohortDatabaseSchema,
-                            cohortTable = cohortTable,
-                            outputFolder = outputFolder,
-                            exposureIds = exposureIds)
+                  cdmDatabaseSchema = cdmDatabaseSchema,
+                  cohortDatabaseSchema = cohortDatabaseSchema,
+                  cohortTable = cohortTable,
+                  outputFolder = outputFolder,
+                  exposureIds = exposureIds)
     
   }
   
   if (synthesizePositiveControls) {
     ParallelLogger::logInfo("Synthesizing positive controls")
     synthesizePositiveControls(connectionDetails = connectionDetails,
-                                         cdmDatabaseSchema = cdmDatabaseSchema,
-                                         cohortDatabaseSchema = cohortDatabaseSchema,
-                                         cohortTable = cohortTable,
-                                         outputFolder = outputFolder,
-                                         maxCores = maxCores)
+                               cdmDatabaseSchema = cdmDatabaseSchema,
+                               cohortDatabaseSchema = cohortDatabaseSchema,
+                               cohortTable = cohortTable,
+                               outputFolder = outputFolder,
+                               maxCores = maxCores)
   }
   
   if (runCohortMethod) {
     ParallelLogger::logInfo("Running CohortMethod")
     runCohortMethod(connectionDetails = connectionDetails,
-                              cdmDatabaseSchema = cdmDatabaseSchema,
-                              cohortDatabaseSchema = cohortDatabaseSchema,
-                              cohortTable = cohortTable,
-                              outputFolder = outputFolder,
-                              maxCores = maxCores)
+                    cdmDatabaseSchema = cdmDatabaseSchema,
+                    cohortDatabaseSchema = cohortDatabaseSchema,
+                    cohortTable = cohortTable,
+                    outputFolder = outputFolder,
+                    maxCores = maxCores)
   }
   
   if (runSccs) {
     ParallelLogger::logInfo("Running SelfControlledCaseSeries")
     runSccs(connectionDetails = connectionDetails,
-                      cdmDatabaseSchema = cdmDatabaseSchema,
-                      cohortDatabaseSchema = cohortDatabaseSchema,
-                      cohortTable = cohortTable,
-                      outputFolder = outputFolder,
-                      maxCores = maxCores)
+            cdmDatabaseSchema = cdmDatabaseSchema,
+            cohortDatabaseSchema = cohortDatabaseSchema,
+            cohortTable = cohortTable,
+            outputFolder = outputFolder,
+            maxCores = maxCores)
   }
   
   if (runCaseControl) {
     ParallelLogger::logInfo("Running CaseControl")
     runCaseControl(connectionDetails = connectionDetails,
-                             cdmDatabaseSchema = cdmDatabaseSchema,
-                             cohortDatabaseSchema = cohortDatabaseSchema,
-                             cohortTable = cohortTable,
-                             outputFolder = outputFolder,
-                             maxCores = maxCores)
+                   cdmDatabaseSchema = cdmDatabaseSchema,
+                   cohortDatabaseSchema = cohortDatabaseSchema,
+                   cohortTable = cohortTable,
+                   outputFolder = outputFolder,
+                   maxCores = maxCores)
   }
   
   if (runHistoricalComparator) {
     ParallelLogger::logInfo("Running HistoricalComparator")
     runHistoricalComparator(connectionDetails = connectionDetails,
-                                      cdmDatabaseSchema = cdmDatabaseSchema,
-                                      cohortDatabaseSchema = cohortDatabaseSchema,
-                                      cohortTable = cohortTable,
-                                      outputFolder = outputFolder,
-                                      maxCores = maxCores)
+                            cdmDatabaseSchema = cdmDatabaseSchema,
+                            cohortDatabaseSchema = cohortDatabaseSchema,
+                            cohortTable = cohortTable,
+                            outputFolder = outputFolder,
+                            maxCores = maxCores)
   }
   
   if (computeCriticalValues) {

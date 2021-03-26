@@ -22,9 +22,13 @@ database <- loadEntireTable(connectionPool, schema, "database")
 exposure <- loadEntireTable(connectionPool, schema, "exposure")
 negativeControlOutcome <- loadEntireTable(connectionPool, schema, "negative_control_outcome")
 positiveControlOutcome <- loadEntireTable(connectionPool, schema, "positive_control_outcome")
-time_period <- loadEntireTable(connectionPool, schema, "time_period")
+timePeriod <- loadEntireTable(connectionPool, schema, "time_period")
 
-# estimate <- loadEntireTable(connectionPool, schema, "estimate")
+# subset <- getEstimates(connection = connectionPool,
+#                        schema = schema,
+#                        databaseId = "IBM_MDCD",
+#                        exposureId = 21184,
+#                        timeAtRisk = "1-28")
 
 trueRrs <- c("Overall", 1, unique(positiveControlOutcome$effectSize))
 timeAtRisks <- unique(analysis$timeAtRisk)

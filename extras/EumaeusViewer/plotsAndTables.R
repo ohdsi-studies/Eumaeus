@@ -15,7 +15,6 @@ plotScatter <- function(d) {
                             substr(as.character(temp2$Group), start = 21, stop = nchar(as.character(temp2$Group))))
   temp2$Significant <- NULL
   dd <- merge(temp1, temp2)
-  # print(substr(as.character(dd$Group), start = 20, stop = nchar(as.character(dd$Group))))
   dd$tes <- as.numeric(substr(as.character(dd$Group), start = 21, stop = nchar(as.character(dd$Group))))
   
   breaks <- c(0.25, 0.5, 1, 2, 4, 6, 8, 10)
@@ -24,7 +23,6 @@ plotScatter <- function(d) {
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   alpha <- 1 - min(0.95*(nrow(d)/nrow(dd)/50000)^0.1, 0.95)
   plot <- ggplot(d, aes(x = logRr, y= seLogRr), environment = environment()) +
-    geom_vline(xintercept = log(breaks), colour = "#CCCCCC", lty = 1, size = 0.5) +
     geom_abline(aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
     geom_abline(aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
     geom_point(size = 2, color = rgb(0, 0, 0, alpha = 0.05), alpha = alpha, shape = 16) +
@@ -35,8 +33,7 @@ plotScatter <- function(d) {
     scale_y_continuous("Standard Error", limits = c(0, 1)) +
     facet_grid(. ~ Group) +
     theme(panel.grid.minor = element_blank(),
-          panel.background = element_blank(),
-          panel.grid.major = element_blank(),
+          panel.grid.major.y = element_blank(),
           axis.ticks = element_blank(),
           axis.text.y = themeRA,
           axis.text.x = theme,
@@ -52,6 +49,11 @@ plotScatter <- function(d) {
 plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL) {
   trueLogRrLevels <- unique(trueLogRr)
   trueLogRrLevels <- trueLogRrLevels[order(trueLogRrLevels)]
+  
+  
+  idx <- is.na(logRr) | is.infinite(logRr) 
+  logRr[idx] <- rep(0, sum(idx))
+
   allData <- data.frame()
   aucs <- c()
   labels <- c()
@@ -62,7 +64,7 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
                          trueLogRr = trueLogRr[trueLogRr == 0 | trueLogRr == trueLogRrLevel])
       data$truth <- data$trueLogRr != 0
       label <- paste("True effect size =", exp(trueLogRrLevel))
-      roc <- pROC::roc(data$truth, data$logRr, algorithm = 3)
+      roc <- pROC::roc(data$truth, data$logRr, algorithm = 3, quiet = TRUE)
       if (showAucs) {
         aucs <- c(aucs, pROC::auc(roc))
         labels <- c(labels, label)
@@ -81,7 +83,7 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
   data <- data.frame(logRr = logRr, 
                      trueLogRr = trueLogRr)
   data$truth <- data$trueLogRr != 0
-  roc <- pROC::roc(data$truth, data$logRr, algorithm = 3)
+  roc <- pROC::roc(data$truth, data$logRr, algorithm = 3, quiet = TRUE)
   if (showAucs) {
     aucs <- c(aucs, pROC::auc(roc))
     labels <- c(labels, "Overall")
@@ -96,22 +98,17 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
   allData <- rbind(allData, data)
   
   allData$label <- factor(allData$label, levels = c(paste("True effect size =", exp(trueLogRrLevels)), "Overall"))
-  # labels <- factor(labels, levels = c("Overall", paste("True effect size =", exp(trueLogRrLevels))))
   breaks <- seq(0, 1, by = 0.2)
   theme <- element_text(colour = "#000000", size = 15)
   themeRA <- element_text(colour = "#000000", size = 15, hjust = 1)
   plot <- ggplot(allData, aes(x = fpRate, y = sens, group = label, color = label, fill = label)) +
-    geom_vline(xintercept = breaks, colour = "#CCCCCC", lty = 1, size = 0.5) +
-    geom_hline(yintercept = breaks, colour = "#CCCCCC", lty = 1, size = 0.5) +
     geom_abline(intercept = 0, slope = 1) +
     geom_line(aes(linetype = overall), alpha = 0.5, size = 1) +
     scale_x_continuous("1 - specificity", breaks = breaks, labels = breaks) +
     scale_y_continuous("Sensitivity", breaks = breaks, labels = breaks) +
+    scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
     labs(color = "True effect size", linetype = "Overall") +
     theme(panel.grid.minor = element_blank(),
-          panel.background = element_blank(),
-          panel.grid.major = element_blank(),
-          axis.ticks = element_blank(),
           axis.text.y = themeRA,
           axis.text.x = theme,
           axis.title = theme,
@@ -181,23 +178,33 @@ addTrueEffectSize <- function(estimates, negativeControlOutcome, positiveControl
   return(estimates)
 }
 
+# estimates <- subset[subset$method == "SCCS" & subset$analysisId == 2 & subset$periodId == 9, ]
 computeEffectEstimateMetrics <- function(estimates, trueRr = "Overall") {
   if (!"effectSize" %in% colnames(estimates))
     stop("Must add column 'effectSize' to estimates (e.g. using addTrueEffectSize())")
   
   if (trueRr == "Overall") {
     forEval <- estimates
-  } else if (trueRr == ">1") {
-    forEval <- estimates[estimates$effectSize > 1, ]
   } else {
     forEval <- estimates[estimates$effectSize == as.numeric(trueRr), ]
   }
+  idx <- is.na(forEval$logRr) | is.infinite(forEval$logRr)
+  forEval$logRr[idx] <- rep(0, sum(idx))
+  idx <- idx |  (is.na(forEval$seLogRr) | is.infinite(forEval$seLogRr))
+  forEval$seLogRr[idx] <- rep(999, sum(idx))
+  forEval$ci95Lb[idx] <- rep(0, sum(idx))
+  forEval$ci95Ub[idx] <- rep(999, sum(idx))
+  forEval$p[idx] <- rep(1, sum(idx))
+  
+  idx <- forEval$seLogRr == 0
+  forEval$seLogRr[idx] <- rep(0.001, sum(idx))
+  
   nonEstimable <- round(mean(forEval$seLogRr >= 99), 2)
   mse <- round(mean((forEval$logRr - log(forEval$effectSize))^2), 2)
   coverage <- round(mean(forEval$ci95Lb < forEval$effectSize & forEval$ci95Ub > forEval$effectSize), 2)
   meanP <- round(-1 + exp(mean(log(1 + (1/(forEval$seLogRr^2))))), 2)
   if (trueRr == "Overall") {
-    roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3)
+    roc <- pROC::roc(forEval$effectSize > 1, forEval$logRr, algorithm = 3, quiet = TRUE)
     auc <- round(pROC::auc(roc), 2)
     type1 <- round(mean(forEval$p[forEval$effectSize == 1] < 0.05), 2)
     type2 <- round(mean(forEval$p[forEval$effectSize > 1] >= 0.05), 2)
@@ -345,4 +352,58 @@ plotLlrs <- function(d, trueRr = "Overall") {
           legend.title = themeLA,
           legend.position = "top")
   return(plot)
+}
+
+plotSensSpec <- function(estimates) {
+  if (!"effectSize" %in% colnames(estimates))
+    stop("Must add column 'effectSize' to estimates (e.g. using addTrueEffectSize())")
+  
+  effectSizes <- unique(estimates$effectSize)
+  effectSizes <- effectSizes[effectSizes > 1]
+  data <- computeMaxSprtMetricsPerPeriod(estimates) %>%
+    mutate(group = "Overall",
+           overall = TRUE)
+  for (effectSize in effectSizes) {
+    subset <- estimates[estimates$effectSize == 1 | estimates$effectSize == effectSize, ]
+    data <- computeMaxSprtMetricsPerPeriod(subset) %>%
+      mutate(group = sprintf("True effect size = %s", effectSize),
+             overall = FALSE) %>%
+      bind_rows(data)
+  }
+  d <- tibble(periodId = rep(data$periodId, 2),
+              group = factor(rep(data$group, 2), levels = c(sprintf("True effect size = %s", effectSizes), "Overall")),
+              value = c(data$sensitivity, data$specificity),
+              metric = c(rep("Sensitivity", nrow(data)), rep("Specificity", nrow(data))),
+              overall = rep(data$overall, 2),)
+  d <- d %>%
+    filter(.data$overall | .data$metric == "Sensitivity")
+  theme <- element_text(colour = "#000000", size = 14)
+  themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
+  themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
+  yBreaks <- c(0, 0.2, 0.4, 0.6, 0.8, 0.9, 1)
+  f <- function(x) {
+    -log(1.1 - x)
+  }
+  
+  plot <- ggplot(d, aes(x = .data$periodId, y = f(.data$value), group = .data$group, color = .data$group)) +
+    geom_line(aes(linetype = .data$overall), size = 1, alpha = 0.5) +
+    geom_point(size = 2, alpha = 0.7) +
+    scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
+    scale_y_continuous("Sensitivity / Specificity", limits = f(c(0, 1)), breaks = f(yBreaks), labels = yBreaks) +
+    scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
+    facet_grid(metric ~ .) +
+    labs(color = "True effect size", linetype = "Overall") +
+    theme(axis.text.y = theme,
+          axis.text.x = theme,
+          axis.title.x = theme,
+          axis.title.y = element_blank(),
+          strip.text.x = theme,
+          strip.text.y = theme,
+          strip.background = element_blank(),
+          legend.text = themeLA,
+          legend.title = themeLA,
+          legend.position = "right")
+  
+  return(plot)
+  
 }

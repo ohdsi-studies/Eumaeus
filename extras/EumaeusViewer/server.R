@@ -27,20 +27,27 @@ shinyServer(function(input, output, session) {
       filter(.data$label == input$period & .data$exposureId == exposureId()) %>%
       pull(.data$periodId)
   ) 
-  
-  filterEstimates <- reactive({
-    analysisIds <- analysis %>%
-      filter(.data$timeAtRisk == input$timeAtRisk) %>%
-      pull(.data$analysisId)
-    
+
+  getAllEstimates <- reactive({
+    # Fetching data across methods and periods to compute full grid of controls
     subset <- getEstimates(connection = connectionPool,
                            schema = schema,
                            databaseId = input$database,
                            exposureId = exposureId(),
-                           periodId = periodId(),
-                           analysisIds = analysisIds,
-                           methods = input$method,
-                           calibrated = input$calibrated == "Calibrated")
+                           timeAtRisk = input$timeAtRisk)
+    return(subset)
+  })
+  
+  filterEstimates <- reactive({
+    subset <- getAllEstimates() %>%
+      filter(.data$method %in% input$method & .data$periodId == periodId())
+    if (input$calibrated == "Calibrated") {
+      subset$logRr <- subset$calibratedLogRr
+      subset$seLogRr <- subset$calibratedSeLogRr
+      subset$ci95Lb <- subset$calibratedCi95Lb
+      subset$ci95Ub <- subset$calibratedCi95Ub
+      subset$p <- subset$calibratedP
+    }
     subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
     return(subset)
   })
@@ -321,20 +328,19 @@ shinyServer(function(input, output, session) {
   )
   
   
-  filterEstimates2 <- reactive({
-    analysisIds <- analysis %>%
-      filter(.data$timeAtRisk == input$timeAtRisk2) %>%
-      pull(.data$analysisId)
-    
+  getAllEstimates2 <- reactive({
+    # Fetching data across methods and periods to compute full grid of controls
     subset <- getEstimates(connection = connectionPool,
                            schema = schema,
                            databaseId = input$database2,
                            exposureId = exposureId2(),
-                           analysisIds = analysisIds,
-                           methods = input$method2)
-
-    subset <- subset %>%
-      filter(.data$exposureOutcomes >= as.numeric(input$minOutcomes))
+                           timeAtRisk = input$timeAtRisk2)
+    return(subset)
+  })
+  
+  filterEstimates2 <- reactive({
+    subset <- getAllEstimates2() %>%
+      filter(.data$method %in% input$method2)
     subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
     return(subset)
   })
@@ -360,6 +366,10 @@ shinyServer(function(input, output, session) {
     if (nrow(subset) == 0) {
       return(data.frame())
     }
+    # Drop negative controls that weren't powered to be used for positive control synthesis so all on equal power:
+    subset <- subset %>%
+      filter(.data$outcomeId %in% c(positiveControlOutcome$outcomeId, positiveControlOutcome$negativeControlId))
+    
     combis <- lapply(split(subset, paste(subset$method, subset$analysisId)), 
                      computeMaxSprtMetrics, 
                      trueRr = input$trueRr2)
@@ -424,8 +434,19 @@ shinyServer(function(input, output, session) {
       return(NULL)
     }  else {
       subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
-      print(nrow(subset))
       return(plotLlrs(subset, trueRr = input$trueRr2))
+    }
+  })
+  
+  output$sensSpec <- renderPlot({
+    subset <- selectedEstimates2()
+    if (is.null(subset)) {
+      return(NULL)
+    }  else {
+      # Drop negative controls that weren't powered to be used for positive control synthesis so all on equal power:
+      subset <- subset %>%
+        filter(.data$outcomeId %in% c(positiveControlOutcome$outcomeId, positiveControlOutcome$negativeControlId))
+      return(plotSensSpec(subset))
     }
   })
   

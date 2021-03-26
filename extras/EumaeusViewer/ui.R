@@ -36,7 +36,8 @@ shinyUI(
                                                                                          delayType = "debounce")),
                                                             div(strong("Figure S.2."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
                                                    tabPanel("ROC curves", 
-                                                            plotOutput("rocCurves"),
+                                                            plotOutput("rocCurves", 
+                                                                       height = "420px"),
                                                             div(strong("Figure S.3."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
                                                  )
                                 )   
@@ -67,10 +68,11 @@ shinyUI(
                                                                        hover = hoverOpts("plotHoverInfoLlrs",
                                                                                          delay = 100,
                                                                                          delayType = "debounce")),
-                                                            div(strong("Figure S.2."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information."))
-                                                   # tabPanel("ROC curves",
-                                                   #          plotOutput("rocCurves"),
-                                                   #          div(strong("Figure S.3."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
+                                                            div(strong("Figure S.2."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
+                                                   tabPanel("Sensitivity / Specificity",
+                                                            plotOutput("sensSpec",
+                                                                       height = "650px"),
+                                                            div(strong("Figure S.3."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
                                                  )
                                 )
                          )
