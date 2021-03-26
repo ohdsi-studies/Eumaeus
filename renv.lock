@@ -224,14 +224,13 @@
     },
     "SelfControlledCaseSeries": {
       "Package": "SelfControlledCaseSeries",
-      "Version": "3.0.0",
+      "Version": "3.0.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "SelfControlledCaseSeries",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "v3.0.0",
-      "Hash": "89c9ad72288c61204f4dd48549e2b37a"
+      "RemoteRef": "develop"
     },
     "Sequential": {
       "Package": "Sequential",

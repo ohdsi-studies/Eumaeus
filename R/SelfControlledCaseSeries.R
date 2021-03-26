@@ -322,9 +322,11 @@ createSccsAnalysesList <- function(startDate, endDate) {
   )
   
   ageSettings <- SelfControlledCaseSeries::createAgeCovariateSettings(ageKnots = 5, 
+                                                                      allowRegularization = TRUE,
                                                                       computeConfidenceIntervals = FALSE)
   
   seasonalitySettings <- SelfControlledCaseSeries::createSeasonalityCovariateSettings(seasonKnots = 5, 
+                                                                                      allowRegularization = TRUE,
                                                                                       computeConfidenceIntervals = FALSE)
 
   createSccsIntervalDataArgsAgeSeason1_28 <- SelfControlledCaseSeries::createCreateSccsIntervalDataArgs(
