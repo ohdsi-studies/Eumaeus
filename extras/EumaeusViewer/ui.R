@@ -34,11 +34,11 @@ shinyUI(
                                                                        hover = hoverOpts("plotHoverInfoEstimates", 
                                                                                          delay = 100, 
                                                                                          delayType = "debounce")),
-                                                            div(strong("Figure S.2."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
+                                                            div(strong("Figure 1.1."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
                                                    tabPanel("ROC curves", 
                                                             plotOutput("rocCurves", 
                                                                        height = "420px"),
-                                                            div(strong("Figure S.3."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
+                                                            div(strong("Figure 1.2."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
                                                  )
                                 )   
                          )
@@ -56,10 +56,9 @@ shinyUI(
                          ),
                          column(10,
                                 dataTableOutput("performanceMetrics2"),
-                                # uiOutput("tableCaption"),
+                                uiOutput("table2Caption"),
                                 conditionalPanel(condition = "output.details2",
                                                  div(style = "display:inline-block", h4(textOutput("details2"))),
-                                                 # div(style = "display:inline-block", actionLink("showSettings", "Details")),
                                                  tabsetPanel(
                                                    tabPanel("Log Likelihood Ratios",
                                                             uiOutput("hoverInfoLlrs"),
@@ -68,11 +67,11 @@ shinyUI(
                                                                        hover = hoverOpts("plotHoverInfoLlrs",
                                                                                          delay = 100,
                                                                                          delayType = "debounce")),
-                                                            div(strong("Figure S.2."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
+                                                            div(strong("Figure 2.1."),"Log likelihood ratios (LLR) for the negative and positive controls at various points in time, stratified by true effect size. Closed dots indicate the LLR in that period exceeded the critical value. The critical value depends on sample size within and across periods, and is therefore different for each control. Hover mouse over point for more information.")),
                                                    tabPanel("Sensitivity / Specificity",
                                                             plotOutput("sensSpec",
                                                                        height = "650px"),
-                                                            div(strong("Figure S.3."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
+                                                            div(strong("Figure 2.2."),"Sensitivity and specificity per period based on whether the log likehood ratio for a negative or positive control exceeded the critical value in that period or any before."))
                                                  )
                                 )
                          )

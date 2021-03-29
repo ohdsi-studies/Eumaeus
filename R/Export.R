@@ -313,7 +313,7 @@ exportMainResults <- function(outputFolder,
   
   results <- enforceMinCellValue(results, "exposureSubjects", minCellCount)
   results <- enforceMinCellValue(results, "counterfactualSubjects", minCellCount)
-  results <- enforceMinCellValue(results, "exposureOutcomes", minCellCount)
+  # results <- enforceMinCellValue(results, "exposureOutcomes", minCellCount)
   results <- enforceMinCellValue(results, "counterfactualOutcomes", minCellCount)
   colnames(results) <- SqlRender::camelCaseToSnakeCase(colnames(results))
   fileName <- file.path(exportFolder, "estimate.csv")

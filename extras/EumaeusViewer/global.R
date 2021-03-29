@@ -10,7 +10,7 @@ connectionPool <- pool::dbPool(drv = DatabaseConnector::DatabaseConnectorDriver(
 
 onStop(function() {
   if (DBI::dbIsValid(connectionPool)) {
-    writeLines("Closing database pool")
+    writeLines("Closing connection pool")
     pool::poolClose(connectionPool)
   }
 })

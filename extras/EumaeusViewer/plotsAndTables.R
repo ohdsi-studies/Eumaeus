@@ -53,7 +53,7 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
   
   idx <- is.na(logRr) | is.infinite(logRr) 
   logRr[idx] <- rep(0, sum(idx))
-
+  
   allData <- data.frame()
   aucs <- c()
   labels <- c()
@@ -250,25 +250,34 @@ computeMaxSprtMetricsPerPeriod <- function(estimates) {
   
   # periodId <- 9
   computeSensSpec <- function(periodId) {
-    sensitivity <-  timeToSignal %>%
-      filter(.data$effectSize > 1) %>%
-      summarise(sensitivity = mean(.data$firstSignalPeriodId <= periodId)) %>%
-      pull()
-    specificity <-  timeToSignal %>%
-      filter(.data$effectSize == 1) %>%
-      summarise(specificity = 1 - mean(.data$firstSignalPeriodId <= periodId)) %>%
-      pull()
-    return(tibble(periodId = periodId,
-                  sensitivity = sensitivity,
-                  specificity = specificity))
+    timeToSignal$signalInPeriod <- timeToSignal$firstSignalPeriodId <= periodId
+    sensitivity <- mean(timeToSignal$signalInPeriod[timeToSignal$effectSize > 1])
+    specificity <- 1 - mean(timeToSignal$signalInPeriod[timeToSignal$effectSize == 1])
+    
+    # sensitivity <-  timeToSignal %>%
+    #   filter(.data$effectSize > 1) %>%
+    #   summarise(sensitivity = mean(.data$firstSignalPeriodId <= periodId)) %>%
+    #   pull()
+    # specificity <-  timeToSignal %>%
+    #   filter(.data$effectSize == 1) %>%
+    #   summarise(specificity = 1 - mean(.data$firstSignalPeriodId <= periodId)) %>%
+    #   pull()
+    # return(tibble(periodId = periodId,
+    #               sensitivity = sensitivity,
+    #               specificity = specificity))
+    return(c(sensitivity = sensitivity,
+             specificity = specificity))
   }
-  sensSpec <- lapply(1:max(estimates$periodId), computeSensSpec)
-  sensSpec <- bind_rows(sensSpec)
+  periodIds <- 1:max(estimates$periodId)
+  sensSpec <- as_tibble(t(sapply(periodIds, computeSensSpec)))
+  sensSpec$periodId <- periodIds
+  # sensSpec <- lapply(1:max(estimates$periodId), computeSensSpec)
+  # sensSpec <- bind_rows(sensSpec)
   return(sensSpec)
 }
 
 # estimates = split(subset, paste(subset$method, subset$analysisId))[[1]]
-# estimates <- subset[estimate$method == "HistoricalComparator" & estimate$analysisId == 1, ]
+# estimates <- subset[subset$method == "HistoricalComparator" & subset$analysisId == 1, ]
 # estimates = addTrueEffectSize(estimates, negativeControlOutcome, positiveControlOutcome)
 computeMaxSprtMetrics <- function(estimates, trueRr = "Overall") {
   if (!"effectSize" %in% colnames(estimates))
@@ -297,10 +306,10 @@ computeMaxSprtMetrics <- function(estimates, trueRr = "Overall") {
     result <- metricsPerPeriod %>%
       filter(.data$periodId == firstPeriod80Sens) %>%
       transmute(mehod = estimates$method[1],
-             analysisId = estimates$analysisId[1],
-             firstPeriod80Sens = !!firstPeriod80Sens,
-             sensitivity = round(.data$sensitivity, 2),
-             specificity = round(.data$specificity, 2))
+                analysisId = estimates$analysisId[1],
+                firstPeriod80Sens = !!firstPeriod80Sens,
+                sensitivity = round(.data$sensitivity, 2),
+                specificity = round(.data$specificity, 2))
   }
   return(result)
 }
@@ -315,7 +324,7 @@ computeTrueRr <- function(estimates, negativeControlOutcome, positiveControlOutc
     select(-.data$negativeControlId)
   
   
- # pcs[pcs$periodId == 2, c("effectSize", "trueEffectSize", "exposureOutcomes", "negativeControlOutcomes")]
+  # pcs[pcs$periodId == 2, c("effectSize", "trueEffectSize", "exposureOutcomes", "negativeControlOutcomes")]
   
 }
 
@@ -329,12 +338,12 @@ plotLlrs <- function(d, trueRr = "Overall") {
   if (trueRr != "Overall") {
     d <- d[d$effectSize == 1 | d$effectSize == as.numeric(trueRr), ]
   }
-
+  
   theme <- element_text(colour = "#000000", size = 14)
   themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   yBreaks <- c(0, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100)
-  plot <- ggplot(d, aes(x = .data$periodId, y = .data$y, group = .data$outcomeId), environment = environment()) +
+  plot <- ggplot(d, aes(x = periodId, y = y, group = outcomeId), environment = environment()) +
     geom_line(size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
     geom_point(aes(shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
     scale_shape_manual(name = "Above critical value", values = c(21,16)) +

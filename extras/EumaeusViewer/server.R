@@ -73,7 +73,9 @@ shinyServer(function(input, output, session) {
     subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
     ncCount <- sum(subset$effectSize == 1)
     pcCount <- sum(subset$effectSize != 1)
-    return(HTML(paste0("<strong>Table S.1</strong> Metrics based on ", ncCount, " negative and ", pcCount, " positive controls.")))
+    return(HTML(sprintf("<strong>Table 1</strong> Metrics based on the effect-size estimate (e.g hazard ratio or odds ratio), using %s negative and %s positive controls.", 
+                        ncCount, 
+                        pcCount)))
   })
   
   performanceMetrics <- reactive({
@@ -133,7 +135,7 @@ shinyServer(function(input, output, session) {
     if (is.null(subset)) {
       return(NULL)
     }  else {
-      subset$Group <- as.factor(paste("True hazard ratio =", subset$effectSize))
+      subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
       return(plotScatter(subset))
     }
   })
@@ -164,36 +166,28 @@ shinyServer(function(input, output, session) {
   })
   
   output$hoverInfoEstimates <- renderUI({
-    # Hover-over adapted from https://gitlab.com/snippets/16220
     subset <- selectedEstimates()
     if (is.null(subset)) {
       return(NULL)
     } 
-    subset$Group <- as.factor(paste("True hazard ratio =", subset$effectSize))
+    subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
     hover <- input$plotHoverInfoEstimates
     
     point <- nearPoints(subset, hover, threshold = 50, maxpoints = 1, addDist = TRUE)
-    if (nrow(point) == 0) return(NULL)
+    if (nrow(point) == 0) {
+      return(NULL)
+    }
+    leftPx <- hover$coords_css$x
+    topPx <- hover$coords_css$y
     
-    
-    # calculate point position INSIDE the image as percent of total dimensions
-    # from left (horizontal) and from top (vertical)
-    left_pct <- (hover$x - hover$domain$left) / (hover$domain$right - hover$domain$left)
-    top_pct <- (hover$domain$top - hover$y) / (hover$domain$top - hover$domain$bottom)
-    
-    # calculate distance from left and bottom side of the picture in pixels
-    left_px <- hover$range$left + left_pct * (hover$range$right - hover$range$left)
-    top_px <- hover$range$top + top_pct * (hover$range$bottom - hover$range$top)
-    
-    # create style property fot tooltip
-    # background color is set so tooltip is a bit transparent
-    # z-index is set so we are sure are tooltip will be on top
     style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
-                    "left:", left_px - 125, "px; top:", top_px - 150, "px; width:250px;")
+                    "left:",
+                    leftPx -405,
+                    "px; top:",
+                    topPx - 50,
+                    "px; width:400px;")
     
-    
-    # actual tooltip created as wellPanel
-    estimate <- paste0(formatC(exp(point$logRr), digits = 2, format = "f"),
+        estimate <- paste0(formatC(exp(point$logRr), digits = 2, format = "f"),
                        " (",
                        formatC(point$ci95Lb, digits = 2, format = "f"),
                        "-",
@@ -207,8 +201,6 @@ shinyServer(function(input, output, session) {
       wellPanel(style = style, p(HTML(text)))
     )
   })
-  
-  
   
   observeEvent(input$evalTypeInfo, {
     showModal(modalDialog(
@@ -340,7 +332,7 @@ shinyServer(function(input, output, session) {
   
   filterEstimates2 <- reactive({
     subset <- getAllEstimates2() %>%
-      filter(.data$method %in% input$method2)
+      filter(.data$method %in% input$method2 & .data$exposureOutcomes >= as.numeric(input$minOutcomes))
     subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
     return(subset)
   })
@@ -361,6 +353,16 @@ shinyServer(function(input, output, session) {
     return(subset)
   })
   
+  output$table2Caption <- renderUI({
+    subset <- filterEstimates2()
+    subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
+    ncCount <- sum(subset$effectSize == 1)
+    pcCount <- sum(subset$effectSize != 1)
+    return(HTML(sprintf("<strong>Table 2</strong> Metrics based on the MaxSPRT statistics, using %s negative and %s positive controls.", 
+                        ncCount, 
+                        pcCount)))
+  })
+  
   performanceMetrics2 <- reactive({
     subset <- filterEstimates2()
     if (nrow(subset) == 0) {
@@ -369,7 +371,6 @@ shinyServer(function(input, output, session) {
     # Drop negative controls that weren't powered to be used for positive control synthesis so all on equal power:
     subset <- subset %>%
       filter(.data$outcomeId %in% c(positiveControlOutcome$outcomeId, positiveControlOutcome$negativeControlId))
-    
     combis <- lapply(split(subset, paste(subset$method, subset$analysisId)), 
                      computeMaxSprtMetrics, 
                      trueRr = input$trueRr2)
@@ -436,6 +437,52 @@ shinyServer(function(input, output, session) {
       subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
       return(plotLlrs(subset, trueRr = input$trueRr2))
     }
+  })
+  
+  output$hoverInfoLlrs <- renderUI({
+    subset <- selectedEstimates2()
+    if (is.null(subset)) {
+      return(NULL)
+    } 
+    subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
+    subset$Signal <- !is.na(subset$llr) & !is.na(subset$criticalValue) & subset$llr >= subset$criticalValue
+    subset$y <- subset$llr + 1
+    if (input$trueRr2 != "Overall") {
+      subset <- subset[subset$effectSize == 1 | subset$effectSize == as.numeric(input$trueRr2), ]
+    }
+    hover <- input$plotHoverInfoLlrs
+    point <- nearPoints(subset, hover, threshold = 50, maxpoints = 1, addDist = TRUE)
+    if (nrow(point) == 0) {
+      return(NULL)
+    }
+    leftPx <- hover$coords_css$x
+    topPx <- hover$coords_css$y
+    
+    style <- paste0("position:absolute; z-index:100; background-color: rgba(245, 245, 245, 0.85); ",
+                    "left:",
+                    leftPx -405,
+                    "px; top:",
+                    topPx - 100,
+                    "px; width:400px;")
+    
+    estimate <- paste0(formatC(point$rr, digits = 2, format = "f"),
+                       " (",
+                       formatC(point$ci95Lb, digits = 2, format = "f"),
+                       "-",
+                       formatC(point$ci95Ub, digits = 2, format = "f"),
+                       ")")
+    
+    text <- paste0(sprintf("<b> outcome: </b>%s<br/>", point$outcomeName),
+                   sprintf("<b> log likelihood ratio: </b>%0.2f<br/>", point$llr),
+                   sprintf("<b> critical value: </b>%0.2f<br/>", point$criticalValue),
+                   sprintf("<b> observed: </b>%s<br/>", point$exposureOutcomes),
+                   sprintf("<b> expected: </b>%0.2f<br/>", point$exposureOutcomes / point$rr),
+                   sprintf("<b> effect-size estimate: </b>%s<br/>", estimate))
+    
+    div(
+      style = "position: relative; width: 0; height: 0",
+      wellPanel(style = style, p(HTML(text)))
+    )
   })
   
   output$sensSpec <- renderPlot({
