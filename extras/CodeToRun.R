@@ -153,8 +153,8 @@ execute(connectionDetails = connectionDetails,
         maxCores = maxCores,
         exposureIds = getExposuresOfInterest()$exposureId,
         verifyDependencies = TRUE,
-        createCohorts = TRUE,
-        synthesizePositiveControls = TRUE,
+        createCohorts = F,
+        synthesizePositiveControls = F,
         runCohortMethod = TRUE,
         runSccs = TRUE,
         runCaseControl = TRUE,
@@ -163,3 +163,7 @@ execute(connectionDetails = connectionDetails,
         createDbCharacterization = TRUE,
         exportResults = TRUE)
 
+# JnJ specific code to store database version:
+source("extras/GetDatabaseVersion.R")
+version <- getDatabaseVersion(connectionDetails, cdmDatabaseSchema)
+readr::write_csv(version, file.path(outputFolder, "version.csv"))

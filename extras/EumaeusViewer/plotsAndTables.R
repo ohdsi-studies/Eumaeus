@@ -12,17 +12,17 @@ plotScatter <- function(d) {
   
   temp2$meanLabel <- paste0(formatC(100 * (1 - temp2$Significant), digits = 1, format = "f"),
                             "% of CIs includes ",
-                            substr(as.character(temp2$Group), start = 21, stop = nchar(as.character(temp2$Group))))
+                            substr(as.character(temp2$Group), start = 20, stop = nchar(as.character(temp2$Group))))
   temp2$Significant <- NULL
   dd <- merge(temp1, temp2)
-  dd$tes <- as.numeric(substr(as.character(dd$Group), start = 21, stop = nchar(as.character(dd$Group))))
+  dd$tes <- as.numeric(substr(as.character(dd$Group), start = 20, stop = nchar(as.character(dd$Group))))
   
   breaks <- c(0.25, 0.5, 1, 2, 4, 6, 8, 10)
   theme <- element_text(colour = "#000000", size = 14)
   themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   alpha <- 1 - min(0.95*(nrow(d)/nrow(dd)/50000)^0.1, 0.95)
-  plot <- ggplot(d, aes(x = logRr, y= seLogRr), environment = environment()) +
+  plot <- ggplot(d, aes(x = logRr, y= seLogRr)) +
     geom_abline(aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
     geom_abline(aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
     geom_point(size = 2, color = rgb(0, 0, 0, alpha = 0.05), alpha = alpha, shape = 16) +
@@ -106,7 +106,8 @@ plotRocsInjectedSignals <- function(logRr, trueLogRr, showAucs, fileName = NULL)
     geom_line(aes(linetype = overall), alpha = 0.5, size = 1) +
     scale_x_continuous("1 - specificity", breaks = breaks, labels = breaks) +
     scale_y_continuous("Sensitivity", breaks = breaks, labels = breaks) +
-    scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
+    # scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
+    scale_color_manual(values = c("#781C86", "#83BA70", "#547BD3", "#000000")) +
     labs(color = "True effect size", linetype = "Overall") +
     theme(panel.grid.minor = element_blank(),
           axis.text.y = themeRA,
@@ -328,13 +329,14 @@ computeTrueRr <- function(estimates, negativeControlOutcome, positiveControlOutc
   
 }
 
-# d <- estimate[estimate$method == "HistoricalComparator" & estimate$analysisId == 1, ]
+# d <- subset[subset$method == "HistoricalComparator" & subset$analysisId == 1, ]
 # d <- addTrueEffectSize(d, negativeControlOutcome, positiveControlOutcome)
 # d$Group <- as.factor(paste("True effect size =", d$effectSize))
 # d <- d[d$exposureOutcomes >= 3, ]
-plotLlrs <- function(d, trueRr = "Overall") {
+# vaccinationsSubset <- vaccinations
+plotLlrs <- function(d, vaccinationsSubset, trueRr = "Overall") {
   d$Signal <- !is.na(d$llr) & !is.na(d$criticalValue) & d$llr >= d$criticalValue
-  d$y <- d$llr + 1
+  
   if (trueRr != "Overall") {
     d <- d[d$effectSize == 1 | d$effectSize == as.numeric(trueRr), ]
   }
@@ -343,7 +345,8 @@ plotLlrs <- function(d, trueRr = "Overall") {
   themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   yBreaks <- c(0, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100)
-  plot <- ggplot(d, aes(x = periodId, y = y, group = outcomeId), environment = environment()) +
+  # d$y <- d$llr + 1
+  plot <- ggplot(d, aes(x = periodId, y = y, group = outcomeId)) +
     geom_line(size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
     geom_point(aes(shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
     scale_shape_manual(name = "Above critical value", values = c(21,16)) +
@@ -351,15 +354,72 @@ plotLlrs <- function(d, trueRr = "Overall") {
     scale_y_log10("Log Likelihood ratio", breaks = yBreaks + 1, labels = yBreaks) +
     coord_cartesian(ylim = c(1, 101)) +
     facet_grid(. ~ Group) +
-    theme(axis.text.y = themeRA,
-          axis.text.x = theme,
-          axis.title = theme,
-          strip.text.x = theme,
-          strip.text.y = theme,
+    ggplot2::theme(axis.text.y = themeRA,
+          axis.text.x = element_blank(),
+          axis.title.x = element_blank(),
+          axis.title.y = theme,
+          axis.ticks.x = element_blank(),
+          strip.text = theme,
           strip.background = element_blank(),
           legend.text = themeLA,
           legend.title = themeLA,
           legend.position = "top")
+  
+  f <- function(y) {
+    log10(y + 1) 
+  }
+  multiplier <- f(max(yBreaks)) / max(vaccinationsSubset$vaccinations)
+  f2 <- function(y) {
+    y * multiplier
+  }
+  vaccinationsSubset <- tibble(periodId = 1:max(d$periodId)) %>%
+    left_join(vaccinationsSubset, by = "periodId") %>% 
+    inner_join(distinct(d, .data$Group), by = character())
+  
+  yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 50000)
+  yLabels2 <- format(yBreaks2, scientific = FALSE, big.mark = ",")
+  plot <- ggplot(d, aes(x = periodId, y = f(llr))) +
+    geom_area(aes(y = f2(vaccinations)), size = 1, color = rgb(0.83, 0.68, 0.31), fill = rgb(0.83, 0.68, 0.31), alpha = 0.1, data = vaccinationsSubset) +
+    geom_line(aes(group = outcomeId), size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
+    geom_point(aes(shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
+    scale_shape_manual(name = "Above critical value", values = c(21,16)) +
+    scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
+    scale_y_continuous(name = "Log Likelihood ratio", 
+                       breaks = f(yBreaks), 
+                       labels = yBreaks, 
+                       sec.axis = sec_axis(trans = ~ .,
+                                           name = "Vaccinations", 
+                                           breaks = f2(yBreaks2),
+                                           labels = yLabels2)) +
+    coord_cartesian(ylim = f(c(min(yBreaks), max(yBreaks)))) +
+    facet_grid(. ~ Group) +
+    ggplot2::theme(axis.text.y = themeRA,
+                   axis.text.x = theme,
+                   axis.title = theme,
+                   strip.text = theme,
+                   strip.background = element_blank(),
+                   legend.text = themeLA,
+                   legend.title = themeLA,
+                   legend.position = "top")
+
+  # plot2 <- ggplot(exposure, aes(x = periodId, y = exposed)) +
+  #   geom_area(size = 1, color = "#b7d3e6", fill = "#b7d3e6", alpha = 0.75) +
+  #   scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
+  #   scale_y_log10("Vaccinations") +
+  #   facet_grid(. ~ Group) +
+  #   theme(axis.text.y = themeRA,
+  #         axis.text.x = theme,
+  #         axis.title = theme,
+  #         strip.text = element_blank(),
+  #         strip.background = element_blank(),
+  #         legend.text = themeLA,
+  #         legend.title = themeLA,
+  #         legend.position = "none")
+  # 
+  # plot <- gridExtra::grid.arrange(plot1, plot2,
+  #                                 ncol = 1, nrow = 2, 
+  #                                 heights = c(300, 200))
+  
   return(plot)
 }
 
@@ -399,7 +459,8 @@ plotSensSpec <- function(estimates) {
     geom_point(size = 2, alpha = 0.7) +
     scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
     scale_y_continuous("Sensitivity / Specificity", limits = f(c(0, 1)), breaks = f(yBreaks), labels = yBreaks) +
-    scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
+    # scale_color_manual(values = c("#6a7fd2", "#0ca82e", "#74168e", "#000000")) +
+    scale_color_manual(values = c("#781C86", "#83BA70", "#547BD3", "#000000")) +
     facet_grid(metric ~ .) +
     labs(color = "True effect size", linetype = "Overall") +
     theme(axis.text.y = theme,
@@ -414,5 +475,134 @@ plotSensSpec <- function(estimates) {
           legend.position = "right")
   
   return(plot)
+}
+
+plotDbCharacteristics <- function(databaseCharacterization) {
   
+  populationCount <- databaseCharacterization %>%
+    filter(.data$stratification == "All") 
+  observationDuration <- databaseCharacterization %>%
+    filter(.data$stratification == "Observation years") %>%
+    mutate(stratum = as.numeric(.data$stratum))
+  gender <- databaseCharacterization %>%
+    filter(.data$stratification == "Gender")
+  visitType <- databaseCharacterization %>%
+    filter(.data$stratification == "Visit type")
+  ageObserved <- databaseCharacterization %>%
+    filter(.data$stratification == "Age")
+  calendarYearObserved <- databaseCharacterization %>%
+    filter(.data$stratification == "Calendar year") %>%
+    mutate(stratum = as.numeric(.data$stratum))
+  
+  barChartTheme <- ggplot2::theme(text = ggplot2::element_text(size = 14),
+                                  legend.text = ggplot2::element_text(size = 14),
+                                  strip.text = ggplot2::element_text(size = 14),
+                                  axis.text.x = ggplot2::element_text(size = 14),
+                                  panel.grid.minor = ggplot2::element_blank(),
+                                  panel.background = ggplot2::element_blank(),
+                                  panel.grid.major.y = ggplot2::element_blank(),
+                                  panel.grid.major.x = ggplot2::element_line(colour = "#AAAAAA"),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  axis.text.y = ggplot2::element_blank(),
+                                  axis.title.y = ggplot2::element_blank(),
+                                  strip.background = ggplot2::element_blank())
+  
+  pieChartTheme <- ggplot2::theme(text = ggplot2::element_text(size = 14),
+                                  legend.text = ggplot2::element_text(size = 14),
+                                  strip.text = ggplot2::element_text(size = 14),
+                                  panel.grid.minor = ggplot2::element_blank(),
+                                  panel.background = ggplot2::element_blank(),
+                                  panel.grid.major = ggplot2::element_blank(),
+                                  axis.ticks = ggplot2::element_blank(),
+                                  axis.text = ggplot2::element_blank(),
+                                  axis.title.y = ggplot2::element_blank(),
+                                  strip.background = ggplot2::element_blank(),
+                                  legend.title = ggplot2::element_blank())
+  
+  firstUppercase <- function(x) {
+    x <- tolower(x)
+    substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+    return(paste0(" ", x))
+  }
+
+  plot2 <- ggplot2::ggplot(observationDuration, ggplot2::aes(x = stratum, y = subjectCount)) +
+    ggplot2::geom_bar(stat = "identity", color = rgb(0,0,0, alpha = 0), fill = "#547BD3", alpha = 0.8, width = 1) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::facet_grid(databaseId~., scales = "free_y") +
+    ggplot2::xlab("Observation duration (years)") +
+    ggplot2::ylab("Persons") +
+    barChartTheme
+  
+  gender <- gender %>%
+    inner_join(select(populationCount, .data$databaseId, total = .data$subjectCount), by = "databaseId") %>%
+    mutate(fraction = .data$subjectCount / .data$total,
+           gender = firstUppercase(.data$stratum))
+  plot3 <- ggplot2::ggplot(gender, ggplot2::aes(x = "", y = fraction, color = gender, fill = gender)) +
+    ggplot2::geom_bar(stat = "identity", color = rgb(0,0,0, alpha = 0), alpha = 0.7) +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::scale_fill_manual(values = c("#547BD3", "#DF4327", "#D3AE4E")) +
+    ggplot2::facet_grid(databaseId~.) +
+    ggplot2::ylab("Gender") +
+    pieChartTheme
+  
+  visitType <- visitType %>%
+    group_by(.data$databaseId) %>%
+    summarise(total = sum(.data$subjectCount)) %>%
+    inner_join(visitType, by = "databaseId") %>%
+    mutate(fraction = .data$subjectCount / .data$total,
+           visitType = firstUppercase(.data$stratum)) %>%
+    filter(.data$fraction > 0.01)
+  
+  plot4 <- ggplot2::ggplot(visitType, ggplot2::aes(x = "", y = fraction, color = visitType, fill = visitType)) +
+    ggplot2::geom_bar(stat = "identity", color = rgb(0,0,0, alpha = 0), alpha = 0.7) +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::scale_fill_manual(values = c("#547BD3", "#DF4327", "#D3AE4E")) +
+    ggplot2::facet_grid(databaseId~.) +
+    ggplot2::ylab("Visit type") +
+    pieChartTheme
+  
+  ageObserved <- ageObserved %>%
+    mutate(startAge = as.numeric(gsub("-.*$", "", .data$stratum)),
+           endAge = as.numeric(gsub("^.*-", "", .data$stratum)))
+  plot5 <- ggplot2::ggplot(ageObserved, ggplot2::aes(xmin = startAge,  xmax = .data$endAge + 1, ymax = subjectCount, ymin = 0)) +
+    ggplot2::geom_rect(stat = "identity", color = rgb(0,0,0, alpha = 0), fill = "#547BD3", alpha = 0.8) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::facet_grid(databaseId~., scales = "free_y") +
+    ggplot2::xlab("Observed age (years)") +
+    ggplot2::ylab("Persons") +
+    ggplot2::xlim(c(0,100)) +
+    barChartTheme
+  
+  populationCount <- populationCount %>%
+    mutate(label = sprintf("%.1fM persons", .data$subjectCount / 1e6))
+  
+  calendarYearObserved <- calendarYearObserved %>%
+    inner_join(select(populationCount, .data$databaseId, .data$label), by = "databaseId") %>%
+    mutate(databaseId = paste(.data$databaseId, .data$label, sep = "\n"))
+  plot6 <- ggplot2::ggplot(calendarYearObserved, ggplot2::aes(x = stratum, y = subjectCount)) +
+    ggplot2::geom_bar(stat = "identity", color = rgb(0,0,0, alpha = 0), fill = "#547BD3", alpha = 0.8, width = 1) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::facet_grid(databaseId~., scales = "free_y") +
+    ggplot2::xlab("Observed calendar year") +
+    ggplot2::ylab("Persons") +
+    barChartTheme
+  
+  grabLegend <- function(a.gplot){
+    tmp <- ggplot2::ggplot_gtable(ggplot2::ggplot_build(a.gplot))
+    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+    legend <- tmp$grobs[[leg]]
+    return(legend)
+  }
+  
+  legend3 <- grabLegend(plot3)
+  legend4 <- grabLegend(plot4)
+  
+  noStrip <- ggplot2::theme(strip.text = ggplot2::element_blank(),
+                            legend.position = "none")
+  plot <- gridExtra::grid.arrange(grid::textGrob(""), legend3, grid::textGrob(""), legend4, grid::textGrob(""),
+                                  plot2 + noStrip, plot3  + noStrip, plot5  + noStrip, plot4  + noStrip, plot6,
+                                  ncol = 5, nrow = 2, widths = c(200, 120, 200, 120, 200),
+                                  heights = c(80, 400),
+                                  respect = FALSE)
+  return(plot)
 }

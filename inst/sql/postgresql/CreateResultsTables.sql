@@ -39,7 +39,7 @@ CREATE TABLE database (
 --Table database_characterization
 
 CREATE TABLE database_characterization (
-			subjectCount INTEGER NOT NULL,
+			subject_count INTEGER NOT NULL,
 			stratum TEXT NOT NULL,
 			stratification VARCHAR(255) NOT NULL,
 			database_id VARCHAR(255) NOT NULL,

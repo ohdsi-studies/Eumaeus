@@ -9,6 +9,21 @@ loadEntireTable <- function(connection, schema, tableName) {
   return(table)
 }
 
+getVaccinations <- function(connection, schema) {
+  sql <- "SELECT database_id,
+    period_id,
+    exposure_id,
+    MAX(exposure_subjects) AS vaccinations
+  FROM @schema.estimate 
+  GROUP BY database_id,
+    period_id,
+    exposure_id;"
+  sql <- SqlRender::render(sql, schema = schema)
+  vaccinations <- DatabaseConnector::dbGetQuery(connection, sql)
+  colnames(vaccinations) <- SqlRender::snakeCaseToCamelCase(colnames(vaccinations))
+  return(vaccinations)
+}
+
 
 getEstimates <- function(connection, schema, databaseId, exposureId, timeAtRisk) {
   sql <- sprintf("SELECT estimate.* 

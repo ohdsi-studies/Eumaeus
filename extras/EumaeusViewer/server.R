@@ -435,7 +435,9 @@ shinyServer(function(input, output, session) {
       return(NULL)
     }  else {
       subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
-      return(plotLlrs(subset, trueRr = input$trueRr2))
+      vaccinationsSubset <- vaccinations %>%
+        filter(.data$databaseId == input$database2 & .data$exposureId == exposureId2())
+      return(plotLlrs(subset, vaccinations, trueRr = input$trueRr2))
     }
   })
   
@@ -444,13 +446,19 @@ shinyServer(function(input, output, session) {
     if (is.null(subset)) {
       return(NULL)
     } 
-    subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
-    subset$Signal <- !is.na(subset$llr) & !is.na(subset$criticalValue) & subset$llr >= subset$criticalValue
-    subset$y <- subset$llr + 1
-    if (input$trueRr2 != "Overall") {
-      subset <- subset[subset$effectSize == 1 | subset$effectSize == as.numeric(input$trueRr2), ]
-    }
     hover <- input$plotHoverInfoLlrs
+    if (is.null(hover)) {
+      return(NULL)
+    }
+    if (input$trueRr2 != "Overall") {
+      subset <- subset %>%
+        filter(.data$effectSize == 1 | .data$effectSize == as.numeric(input$trueRr2))
+    }
+    subset <- subset %>%
+      filter(!is.na(.data$llr))
+    subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
+    subset$y <- log10(subset$llr + 1)
+    hover$mapping$y = "y"
     point <- nearPoints(subset, hover, threshold = 50, maxpoints = 1, addDist = TRUE)
     if (nrow(point) == 0) {
       return(NULL)
@@ -495,6 +503,31 @@ shinyServer(function(input, output, session) {
         filter(.data$outcomeId %in% c(positiveControlOutcome$outcomeId, positiveControlOutcome$negativeControlId))
       return(plotSensSpec(subset))
     }
+  })
+  
+  # Database information -------------------------------------------------------
+  output$databaseInfoPlot <- renderPlot({
+    return(plotDbCharacteristics(databaseCharacterization))
+  })
+  
+  output$databaseInfoTable <- renderDataTable({
+    
+    table <- database %>%
+      select(.data$databaseId, .data$databaseName, .data$description, .data$vocabularyVersion)
+    options = list(pageLength = 25,
+                   searching = TRUE,
+                   lengthChange = FALSE,
+                   ordering = TRUE,
+                   paging = FALSE,
+                   columnDefs = list(list(width = '30%', targets = 1),
+                                     list(width = '60%', targets = 2))
+    )
+    table <- datatable(table,
+                       options = options,
+                       colnames = c("ID", "Name", "Description", "Vocabulary"),
+                       rownames = FALSE,
+                       class = "stripe compact")
+    return(table)
   })
   
 })

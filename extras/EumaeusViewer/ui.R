@@ -3,7 +3,10 @@ library(DT)
 
 shinyUI(
   fluidPage(style = 'width:1500px;',
-            titlePanel("Evaluating Use of Methods for Adverse Event Under Surveillance (EUMAEUS)"),
+            titlePanel(
+              title = div(img(src = "logo.png", height = 50, width = 50), "Evaluating Use of Methods for Adverse Event Under Surveillance (EUMAEUS)"),
+              windowTitle = "EUMAEUS"
+            ),
             tabsetPanel(
               tabPanel("About",
                        br(),
@@ -67,7 +70,7 @@ shinyUI(
                                                                        hover = hoverOpts("plotHoverInfoLlrs",
                                                                                          delay = 100,
                                                                                          delayType = "debounce")),
-                                                            div(strong("Figure 2.1."),"Log likelihood ratios (LLR) for the negative and positive controls at various points in time, stratified by true effect size. Closed dots indicate the LLR in that period exceeded the critical value. The critical value depends on sample size within and across periods, and is therefore different for each control. Hover mouse over point for more information.")),
+                                                            div(strong("Figure 2.1."),"Log likelihood ratios (LLR) (left axis) for the negative and positive controls at various points in time, stratified by true effect size. Closed dots indicate the LLR in that period exceeded the critical value. The critical value depends on sample size within and across periods, and is therefore different for each control. The yellow area indicates the cumulative number of vaccinations (right axis). Hover mouse over point for more information.")),
                                                    tabPanel("Sensitivity / Specificity",
                                                             plotOutput("sensSpec",
                                                                        height = "650px"),
@@ -76,6 +79,12 @@ shinyUI(
                                 )
                          )
                        )
+              ),
+              tabPanel("Database information",
+                       plotOutput("databaseInfoPlot"),
+                       div(strong("Figure 3.1."),"Overall distributions of key characteristics in each database."),
+                       dataTableOutput("databaseInfoTable"),
+                       div(strong("Table 3.2."),"Information about each database.")
               )
             )
   )
