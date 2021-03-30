@@ -150,7 +150,7 @@ exportMetadata <- function(outputFolder,
   pathToCsv <- file.path(outputFolder, "DbCharacterization.csv")
   table <- readr::read_csv(pathToCsv, col_types = readr::cols())  
   table$databaseId <- databaseId
-  table <- enforceMinCellValue(table, "count", minValues = minCellCount)
+  table <- enforceMinCellValue(table, "subjectCount", minValues = minCellCount)
   colnames(table) <- SqlRender::camelCaseToSnakeCase(colnames(table))
   fileName <- file.path(exportFolder, "database_characterization.csv")
   readr::write_csv(table, fileName)

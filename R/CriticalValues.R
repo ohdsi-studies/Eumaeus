@@ -88,8 +88,8 @@ computeCaseControlCv <- function(subset) {
       cases <- cases[cases != 0]
     }
     cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
-                                               z = max(subset$controls) / max(subset$cases),
-                                               groupSizes = cases)
+                                     z = max(subset$controls) / max(subset$cases),
+                                     groupSizes = cases)
   }
   return(tibble(analysisId = subset$analysisId[1],
                 exposureId = subset$exposureId[1],
@@ -115,8 +115,8 @@ computeCohortMethodCv <- function(subset) {
       sampleSizeUpperLimit <- sum(events)
     }
     cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
-                                               z = max(subset$comparatorDays) / max(subset$targetDays),
-                                               groupSizes = events)
+                                     z = max(subset$comparatorDays) / max(subset$targetDays),
+                                     groupSizes = events)
   }
   return(tibble(analysisId = subset$analysisId[1],
                 exposureId = subset$exposureId[1],
@@ -139,8 +139,8 @@ computeSccsCv <- function(subset) {
       events <- events[events != 0]
     }
     cv <- computeTruncatedBinomialCv(n = sampleSizeUpperLimit,
-                                               z = max(subset$daysObserved - subset$exposedDays) / max(subset$exposedDays),
-                                               groupSizes = events)
+                                     z = max(subset$daysObserved - subset$exposedDays) / max(subset$exposedDays),
+                                     groupSizes = events)
   }
   return(tibble(analysisId = subset$analysisId[1],
                 exposureId = subset$exposureId[1],
@@ -178,7 +178,7 @@ computeHistoricalComparatorCv <- function(subset) {
     cv <- NA
   } else {
     cv <- computeTruncatedPoissonCv(n = sampleSizeUpperLimit,
-                                              groupSizes = expectedOutcomes)
+                                    groupSizes = expectedOutcomes)
   }
   return(tibble(analysisId = subset$analysisId[1],
                 exposureId = subset$exposureId[1],
@@ -189,6 +189,7 @@ computeHistoricalComparatorCv <- function(subset) {
 computeTruncatedBinomialCv <- function(n, z, groupSizes) {
   if (n > 250) {
     groupSizes <- round(groupSizes * 250 / n)
+    groupSizes <- groupSizes[groupSizes > 0]
     n <- sum(groupSizes)
   }
   cv <- Sequential::CV.Binomial(N = n,
@@ -202,6 +203,7 @@ computeTruncatedBinomialCv <- function(n, z, groupSizes) {
 computeTruncatedPoissonCv <- function(n, groupSizes) {
   if (n > 250) {
     groupSizes <- round(groupSizes * 250 / n)
+    groupSizes <- groupSizes[groupSizes > 0]
     n <- sum(groupSizes)
   }
   cv <- Sequential::CV.Poisson(SampleSize = n,
