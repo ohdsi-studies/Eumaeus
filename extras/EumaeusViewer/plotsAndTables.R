@@ -23,8 +23,8 @@ plotScatter <- function(d) {
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   alpha <- 1 - min(0.95*(nrow(d)/nrow(dd)/50000)^0.1, 0.95)
   plot <- ggplot(d, aes(x = logRr, y= seLogRr)) +
-    geom_abline(aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
-    geom_abline(aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)), colour = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
+    geom_abline(aes(intercept = (-log(tes))/qnorm(0.025), slope = 1/qnorm(0.025)), color = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
+    geom_abline(aes(intercept = (-log(tes))/qnorm(0.975), slope = 1/qnorm(0.975)), color = rgb(0.8, 0, 0), linetype = "dashed", size = 1, alpha = 0.5, data = dd) +
     geom_point(size = 2, color = rgb(0, 0, 0, alpha = 0.05), alpha = alpha, shape = 16) +
     geom_hline(yintercept = 0) +
     geom_label(x = log(0.26), y = 0.95, alpha = 1, hjust = "left", aes(label = nLabel), size = 5, data = dd) +
@@ -345,39 +345,23 @@ plotLlrs <- function(d, vaccinationsSubset, trueRr = "Overall") {
   themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
   themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
   yBreaks <- c(0, 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100)
-  # d$y <- d$llr + 1
-  plot <- ggplot(d, aes(x = periodId, y = y, group = outcomeId)) +
-    geom_line(size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
-    geom_point(aes(shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
-    scale_shape_manual(name = "Above critical value", values = c(21,16)) +
-    scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
-    scale_y_log10("Log Likelihood ratio", breaks = yBreaks + 1, labels = yBreaks) +
-    coord_cartesian(ylim = c(1, 101)) +
-    facet_grid(. ~ Group) +
-    ggplot2::theme(axis.text.y = themeRA,
-          axis.text.x = element_blank(),
-          axis.title.x = element_blank(),
-          axis.title.y = theme,
-          axis.ticks.x = element_blank(),
-          strip.text = theme,
-          strip.background = element_blank(),
-          legend.text = themeLA,
-          legend.title = themeLA,
-          legend.position = "top")
-  
+
   f <- function(y) {
     log10(y + 1) 
   }
+  
   multiplier <- f(max(yBreaks)) / max(vaccinationsSubset$vaccinations)
+  
   f2 <- function(y) {
     y * multiplier
   }
+  
   vaccinationsSubset <- tibble(periodId = 1:max(d$periodId)) %>%
     left_join(vaccinationsSubset, by = "periodId") %>% 
     inner_join(distinct(d, .data$Group), by = character())
-  
   yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 50000)
   yLabels2 <- format(yBreaks2, scientific = FALSE, big.mark = ",")
+  
   plot <- ggplot(d, aes(x = periodId, y = f(llr))) +
     geom_area(aes(y = f2(vaccinations)), size = 1, color = rgb(0.83, 0.68, 0.31), fill = rgb(0.83, 0.68, 0.31), alpha = 0.1, data = vaccinationsSubset) +
     geom_line(aes(group = outcomeId), size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
@@ -396,30 +380,12 @@ plotLlrs <- function(d, vaccinationsSubset, trueRr = "Overall") {
     ggplot2::theme(axis.text.y = themeRA,
                    axis.text.x = theme,
                    axis.title = theme,
+                   panel.grid.minor = element_blank(),
                    strip.text = theme,
                    strip.background = element_blank(),
                    legend.text = themeLA,
                    legend.title = themeLA,
                    legend.position = "top")
-
-  # plot2 <- ggplot(exposure, aes(x = periodId, y = exposed)) +
-  #   geom_area(size = 1, color = "#b7d3e6", fill = "#b7d3e6", alpha = 0.75) +
-  #   scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
-  #   scale_y_log10("Vaccinations") +
-  #   facet_grid(. ~ Group) +
-  #   theme(axis.text.y = themeRA,
-  #         axis.text.x = theme,
-  #         axis.title = theme,
-  #         strip.text = element_blank(),
-  #         strip.background = element_blank(),
-  #         legend.text = themeLA,
-  #         legend.title = themeLA,
-  #         legend.position = "none")
-  # 
-  # plot <- gridExtra::grid.arrange(plot1, plot2,
-  #                                 ncol = 1, nrow = 2, 
-  #                                 heights = c(300, 200))
-  
   return(plot)
 }
 
@@ -604,5 +570,48 @@ plotDbCharacteristics <- function(databaseCharacterization) {
                                   ncol = 5, nrow = 2, widths = c(200, 120, 200, 120, 200),
                                   heights = c(80, 400),
                                   respect = FALSE)
+  return(plot)
+}
+
+
+# d <- subset[subset$method == "HistoricalComparator" & subset$analysisId == 1, ]
+# d <- addTrueEffectSize(d, negativeControlOutcome, positiveControlOutcome)
+# d$Group <- as.factor(paste("True effect size =", d$effectSize))
+# d <- d[d$exposureOutcomes >= 3, ]
+plotEstimatesAcrossPeriods <- function(d, trueRr = "Overall") {
+  d$Signal <- !is.na(d$ci95Lb)  & d$ci95Lb >= 1
+  
+  if (trueRr != "Overall") {
+    d <- d[d$effectSize == 1 | d$effectSize == as.numeric(trueRr), ]
+  }
+  
+  perFacet <- d %>%
+    group_by(.data$Group) %>%
+    summarize(trueEffectSize = max(.data$effectSize))
+  
+  theme <- element_text(colour = "#000000", size = 14)
+  themeRA <- element_text(colour = "#000000", size = 14, hjust = 1)
+  themeLA <- element_text(colour = "#000000", size = 14, hjust = 0)
+  yBreaks <- c(0.25, 0.5, 1, 2, 4, 6, 8, 10)
+  plot <- ggplot(d) +
+    geom_hline(aes(yintercept = trueEffectSize), size = 1, color = rgb(0.8, 0, 0), linetype = "dashed", data = perFacet) +
+    geom_line(aes(x = periodId, y = rr, group = outcomeId), size = 1, color = rgb(0, 0, 0), alpha = 0.5) +
+    geom_point(aes(x = periodId, y = rr, shape = .data$Signal), size = 3, color = rgb(0, 0, 0), fill = rgb(1, 1, 1), alpha = 0.7) +
+    scale_shape_manual(name = "p < 0.05", values = c(21,16)) +
+    scale_x_continuous("Time (Months)", breaks = 1:max(d$periodId), limits = c(1, max(d$periodId))) +
+    scale_y_log10("Effect Size Estimate", breaks = yBreaks, labels = yBreaks) +
+    coord_cartesian(ylim = c(0.25, 10)) +
+    facet_grid(. ~ Group) +
+    ggplot2::theme(axis.text.y = themeRA,
+                   axis.text.x = element_blank(),
+                   axis.title.x = element_blank(),
+                   axis.title.y = theme,
+                   axis.ticks.x = element_blank(),
+                   panel.grid.minor = element_blank(),
+                   strip.text = theme,
+                   strip.background = element_blank(),
+                   legend.text = themeLA,
+                   legend.title = themeLA,
+                   legend.position = "top")
   return(plot)
 }

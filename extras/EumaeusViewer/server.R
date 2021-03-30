@@ -38,6 +38,8 @@ shinyServer(function(input, output, session) {
     return(subset)
   })
   
+  # Per period
+  
   filterEstimates <- reactive({
     subset <- getAllEstimates() %>%
       filter(.data$method %in% input$method & .data$periodId == periodId())
@@ -202,114 +204,109 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  observeEvent(input$evalTypeInfo, {
-    showModal(modalDialog(
-      title = "Evaluation type",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(evalTypeInfoHtml)
-    ))
+  # Across periods
+  
+  filterEstimatesAcrossPeriods <- reactive({
+    subset <- getAllEstimates() %>%
+      filter(.data$method %in% input$method)
+    if (input$calibrated == "Calibrated") {
+      subset$rr <- subset$calibratedRr
+      subset$logRr <- subset$calibratedLogRr
+      subset$seLogRr <- subset$calibratedSeLogRr
+      subset$ci95Lb <- subset$calibratedCi95Lb
+      subset$ci95Ub <- subset$calibratedCi95Ub
+      subset$p <- subset$calibratedP
+    }
+    subset <- addTrueEffectSize(subset, negativeControlOutcome, positiveControlOutcome)
+    return(subset)
   })
   
-  observeEvent(input$evalTypeInfo2, {
-    showModal(modalDialog(
-      title = "Evaluation type",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(evalTypeInfoHtml)
-    ))
+  performanceMetricsAcrossPeriods <- reactive({
+    subset <- filterEstimatesAcrossPeriods()
+    if (nrow(subset) == 0) {
+      return(data.frame())
+    }
+    # combis <- lapply(split(subset, paste(subset$method, subset$analysisId)), 
+    #                  computeEffectEstimateMetrics, 
+    #                  trueRr = input$trueRr)
+    # combis <- bind_rows(combis)
+    combis <- subset %>%
+      distinct(.data$method, .data$analysisId) %>%
+      arrange(.data$method, .data$analysisId)
+    colnames(combis) <- c("Method", 
+                          "<span title=\"Analysis variant ID\">ID</span>")
+    return(combis)
   })
   
-  observeEvent(input$calibrationInfo, {
-    showModal(modalDialog(
-      title = "Empirical calibration",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(calibrationInfoHtml)
-    ))
+  output$performanceMetricsAcrossPeriods <- renderDataTable({
+    selection = list(mode = "single", target = "row")
+    options = list(pageLength = 10, 
+                   searching = FALSE, 
+                   lengthChange = TRUE)
+    isolate(
+      if (!is.null(input$performanceMetricsAcrossPeriods_rows_selected)) {
+        selection$selected = input$performanceMetricsAcrossPeriods_rows_selected
+        options$displayStart = floor(input$performanceMetricsAcrossPeriods_rows_selected[1] / 10) * 10 
+      }
+    )
+    data <- performanceMetricsAcrossPeriods()
+    if (nrow(data) == 0) {
+      return(data)
+    }
+    table <- DT::datatable(data, selection = selection, options = options, rownames = FALSE, escape = FALSE) 
+    
+    # colors <- c("#b7d3e6", "#b7d3e6", "#b7d3e6", "#f2b4a9", "#f2b4a9", "#f2b4a9", "#f2b4a9")
+    # mins <- c(0, 0, 0, 0, 0, 0, 0)
+    # maxs <- c(1, 1, max(data[, 5]), max(data[, 6]), 1, 1, 1)
+    # for (i in 1:length(colors)) {
+    #   table <- DT::formatStyle(table = table, 
+    #                            columns = i + 2,
+    #                            background = styleColorBar(c(mins[i], maxs[i]), colors[i]),
+    #                            backgroundSize = '98% 88%',
+    #                            backgroundRepeat = 'no-repeat',
+    #                            backgroundPosition = 'center')
+    # }
+    return(table)
   })
   
-  observeEvent(input$calibrationInfo2, {
-    showModal(modalDialog(
-      title = "Empirical calibration",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(calibrationInfoHtml)
-    ))
+  selectedEstimatesAcrossPeriods <- reactive({
+    if (is.null(input$performanceMetricsAcrossPeriods_rows_selected)) {
+      return(NULL)
+    } 
+    subset <- filterEstimatesAcrossPeriods()
+    if (nrow(subset) == 0) {
+      return(NULL)
+    }
+    subset <- subset[subset$method == performanceMetricsAcrossPeriods()$Method[input$performanceMetricsAcrossPeriods_rows_selected] & 
+                       subset$analysisId == performanceMetricsAcrossPeriods()$'<span title=\"Analysis variant ID\">ID</span>'[input$performanceMetricsAcrossPeriods_rows_selected], ]
+    if (nrow(subset) == 0) {
+      return(NULL)
+    } 
+    return(subset)
   })
   
-  observeEvent(input$mdrrInfo, {
-    showModal(modalDialog(
-      title = "Minimum Detectable RR",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(mdrrInfoHtml)
-    ))
+  output$detailsAcrossPeriods <- renderText({
+    subset <- selectedEstimatesAcrossPeriods()
+    if (is.null(subset)) {
+      return(NULL)
+    }  else {
+      method <- as.character(subset$method[1])
+      analysisId <- subset$analysisId[1]
+      description <- analysis$description[analysis$method == method & analysis$analysisId == analysisId]
+      return(paste0(method , " analysis ", analysisId, ": ", description))
+    }
   })
   
-  observeEvent(input$mdrrInfo2, {
-    showModal(modalDialog(
-      title = "Minimum Detectable RR",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(mdrrInfoHtml)
-    ))
-  })
+  outputOptions(output, "detailsAcrossPeriods", suspendWhenHidden = FALSE)
   
-  observeEvent(input$databaseInfo, {
-    showModal(modalDialog(
-      title = "Databases",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(databaseInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$stratumInfo, {
-    showModal(modalDialog(
-      title = "Strata",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(stratumInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$trueRrInfo, {
-    showModal(modalDialog(
-      title = "True effect size",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(trueRrInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$methodsInfo, {
-    showModal(modalDialog(
-      title = "Methods",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(methodsInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$metricInfo, {
-    showModal(modalDialog(
-      title = "Metrics",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(metricInfoHtml)
-    ))
+  output$estimatesAcrossPeriods <- renderPlot({
+    subset <- selectedEstimatesAcrossPeriods()
+    if (is.null(subset)) {
+      return(NULL)
+    }  else {
+      subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
+      return(plotEstimatesAcrossPeriods(subset))
+    }
   })
   
   # MaxSPRT-based metrics --------------------------------------------------------------------------
@@ -528,6 +525,119 @@ shinyServer(function(input, output, session) {
                        rownames = FALSE,
                        class = "stripe compact")
     return(table)
+  })
+  
+  # Info buttons -----------------------------------------------------------------
+  
+  
+  observeEvent(input$evalTypeInfo, {
+    showModal(modalDialog(
+      title = "Evaluation type",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(evalTypeInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$evalTypeInfo2, {
+    showModal(modalDialog(
+      title = "Evaluation type",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(evalTypeInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$calibrationInfo, {
+    showModal(modalDialog(
+      title = "Empirical calibration",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(calibrationInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$calibrationInfo2, {
+    showModal(modalDialog(
+      title = "Empirical calibration",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(calibrationInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$mdrrInfo, {
+    showModal(modalDialog(
+      title = "Minimum Detectable RR",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(mdrrInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$mdrrInfo2, {
+    showModal(modalDialog(
+      title = "Minimum Detectable RR",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(mdrrInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$databaseInfo, {
+    showModal(modalDialog(
+      title = "Databases",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(databaseInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$stratumInfo, {
+    showModal(modalDialog(
+      title = "Strata",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(stratumInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$trueRrInfo, {
+    showModal(modalDialog(
+      title = "True effect size",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(trueRrInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$methodsInfo, {
+    showModal(modalDialog(
+      title = "Methods",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(methodsInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$metricInfo, {
+    showModal(modalDialog(
+      title = "Metrics",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(metricInfoHtml)
+    ))
   })
   
 })

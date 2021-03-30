@@ -18,32 +18,45 @@ shinyUI(
                                 selectInput("exposure", label = "Vaccine", choices = exposure$exposureName),
                                 selectInput("calibrated", label = div("Empirical calibration:", actionLink("calibrationInfo2", "", icon = icon("info-circle"))), choices = c("Uncalibrated", "Calibrated")),
                                 selectInput("database", label = div("Database:", actionLink("databaseInfo", "", icon = icon("info-circle"))), choices = database$databaseId),
-                                selectInput("period", label = "Time period", choices = timePeriod$label[timePeriod$exposureId == exposure$exposureId[1]]),
                                 selectInput("timeAtRisk", label = "Time at risk", choices = timeAtRisks),
                                 selectInput("trueRr", label = div("True effect size:", actionLink("trueRrInfo", "", icon = icon("info-circle"))), choices = trueRrs),
                                 checkboxGroupInput("method", label =  div("Methods:", actionLink("methodsInfo", "", icon = icon("info-circle"))), choices = unique(analysis$method), selected = unique(analysis$method))
                          ),
                          column(10,
-                                dataTableOutput("performanceMetrics"),
-                                uiOutput("tableCaption"),
-                                conditionalPanel(condition = "output.details",
-                                                 div(style = "display:inline-block", h4(textOutput("details"))), 
-                                                 # div(style = "display:inline-block", actionLink("showSettings", "Details")),
-                                                 tabsetPanel(
-                                                   tabPanel("Estimates", 
-                                                            uiOutput("hoverInfoEstimates"),
-                                                            plotOutput("estimates", 
-                                                                       height = "270px",
-                                                                       hover = hoverOpts("plotHoverInfoEstimates", 
-                                                                                         delay = 100, 
-                                                                                         delayType = "debounce")),
-                                                            div(strong("Figure 1.1."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
-                                                   tabPanel("ROC curves", 
-                                                            plotOutput("rocCurves", 
-                                                                       height = "420px"),
-                                                            div(strong("Figure 1.2."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
-                                                 )
-                                )   
+                                tabsetPanel(type = "pills",
+                                  tabPanel("Per period",
+                                           selectInput("period", label = "Time period", choices = timePeriod$label[timePeriod$exposureId == exposure$exposureId[1]]),
+                                           dataTableOutput("performanceMetrics"),
+                                           uiOutput("tableCaption"),
+                                           conditionalPanel(condition = "output.details",
+                                                            div(style = "display:inline-block", h4(textOutput("details"))), 
+                                                            tabsetPanel(
+                                                              tabPanel("Estimates", 
+                                                                       uiOutput("hoverInfoEstimates"),
+                                                                       plotOutput("estimates", 
+                                                                                  height = "270px",
+                                                                                  hover = hoverOpts("plotHoverInfoEstimates", 
+                                                                                                    delay = 100, 
+                                                                                                    delayType = "debounce")),
+                                                                       div(strong("Figure 1.1."),"Estimates with standard errors for the negative and positive controls, stratified by true effect size. Estimates that fall above the red dashed lines have a confidence interval that includes the truth. Hover mouse over point for more information.")),
+                                                              tabPanel("ROC curves", 
+                                                                       plotOutput("rocCurves", 
+                                                                                  height = "420px"),
+                                                                       div(strong("Figure 1.2."),"Receiver Operator Characteristics curves for distinguising positive controls from negative controls."))
+                                                            )
+                                           )),
+                                  tabPanel("Across periods",
+                                           dataTableOutput("performanceMetricsAcrossPeriods"),
+                                           conditionalPanel(condition = "output.detailsAcrossPeriods",
+                                                            div(style = "display:inline-block", h4(textOutput("detailsAcrossPeriods"))), 
+                                                            tabsetPanel(
+                                                              tabPanel("Estimates", 
+                                                                       plotOutput("estimatesAcrossPeriods"),
+                                                                       div(strong("Figure 1.3."),"Effect-size estimates for the negative and positive controls across time, stratified by true effect size. Closed dots indicate statistical signficance (two-sides) at alpha = 0.05. The red dashed line indicates the true effect size.")
+                                                              )
+                                                            )
+                                           )
+                                  ))
                          )
                        )
               ),
