@@ -59,3 +59,12 @@ time_period,end_date,DATE,Yes,No,Yes,The end date of the time period.
 time_period,period_id,INTEGER,Yes,Yes,Yes,A unique identifier for the period.
 time_period,label,VARCHAR(255),Yes,No,Yes,A label for the period.
 time_period,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.
+historical_rate,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
+historical_rate,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.
+historical_rate,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+historical_rate,time_at_risk,VARCHAR(255),Yes,Yes,Yes,The time-at-risk relative to the visit date or start of the year.
+historical_rate,age_group,VARCHAR(255),No,Yes,No,"For stratified rates, the age group."
+historical_rate,gender,VARCHAR(255),No,Yes,No,"For stratified rates, the gender."
+historical_rate,outcomes,BIGINT,Yes,No,Yes,The number of outcomes observed during the time-at-risk.
+historical_rate,days,BIGINT,Yes,No,Yes,The number of patient days in the time-at-risk.
+historical_rate,subjects,BIGINT,Yes,No,Yes,The number of subjects that contributed time-at-risk.

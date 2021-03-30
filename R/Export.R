@@ -51,6 +51,12 @@ exportResults <- function(outputFolder,
                     minCellCount = minCellCount,
                     maxCores = maxCores)
   
+  exportDiagnostics(outputFolder = outputFolder,
+                    exportFolder = exportFolder,
+                    databaseId = databaseId,
+                    minCellCount = minCellCount,
+                    maxCores = maxCores)
+  
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")
   zipName <- normalizePath(file.path(exportFolder, sprintf("Results_%s.zip", databaseId)), mustWork = FALSE)
@@ -135,13 +141,13 @@ exportMetadata <- function(outputFolder,
                                             cdmDatabaseSchema = cdmDatabaseSchema)
   
   database <- tibble(databaseId = databaseId,
-                             databaseName = databaseName,
-                             description = databaseDescription,
-                             vocabularyVersion = vocabularyVersion,
-                             minObsPeriodDate = observationPeriodRange$minDate,
-                             maxObsPeriodDate = observationPeriodRange$maxDate,
-                             studyPackageVersion = utils::packageVersion("Eumaeus"),
-                             isMetaAnalysis = 0)
+                     databaseName = databaseName,
+                     description = databaseDescription,
+                     vocabularyVersion = vocabularyVersion,
+                     minObsPeriodDate = observationPeriodRange$minDate,
+                     maxObsPeriodDate = observationPeriodRange$maxDate,
+                     studyPackageVersion = utils::packageVersion("Eumaeus"),
+                     isMetaAnalysis = 0)
   colnames(database) <- SqlRender::camelCaseToSnakeCase(colnames(database))
   fileName <- file.path(exportFolder, "database.csv")
   readr::write_csv(database, fileName)
@@ -220,7 +226,7 @@ exportMainResults <- function(outputFolder,
            ci95Ub = .data$ub95Ci,
            p = 2 * pmin(pnorm(.data$logRr/.data$seLogRr), 1 - pnorm(.data$logRr/.data$seLogRr))) %>%
     select(all_of(columns))
-
+  
   ParallelLogger::logInfo("  - Adding cohort method estimates")
   exposures <- loadExposureCohorts(outputFolder) 
   mapping <- exposures %>%
@@ -247,7 +253,7 @@ exportMainResults <- function(outputFolder,
            ci95Ub = .data$ci95ub,
            llr = if_else(!is.na(.data$logRr) & .data$logRr < 0, 0, .data$llr)) %>%
     select(all_of(columns))
-
+  
   ParallelLogger::logInfo("  - Adding case-control estimates")
   caseControlEstimates <- loadEstimates(file.path(outputFolder, "ccSummary_withCvs.csv")) %>%
     mutate(databaseId = !!databaseId,
@@ -377,3 +383,35 @@ calibrate <- function(subset) {
   }
   return(subset)
 }
+
+exportDiagnostics <- function(outputFolder,
+                              exportFolder,
+                              databaseId,
+                              minCellCount,
+                              maxCores) {
+  ParallelLogger::logInfo("Exporting diagnostics")
+  
+  ParallelLogger::logInfo("- historical_rate table")
+  
+  folders <- list.files(file.path(outputFolder, "historicalComparator"), "^e_[0-9]+$", include.dirs = TRUE)
+  getHistoricalRates <- function(folder) {
+    rates <- readRDS(file.path(outputFolder, "historicalComparator", folder, "historicRates.rds"))
+    rates <- rates %>%
+      transmute(databaseId = databaseId,
+                exposureId = as.numeric(gsub("^e_", "", folder)),
+                .data$outcomeId,
+                timeAtRisk = .data$tar,
+                ageGroup = sprintf("%d-%d", .data$ageGroup * 10, .data$ageGroup * 10+ 9),
+                .data$gender,
+                outcomes = .data$cohortCount,
+                days = round(.data$personYears * 365.25),
+                subjects = .data$personCount)
+  }
+  results <- purrr::map_dfr(folders, getHistoricalRates)
+  results <- enforceMinCellValue(results, "outcomes", minCellCount)
+  results <- enforceMinCellValue(results, "subjects", minCellCount)
+  colnames(results) <- SqlRender::camelCaseToSnakeCase(colnames(results))
+  fileName <- file.path(exportFolder, "historical_rate.csv")
+  readr::write_csv(results, fileName)
+}
+  
