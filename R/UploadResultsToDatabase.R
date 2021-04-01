@@ -394,7 +394,11 @@ insertDataIntoDb <- function(connection,
   bulkLoad <- nrow(data) > 1e4 && !is.null(Sys.getenv("POSTGRES_PATH"))
   if (bulkLoad) {
     DatabaseConnector::executeSql(connection, "COMMIT;", progressBar = FALSE, reportOverallTime = FALSE)
+    oldSciPen <- getOption("scipen")
+    on.exit(options("scipen" = oldSciPen))
+    options("scipen" = 6)
   }
+  
   DatabaseConnector::insertTable(connection = connection,
                                  tableName = paste(schema, tableName, sep = "."),
                                  data = as.data.frame(data),
