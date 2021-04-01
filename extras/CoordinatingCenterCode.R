@@ -37,13 +37,14 @@ schema <- "eumaeus"
 # createResultsDataModel(connectionDetails, schema)
 
 # # After the tables have been created:
-# sql <- "grant select on all tables in schema eumaeus to rw_grp;"
+# sql <- "grant select on all tables in schema eumaeus to eumaeus_app_readonly;"
 # sql <- "grant select on all tables in schema eumaeus to eumaeus_readonly;"
 #
 # # Next time, before creating tables:
-# sql <- "grant usage on schema eumaeus to group rw_grp;
-# alter default privileges in schema eumaeus grant select on tables to group rw_grp;
-# alter default privileges in schema eumaeus grant all on tables to group rw_grp;"
+# sql <- "grant usage on schema eumaeus to eumaeus_app_readonly;"
+# sql <- "grant usage on schema eumaeus to eumaeus_readonly;"
+# sql <- "alter default privileges in schema eumaeus grant select on tables to eumaeus_app_readonly;"
+# sql <- "alter default privileges in schema eumaeus grant all on tables to eumaeus_readonly;"
 # connection <- connect(connectionDetails)
 # executeSql(connection, sql)
 # disconnect(connection)

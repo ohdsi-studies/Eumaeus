@@ -2,11 +2,12 @@ source("dataPulls.R")
 
 connectionPool <- pool::dbPool(drv = DatabaseConnector::DatabaseConnectorDriver(),
                                dbms = "postgresql",
-                               server = paste(keyring::key_get("ohdsiPostgresServer"),
-                                              keyring::key_get("ohdsiPostgresShinyDatabase"),
+                               server = paste(Sys.getenv("shinydbServer"),
+                                              Sys.getenv("shinydbDatabase"),
                                               sep = "/"),
-                               user = keyring::key_get("ohdsiPostgresUser"),
-                               password = keyring::key_get("ohdsiPostgresPassword"))
+                               port = Sys.getenv("shinydbPort"),
+                               user = Sys.getenv("eumaeusdbUser"),
+                               password = Sys.getenv("eumaeusdbPw"))
 
 onStop(function() {
   if (DBI::dbIsValid(connectionPool)) {
@@ -15,7 +16,7 @@ onStop(function() {
   }
 })
 
-schema <- "eumaeus"
+schema <- Sys.getenv("eumaeusdbSchema")
 
 analysis <- loadEntireTable(connectionPool, schema, "analysis")
 database <- loadEntireTable(connectionPool, schema, "database")
@@ -40,7 +41,7 @@ timeAtRisks <- unique(analysis$timeAtRisk)
 calibrationInfoHtml <- readChar("calibration.html", file.info("calibration.html")$size)
 vaccineInfoHtml <- readChar("vaccine.html", file.info("vaccine.html")$size)
 databaseInfoHtml <- readChar("databases.html", file.info("databases.html")$size)
-timeAtRiskInfoHtml <- readChar("timeAtrisk.html", file.info("timeAtRisk.html")$size)
+timeAtRiskInfoHtml <- readChar("timeAtRisk.html", file.info("timeAtRisk.html")$size)
 trueRrInfoHtml <- readChar("trueRr.html", file.info("trueRr.html")$size)
 methodsInfoHtml <- readChar("methods.html", file.info("methods.html")$size)
 periodInfoHtml <- readChar("period.html", file.info("period.html")$size)
