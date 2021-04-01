@@ -359,7 +359,18 @@ plotLlrs <- function(d, vaccinationsSubset, trueRr = "Overall") {
   vaccinationsSubset <- tibble(periodId = 1:max(d$periodId)) %>%
     left_join(vaccinationsSubset, by = "periodId") %>% 
     inner_join(distinct(d, .data$Group), by = character())
-  yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 50000)
+  
+  maxVaccinations <- max(vaccinationsSubset$vaccinations)
+  if (maxVaccinations > 1e6) {
+    yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 100000)
+  } else if (maxVaccinations > 100000) {
+    yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 20000)
+  } else if (maxVaccinations > 20000) {
+    yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 10000)
+  } else {
+    yBreaks2 <- seq(0, max(vaccinationsSubset$vaccinations), by = 1000)
+  }
+  
   yLabels2 <- format(yBreaks2, scientific = FALSE, big.mark = ",")
   
   plot <- ggplot(d, aes(x = periodId, y = f(llr))) +

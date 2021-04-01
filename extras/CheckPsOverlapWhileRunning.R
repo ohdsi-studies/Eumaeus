@@ -31,7 +31,7 @@ plotPsOverlap <- function(psFile) {
 invisible(sapply(psFiles, plotPsOverlap))
 
 # Exploring some issues ------------------------------
-ps <- readRDS("r:/Eumaeus/mdcd/cohortMethod/t212151_c212152/cmOutput_t9/Ps_l1_p1_t212151_c212152.rds")
+ps <- readRDS("r:/Eumaeus/mdcd/cohortMethod/t211851_c211852/cmOutput_t9/Ps_l1_p1_t211851_c211852.rds")
 head(ps)
 str(ps)
 metaData <- attr(ps, "metaData")

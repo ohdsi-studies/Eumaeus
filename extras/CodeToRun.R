@@ -163,6 +163,10 @@ execute(connectionDetails = connectionDetails,
         createDbCharacterization = TRUE,
         exportResults = TRUE)
 
+uploadResults(outputFolder = outputFolder,
+              privateKeyFileName = "c:/home/keyfiles/study-data-site-covid19.dat",
+              userName = "study-data-site-covid19")
+
 # JnJ specific code to store database version:
 source("extras/GetDatabaseVersion.R")
 version <- getDatabaseVersion(connectionDetails, cdmDatabaseSchema)

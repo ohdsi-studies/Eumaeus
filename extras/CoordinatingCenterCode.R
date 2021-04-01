@@ -6,8 +6,8 @@ allDbsFolder <- "r:/Eumaeus/AllDbs"
 # dir.create(allDbsFolder)
 
 # Download files from SFTP server -----------------------------------------------------------------
-connection <- sftpConnect(privateKeyFileName = "c:/home/keyfiles/study-coordinator-eumaeus",
-                          userName = "study-coordinator-eumaeus")
+connection <- sftpConnect(privateKeyFileName = "c:/home/keyfiles/study-coordinator-covid19.dat",
+                          userName = "study-coordinator-covid19")
 
 # sftpMkdir(connection, "eumaeus")
 
@@ -55,12 +55,12 @@ uploadedFolder <- file.path(allDbsFolder, "uploaded")
 zipFilesToUpload <- list.files(path = allDbsFolder,
                                pattern = ".zip",
                                recursive = FALSE)
-
+i = 1
 for (i in (1:length(zipFilesToUpload))) {
   uploadResultsToDatabase(connectionDetails = connectionDetails,
                           schema = schema,
                           zipFileName = file.path(allDbsFolder, zipFilesToUpload[i]),
-                          purgeSiteDataBeforeUploading = FALSE)
+                          purgeSiteDataBeforeUploading = F)
   # Move to uploaded folder:
   file.rename(file.path(allDbsFolder, zipFilesToUpload[i]), file.path(uploadedFolder, zipFilesToUpload[i]))
 }

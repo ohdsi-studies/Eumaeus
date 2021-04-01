@@ -18,16 +18,24 @@ shinyServer(function(input, output, session) {
     timePeriodSubset <- timePeriod %>%
       filter(.data$exposureId == exposureId()) %>%
       pull(.data$label)
-    
-    updateSelectInput(session, "period", choices = timePeriodSubset, selected = timePeriodSubset[length(timePeriodSubset)])
+    if (length(timePeriodSubset) == 0) {
+      updateSelectInput(session, "period", choices = "No data for these inputs", selected = "No data for these inputs")
+    } else {
+      updateSelectInput(session, "period", choices = timePeriodSubset, selected = timePeriodSubset[length(timePeriodSubset)])
+    }
   })
   
-  periodId <- reactive(
-    timePeriod %>%
+  periodId <- reactive({
+    periodId <- timePeriod %>%
       filter(.data$label == input$period & .data$exposureId == exposureId()) %>%
       pull(.data$periodId)
-  ) 
-
+    if (length(periodId) == 0) {
+      return(-1)
+    } else {
+      return(periodId)
+    }
+  }) 
+  
   getAllEstimates <- reactive({
     # Fetching data across methods and periods to compute full grid of controls
     subset <- getEstimates(connection = connectionPool,
@@ -41,7 +49,8 @@ shinyServer(function(input, output, session) {
   # Per period
   
   filterEstimates <- reactive({
-    subset <- getAllEstimates() %>%
+    subset <- getAllEstimates() 
+    subset <- subset %>%
       filter(.data$method %in% input$method & .data$periodId == periodId())
     if (input$calibrated == "Calibrated") {
       subset$logRr <- subset$calibratedLogRr
@@ -72,6 +81,9 @@ shinyServer(function(input, output, session) {
   
   output$tableCaption <- renderUI({
     subset <- filterEstimates()
+    validate(
+      need(nrow(subset) > 0, "No data found for these inputs")
+    )
     subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
     ncCount <- sum(subset$effectSize == 1)
     pcCount <- sum(subset$effectSize != 1)
@@ -189,7 +201,7 @@ shinyServer(function(input, output, session) {
                     topPx - 50,
                     "px; width:400px;")
     
-        estimate <- paste0(formatC(exp(point$logRr), digits = 2, format = "f"),
+    estimate <- paste0(formatC(exp(point$logRr), digits = 2, format = "f"),
                        " (",
                        formatC(point$ci95Lb, digits = 2, format = "f"),
                        "-",
@@ -267,6 +279,19 @@ shinyServer(function(input, output, session) {
     #                            backgroundPosition = 'center')
     # }
     return(table)
+  })
+  
+  output$tableAcrossPeriodsCaption <- renderUI({
+    subset <- filterEstimatesAcrossPeriods()
+    validate(
+      need(nrow(subset) > 0, "No data found for these inputs")
+    )
+    subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
+    ncCount <- sum(subset$effectSize == 1)
+    pcCount <- sum(subset$effectSize != 1)
+    return(HTML(sprintf("<strong>Table 1.b</strong> Metrics based on the effect-size estimate (e.g hazard ratio or odds ratio), using %s negative and %s positive controls.", 
+                        ncCount, 
+                        pcCount)))
   })
   
   selectedEstimatesAcrossPeriods <- reactive({
@@ -352,6 +377,10 @@ shinyServer(function(input, output, session) {
   
   output$table2Caption <- renderUI({
     subset <- filterEstimates2()
+    validate(
+      need(nrow(subset) > 0, "No data found for these inputs")
+    )
+    
     subset <- unique(subset[, c("exposureId", "outcomeId", "effectSize")])
     ncCount <- sum(subset$effectSize == 1)
     pcCount <- sum(subset$effectSize != 1)
@@ -434,7 +463,7 @@ shinyServer(function(input, output, session) {
       subset$Group <- as.factor(paste("True effect size =", subset$effectSize))
       vaccinationsSubset <- vaccinations %>%
         filter(.data$databaseId == input$database2 & .data$exposureId == exposureId2())
-      return(plotLlrs(subset, vaccinations, trueRr = input$trueRr2))
+      return(plotLlrs(subset, vaccinationsSubset, trueRr = input$trueRr2))
     }
   })
   
@@ -529,24 +558,24 @@ shinyServer(function(input, output, session) {
   
   # Info buttons -----------------------------------------------------------------
   
-  
-  observeEvent(input$evalTypeInfo, {
+  # Effect-size estimate-based metrics tab
+  observeEvent(input$vaccineInfo, {
     showModal(modalDialog(
-      title = "Evaluation type",
+      title = "Vaccine",
       easyClose = TRUE,
       footer = NULL,
       size = "l",
-      HTML(evalTypeInfoHtml)
+      HTML(vaccineInfoHtml)
     ))
   })
   
-  observeEvent(input$evalTypeInfo2, {
+  observeEvent(input$timeAtRiskInfo, {
     showModal(modalDialog(
-      title = "Evaluation type",
+      title = "Time at risk",
       easyClose = TRUE,
       footer = NULL,
       size = "l",
-      HTML(evalTypeInfoHtml)
+      HTML(timeAtRiskInfoHtml)
     ))
   })
   
@@ -560,36 +589,17 @@ shinyServer(function(input, output, session) {
     ))
   })
   
-  observeEvent(input$calibrationInfo2, {
+  observeEvent(input$periodInfo, {
     showModal(modalDialog(
-      title = "Empirical calibration",
+      title = "Time period",
       easyClose = TRUE,
       footer = NULL,
       size = "l",
-      HTML(calibrationInfoHtml)
+      HTML(periodInfoHtml)
     ))
   })
-  
-  observeEvent(input$mdrrInfo, {
-    showModal(modalDialog(
-      title = "Minimum Detectable RR",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(mdrrInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$mdrrInfo2, {
-    showModal(modalDialog(
-      title = "Minimum Detectable RR",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(mdrrInfoHtml)
-    ))
-  })
-  
+
+
   observeEvent(input$databaseInfo, {
     showModal(modalDialog(
       title = "Databases",
@@ -597,16 +607,6 @@ shinyServer(function(input, output, session) {
       footer = NULL,
       size = "l",
       HTML(databaseInfoHtml)
-    ))
-  })
-  
-  observeEvent(input$stratumInfo, {
-    showModal(modalDialog(
-      title = "Strata",
-      easyClose = TRUE,
-      footer = NULL,
-      size = "l",
-      HTML(stratumInfoHtml)
     ))
   })
   
@@ -629,14 +629,65 @@ shinyServer(function(input, output, session) {
       HTML(methodsInfoHtml)
     ))
   })
-  
-  observeEvent(input$metricInfo, {
+
+  # MaxSPRT-based metrics tab
+  observeEvent(input$vaccineInfo2, {
     showModal(modalDialog(
-      title = "Metrics",
+      title = "Vaccine",
       easyClose = TRUE,
       footer = NULL,
       size = "l",
-      HTML(metricInfoHtml)
+      HTML(vaccineInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$timeAtRiskInfo2, {
+    showModal(modalDialog(
+      title = "Time at risk",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(timeAtRiskInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$databaseInfo2, {
+    showModal(modalDialog(
+      title = "Databases",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(databaseInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$trueRrInfo2, {
+    showModal(modalDialog(
+      title = "True effect size",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(trueRrInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$methodsInfo2, {
+    showModal(modalDialog(
+      title = "Methods",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(methodsInfoHtml)
+    ))
+  })
+  
+  observeEvent(input$minimumOutcomesInfo2, {
+    showModal(modalDialog(
+      title = "Minimum outcomes",
+      easyClose = TRUE,
+      footer = NULL,
+      size = "l",
+      HTML(minimumOutcomesInfoHtml)
     ))
   })
   
