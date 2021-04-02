@@ -10,7 +10,7 @@ Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)
 - Study lead forums tag: **[schuemie](https://forums.ohdsi.org/u/schuemie)**
 - Study start date: **January 12, 2021**
 - Study end date: **-**
-- Protocol: **[HTML document](https://ohdsi-studies.github.io/Eumaeus/Protocol.html)**
+- Protocol: **[HTML document](https://ohdsi-studies.github.io/Eumaeus/Protocol.html)**, **[ENCEPP registration](http://www.encepp.eu/encepp/viewResource.htm?id=40341)**
 - Publications: **-**
 - Results explorer: **-**
 
