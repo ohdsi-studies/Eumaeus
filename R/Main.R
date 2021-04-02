@@ -168,11 +168,11 @@ execute <- function(connectionDetails,
   if (generateDiagnostics) {
     ParallelLogger::logInfo("Generating additional diagnostics")
     generateDiagnostics(connectionDetails = connectionDetails,
-                            cdmDatabaseSchema = cdmDatabaseSchema,
-                            cohortDatabaseSchema = cohortDatabaseSchema,
-                            cohortTable = cohortTable,
-                            outputFolder = outputFolder,
-                            maxCores = maxCores)
+                        cdmDatabaseSchema = cdmDatabaseSchema,
+                        cohortDatabaseSchema = cohortDatabaseSchema,
+                        cohortTable = cohortTable,
+                        outputFolder = outputFolder,
+                        maxCores = maxCores)
   }
   
   if (computeCriticalValues) {

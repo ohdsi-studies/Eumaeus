@@ -17,9 +17,8 @@
 generateDiagnostics <- function(outputFolder,
                                 connectionDetails,
                                 cdmDatabaseSchema,
-                                databaseId,
-                                databaseName,
-                                databaseDescription,
+                                cohortDatabaseSchema,
+                                cohortTable,
                                 maxCores) {
   
   generateHcDiagnostics(connectionDetails = connectionDetails,
@@ -34,11 +33,10 @@ generateDiagnostics <- function(outputFolder,
 generateHcDiagnostics <- function(outputFolder,
                                   connectionDetails,
                                   cdmDatabaseSchema,
-                                  databaseId,
-                                  databaseName,
-                                  databaseDescription,
+                                  cohortDatabaseSchema,
+                                  cohortTable,
                                   maxCores) {
-  fileName<- file.path(outputFolder, "hcDiagnosticsRates.csv")
+  fileName <- file.path(outputFolder, "hcDiagnosticsRates.csv")
   if (!file.exists(fileName)) {
     ParallelLogger::logInfo("Computing diagnostics for historic comparator")
     
