@@ -313,7 +313,7 @@ computeMaxSprtMetrics <- function(estimates, trueRr = "Overall") {
   return(result)
 }
 
-plotMaxSprtSensSpecAcrossMethods2 <- function(estimates, trueRr = "Overall") {
+plotMaxSprtSensSpecAcrossMethods <- function(estimates, trueRr = "Overall") {
   if (!"effectSize" %in% colnames(estimates))
     stop("Must add column 'effectSize' to estimates (e.g. using addTrueEffectSize())")
   

@@ -3737,6 +3737,113 @@ The number of subjects that contributed time-at-risk.
 </tbody>
 </table>
 </div>
+<div id="table-monthly_rate" class="section level2">
+<h2>Table monthly_rate</h2>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:left;">
+Type
+</th>
+<th style="text-align:left;">
+Key
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+database_id
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the database table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outcome_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+start_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+The start date of the time period.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+end_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+The end date of the time period.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outcomes
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of outcomes observed during the month.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+days
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of patient days in themonth.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="table-negative_control_outcome" class="section level2">
 <h2>Table negative_control_outcome</h2>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
@@ -4026,7 +4133,7 @@ exposure &lt;- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
 head(exposure)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["exposureId"],"name":[1],"type":["int"],"align":["right"]},{"label":["exposureName"],"name":[2],"type":["chr"],"align":["left"]},{"label":["totalShots"],"name":[3],"type":["int"],"align":["right"]},{"label":["baseExposureId"],"name":[4],"type":["int"],"align":["right"]},{"label":["baseExposureName"],"name":[5],"type":["chr"],"align":["left"]},{"label":["shot"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"21184","2":"H1N1 vaccination","3":"1","4":"21184","5":"H1N1 vaccination","6":"First","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["exposureId"],"name":[1],"type":["int"],"align":["right"]},{"label":["exposureName"],"name":[2],"type":["chr"],"align":["left"]},{"label":["totalShots"],"name":[3],"type":["int"],"align":["right"]},{"label":["baseExposureId"],"name":[4],"type":["int"],"align":["right"]},{"label":["baseExposureName"],"name":[5],"type":["chr"],"align":["left"]},{"label":["shot"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"21184","2":"H1N1 vaccination","3":"1","4":"21184","5":"H1N1 vaccination","6":"First","_rn_":"1"},{"1":"21185","2":"Seasonal flu vaccination (Fluvirin)","3":"1","4":"21185","5":"Seasonal flu vaccination (Fluvirin)","6":"First","_rn_":"2"},{"1":"21214","2":"Seasonal flu vaccination (Fluzone)","3":"1","4":"21214","5":"Seasonal flu vaccination (Fluzone)","6":"First","_rn_":"3"},{"1":"21215","2":"Seasonal flu vaccination (All)","3":"1","4":"21215","5":"Seasonal flu vaccination (All)","6":"First","_rn_":"4"},{"1":"211981","2":"First Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"First","_rn_":"5"},{"1":"211982","2":"Second Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"Second","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>We may want to retrieve the estimates for the H1N1 vaccination (exposure ID = 21184) with negative control outcome ‘Alkalosis’ (outcome ID = 438730) in the IBM MDCD database for the unadjusted historical comparator analysis using a time-at-risk of 1-28 days (analysis ID = 1):</p>
@@ -4048,7 +4155,7 @@ estimate %&gt;%
   select(label, exposureSubjects, exposureOutcomes, rr, llr, criticalValue)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["label"],"name":[1],"type":["chr"],"align":["left"]},{"label":["exposureSubjects"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["exposureOutcomes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rr"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["llr"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["criticalValue"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1 month","2":"0","3":"0","4":"NA","5":"NA","6":"1.998741","_rn_":"1"},{"1":"2 months","2":"31707","3":"1","4":"1.6159193","5":"0.0987468","6":"1.998741","_rn_":"2"},{"1":"3 months","2":"93969","3":"2","4":"0.4701909","5":"0.0000000","6":"1.998741","_rn_":"3"},{"1":"4 months","2":"152079","3":"3","4":"0.3739664","5":"0.0000000","6":"1.998741","_rn_":"4"},{"1":"5 months","2":"181588","3":"3","4":"0.2997072","5":"0.0000000","6":"1.998741","_rn_":"5"},{"1":"6 months","2":"195199","3":"4","4":"0.3539380","5":"0.0000000","6":"1.998741","_rn_":"6"},{"1":"7 months","2":"202094","3":"4","4":"0.3360459","5":"0.0000000","6":"1.998741","_rn_":"7"},{"1":"8 months","2":"205439","3":"4","4":"0.3281683","5":"0.0000000","6":"1.998741","_rn_":"8"},{"1":"9 months","2":"206865","3":"4","4":"0.3246918","5":"0.0000000","6":"1.998741","_rn_":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["label"],"name":[1],"type":["chr"],"align":["left"]},{"label":["exposureSubjects"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["exposureOutcomes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rr"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["llr"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["criticalValue"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Note that in many cases the number of exposed subjects within a time period can be 0, and other values such as the relative risk (rr) cannot be computed and are therefore set to NA.</p>

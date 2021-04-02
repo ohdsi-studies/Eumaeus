@@ -23,6 +23,7 @@ execute(
   runSccs = TRUE,
   runCaseControl = TRUE,
   runHistoricalComparator = TRUE,
+  generateDiagnostics = TRUE,
   computeCriticalValues = TRUE,
   createDbCharacterization = TRUE,
   exportResults = TRUE
@@ -76,6 +77,8 @@ for the available exposure cohorts and their IDs.}
 \item{runCaseControl}{Perform the case-control analyses?}
 
 \item{runHistoricalComparator}{Perform the historical comparator analyses?}
+
+\item{generateDiagnostics}{Generate additional study diagnostics?}
 
 \item{computeCriticalValues}{Compute critical values for all methods?}
 

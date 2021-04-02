@@ -408,10 +408,33 @@ exportDiagnostics <- function(outputFolder,
                 subjects = .data$personCount)
   }
   results <- purrr::map_dfr(folders, getHistoricalRates)
+  # aggregate across age and gender:
+  resultsAggregated <- results %>%
+    group_by(.data$outcomeId, .data$exposureId, .data$databaseId, .data$timeAtRisk) %>%
+    summarize(outcomes = sum(.data$outcomes),
+              days = sum(.data$days),
+              .groups = "drop") %>%
+    mutate(ageGroup = "",
+           gender = "",
+           subjects  = NA)
+  results <- rbind(results, resultsAggregated)
   results <- enforceMinCellValue(results, "outcomes", minCellCount)
   results <- enforceMinCellValue(results, "subjects", minCellCount)
   colnames(results) <- SqlRender::camelCaseToSnakeCase(colnames(results))
   fileName <- file.path(exportFolder, "historical_rate.csv")
   readr::write_csv(results, fileName)
+  
+  ParallelLogger::logInfo("- monthly_rate table")
+  fileName<- file.path(outputFolder, "hcDiagnosticsRates.csv")
+  montlyRates <- readr::read_csv(fileName, col_types = readr::cols())
+  montlyRates <- montlyRates %>%
+    mutate(databaseId = !!databaseId,
+           outcomes = .data$cohortCount,
+           days = round(.data$personYears * 365.25)) %>%
+    select(-.data$cohortCount, -.data$personYears)
+  montlyRates <- enforceMinCellValue(montlyRates, "outcomes", minCellCount)
+  colnames(montlyRates) <- SqlRender::camelCaseToSnakeCase(colnames(montlyRates))
+  fileName <- file.path(exportFolder, "monthly_rate.csv")
+  readr::write_csv(montlyRates, fileName)
 }
   

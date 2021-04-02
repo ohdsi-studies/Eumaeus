@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS negative_control_outcome;
 DROP TABLE IF EXISTS positive_control_outcome;
 DROP TABLE IF EXISTS time_period;
 DROP TABLE IF EXISTS historical_rate;
+DROP TABLE IF EXISTS monthly_rate;
 
 
 -- Create tables
@@ -134,4 +135,16 @@ CREATE TABLE historical_rate (
 			days BIGINT NOT NULL,
 			subjects BIGINT NOT NULL,
 			PRIMARY KEY(database_id, exposure_id, outcome_id, time_at_risk, age_group, gender)
+);
+
+--Table monthly_rate
+
+CREATE TABLE monthly_rate (
+			database_id VARCHAR(255) NOT NULL,
+			outcome_id INTEGER NOT NULL,
+			start_date DATE NOT NULL,
+			end_date DATE NOT NULL,
+			outcomes BIGINT,
+			days BIGINT,
+			PRIMARY KEY(database_id, outcome_id, start_date, end_date)
 );

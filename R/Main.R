@@ -62,6 +62,7 @@ getExposuresOfInterest <- function() {
 #' @param runSccs                     Perform the SCCS and SCRI analyses?
 #' @param runCaseControl                     Perform the case-control analyses?
 #' @param runHistoricalComparator       Perform the historical comparator analyses?
+#' @param generateDiagnostics   Generate additional study diagnostics?
 #' @param computeCriticalValues Compute critical values for all methods?
 #' @param createDbCharacterization  Create a high-level characterization of the database?
 #' @param exportResults       Export the results to a single zip file (containing several CSV files) for sharing?
@@ -85,6 +86,7 @@ execute <- function(connectionDetails,
                     runSccs = TRUE,
                     runCaseControl = TRUE,
                     runHistoricalComparator = TRUE,
+                    generateDiagnostics = TRUE,
                     computeCriticalValues = TRUE,
                     createDbCharacterization = TRUE,
                     exportResults = TRUE) {
@@ -156,6 +158,16 @@ execute <- function(connectionDetails,
   if (runHistoricalComparator) {
     ParallelLogger::logInfo("Running HistoricalComparator")
     runHistoricalComparator(connectionDetails = connectionDetails,
+                            cdmDatabaseSchema = cdmDatabaseSchema,
+                            cohortDatabaseSchema = cohortDatabaseSchema,
+                            cohortTable = cohortTable,
+                            outputFolder = outputFolder,
+                            maxCores = maxCores)
+  }
+  
+  if (generateDiagnostics) {
+    ParallelLogger::logInfo("Generating additional diagnostics")
+    generateDiagnostics(connectionDetails = connectionDetails,
                             cdmDatabaseSchema = cdmDatabaseSchema,
                             cohortDatabaseSchema = cohortDatabaseSchema,
                             cohortTable = cohortTable,
