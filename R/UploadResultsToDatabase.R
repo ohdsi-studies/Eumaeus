@@ -342,13 +342,21 @@ uploadResultsToDatabase <- function(connectionDetails = NULL,
 }
 
 deleteFromServer <- function(connection, schema, tableName, keyValues) {
+  asCharacter <- function(x) {
+    if (is(x, "Date")) {
+      return(format(x, "%Y-%m-%d"))
+    } else {
+      return(as.character(x))
+    }
+  }
+  
   createSqlStatement <- function(i) {
     sql <- paste0("DELETE FROM ",
                   schema,
                   ".",
                   tableName,
                   "\nWHERE ",
-                  paste(paste0(colnames(keyValues), " = '", keyValues[i, ], "'"), collapse = " AND "),
+                  paste(paste0(colnames(keyValues), " = '", sapply(keyValues[i, ], asCharacter), "'"), collapse = " AND "),
                   ";")
     return(sql)
   }

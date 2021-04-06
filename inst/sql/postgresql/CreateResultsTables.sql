@@ -89,6 +89,10 @@ CREATE TABLE exposure (
 			base_exposure_id INTEGER NOT NULL,
 			base_exposure_name VARCHAR(255) NOT NULL,
 			shot VARCHAR(255) NOT NULL,
+			start_date DATE NOT NULL,
+			end_date DATE NOT NULL,
+			history_start_date DATE NOT NULL,
+			history_end_date DATE NOT NULL,
 			PRIMARY KEY(exposure_id, base_exposure_id)
 );
 
@@ -133,7 +137,7 @@ CREATE TABLE historical_rate (
 			gender VARCHAR(255),
 			outcomes BIGINT NOT NULL,
 			days BIGINT NOT NULL,
-			subjects BIGINT NOT NULL,
+			subjects BIGINT,
 			PRIMARY KEY(database_id, exposure_id, outcome_id, time_at_risk, age_group, gender)
 );
 

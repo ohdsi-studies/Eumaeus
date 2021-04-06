@@ -47,6 +47,10 @@ exposure,total_shots,INTEGER,Yes,No,Yes,The number of shots for a vaccine. (1 or
 exposure,base_exposure_id,INTEGER,Yes,Yes,Yes,A unique identified for the vaccine.
 exposure,base_exposure_name,VARCHAR(255),Yes,No,Yes,The name of the vaccine.
 exposure,shot,VARCHAR(255),Yes,No,Yes,"Whether this is the 'First', 'Second', or 'Both' shots."
+exposure,start_date,DATE,Yes,No,Yes,The start of the period when we do safety surveillance.
+exposure,end_date,DATE,Yes,No,Yes,The end of the period when we do safety surveillance.
+exposure,history_start_date,DATE,Yes,No,Yes,The start of the period used to create the historic comparator incidence rates.
+exposure,history_end_date,DATE,Yes,No,Yes,The end of the period used to create the historic comparator incidence rates.
 negative_control_outcome,outcome_id,INTEGER,Yes,Yes,Yes,A unique identifier for an outcome. Does not overlap with the outcome IDs in the positive_control_outcome table.
 negative_control_outcome,outcome_name,VARCHAR(255),Yes,No,Yes,The name of the outcome.
 positive_control_outcome,outcome_id,INTEGER,Yes,Yes,Yes,A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.
@@ -67,7 +71,7 @@ historical_rate,age_group,VARCHAR(255),No,Yes,No,"For stratified rates, the age 
 historical_rate,gender,VARCHAR(255),No,Yes,No,"For stratified rates, the gender."
 historical_rate,outcomes,BIGINT,Yes,No,Yes,The number of outcomes observed during the time-at-risk.
 historical_rate,days,BIGINT,Yes,No,Yes,The number of patient days in the time-at-risk.
-historical_rate,subjects,BIGINT,Yes,No,Yes,The number of subjects that contributed time-at-risk.
+historical_rate,subjects,BIGINT,No,No,Yes,The number of subjects that contributed time-at-risk.
 monthly_rate,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
 monthly_rate,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
 monthly_rate,start_date,DATE,Yes,Yes,Yes,The start date of the time period.

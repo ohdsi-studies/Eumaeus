@@ -3585,6 +3585,62 @@ No
 Whether this is the ‘First,’ ‘Second,’ or ‘Both’ shots.
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+start_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The start of the period when we do safety surveillance.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+end_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The end of the period when we do safety surveillance.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+history_start_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The start of the period used to create the historic comparator incidence rates.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+history_end_date
+</td>
+<td style="text-align:left;">
+DATE
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The end of the period used to create the historic comparator incidence rates.
+</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -4133,7 +4189,7 @@ exposure &lt;- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
 head(exposure)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["exposureId"],"name":[1],"type":["int"],"align":["right"]},{"label":["exposureName"],"name":[2],"type":["chr"],"align":["left"]},{"label":["totalShots"],"name":[3],"type":["int"],"align":["right"]},{"label":["baseExposureId"],"name":[4],"type":["int"],"align":["right"]},{"label":["baseExposureName"],"name":[5],"type":["chr"],"align":["left"]},{"label":["shot"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"21184","2":"H1N1 vaccination","3":"1","4":"21184","5":"H1N1 vaccination","6":"First","_rn_":"1"},{"1":"21185","2":"Seasonal flu vaccination (Fluvirin)","3":"1","4":"21185","5":"Seasonal flu vaccination (Fluvirin)","6":"First","_rn_":"2"},{"1":"21214","2":"Seasonal flu vaccination (Fluzone)","3":"1","4":"21214","5":"Seasonal flu vaccination (Fluzone)","6":"First","_rn_":"3"},{"1":"21215","2":"Seasonal flu vaccination (All)","3":"1","4":"21215","5":"Seasonal flu vaccination (All)","6":"First","_rn_":"4"},{"1":"211981","2":"First Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"First","_rn_":"5"},{"1":"211982","2":"Second Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"Second","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["exposureId"],"name":[1],"type":["int"],"align":["right"]},{"label":["exposureName"],"name":[2],"type":["chr"],"align":["left"]},{"label":["totalShots"],"name":[3],"type":["int"],"align":["right"]},{"label":["baseExposureId"],"name":[4],"type":["int"],"align":["right"]},{"label":["baseExposureName"],"name":[5],"type":["chr"],"align":["left"]},{"label":["shot"],"name":[6],"type":["chr"],"align":["left"]},{"label":["startDate"],"name":[7],"type":["date"],"align":["right"]},{"label":["endDate"],"name":[8],"type":["date"],"align":["right"]},{"label":["historyStartDate"],"name":[9],"type":["date"],"align":["right"]},{"label":["historyEndDate"],"name":[10],"type":["date"],"align":["right"]}],"data":[{"1":"21184","2":"H1N1 vaccination","3":"1","4":"21184","5":"H1N1 vaccination","6":"First","7":"2009-09-01","8":"2010-05-31","9":"2008-09-01","10":"2009-05-31","_rn_":"1"},{"1":"21185","2":"Seasonal flu vaccination (Fluvirin)","3":"1","4":"21185","5":"Seasonal flu vaccination (Fluvirin)","6":"First","7":"2017-09-01","8":"2018-05-31","9":"2016-09-01","10":"2017-05-31","_rn_":"2"},{"1":"21214","2":"Seasonal flu vaccination (Fluzone)","3":"1","4":"21214","5":"Seasonal flu vaccination (Fluzone)","6":"First","7":"2017-09-01","8":"2018-05-31","9":"2016-09-01","10":"2017-05-31","_rn_":"3"},{"1":"21215","2":"Seasonal flu vaccination (All)","3":"1","4":"21215","5":"Seasonal flu vaccination (All)","6":"First","7":"2017-09-01","8":"2018-05-31","9":"2016-09-01","10":"2017-05-31","_rn_":"4"},{"1":"211981","2":"First Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"First","7":"2018-01-01","8":"2018-12-31","9":"2017-01-01","10":"2017-12-31","_rn_":"5"},{"1":"211982","2":"Second Zoster vaccination (Shingrix)","3":"2","4":"21198","5":"Zoster vaccination (Shingrix)","6":"Second","7":"2018-01-01","8":"2018-12-31","9":"2017-01-01","10":"2017-12-31","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>We may want to retrieve the estimates for the H1N1 vaccination (exposure ID = 21184) with negative control outcome ‘Alkalosis’ (outcome ID = 438730) in the IBM MDCD database for the unadjusted historical comparator analysis using a time-at-risk of 1-28 days (analysis ID = 1):</p>
