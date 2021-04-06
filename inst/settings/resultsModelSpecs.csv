@@ -11,7 +11,7 @@ database,min_obs_period_date,DATE,Yes,No,Yes,The earliest date the database has 
 database,max_obs_period_date,DATE,Yes,No,Yes,The latest date the database has information (the maximum of the obervation_period_end_date).
 database,study_package_version,VARCHAR(255),Yes,No,Yes,The version of the study package used to generate the results.
 database,is_meta_analysis,INTEGER,Yes,No,Yes," Does the record pertain a meta-analysis across databases? (0=no, 1=yes)"
-database_characterization,subject_count,INTEGER,Yes,No,Yes,The count of subjects within a stratum.
+database_characterization,subject_count,BIGINT,Yes,No,Yes,The count of subjects within a stratum.
 database_characterization,stratum,TEXT,Yes,Yes,Yes,A unique identifier for a stratum.
 database_characterization,stratification,VARCHAR(255),Yes,Yes,Yes,The stratification used.
 database_characterization,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
