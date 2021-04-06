@@ -425,7 +425,7 @@ exportDiagnostics <- function(outputFolder,
   readr::write_csv(results, fileName)
   
   ParallelLogger::logInfo("- monthly_rate table")
-  fileName<- file.path(outputFolder, "hcDiagnosticsRates.csv")
+  fileName <- file.path(outputFolder, "hcDiagnosticsRates.csv")
   montlyRates <- readr::read_csv(fileName, col_types = readr::cols())
   montlyRates <- montlyRates %>%
     mutate(databaseId = !!databaseId,

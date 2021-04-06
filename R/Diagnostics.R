@@ -41,11 +41,11 @@ generateHcDiagnostics <- function(outputFolder,
     ParallelLogger::logInfo("Computing diagnostics for historic comparator")
     
     exposuresOfInterest <- loadExposuresofInterest()
-    negativeControls <- loadNegativeControls()
+    allControls <- loadAllControls(outputFolder)
     startDate <- min(exposuresOfInterest$historyStartDate) - 366
     endDate <- max(exposuresOfInterest$endDate) 
     periods <- splitTimePeriod(startDate, endDate)
-    
+    periods$startDate[2:nrow(periods)] <- periods$endDate[1:(nrow(periods) - 1)] + 1
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
     
@@ -57,7 +57,7 @@ generateHcDiagnostics <- function(outputFolder,
                                                cdm_database_schema = cdmDatabaseSchema,
                                                cohort_database_schema = cohortDatabaseSchema,
                                                cohort_table = cohortTable,
-                                               cohort_ids = negativeControls$outcomeId,
+                                               cohort_ids = allControls$outcomeId,
                                                start_date = format(periods$startDate[i], "%Y%m%d"),
                                                end_date = format(periods$endDate[i], "%Y%m%d"),
                                                washout_period = 365,
