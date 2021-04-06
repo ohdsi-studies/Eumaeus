@@ -584,10 +584,9 @@
     },
     "lifecycle": {
       "Package": "lifecycle",
-      "Version": "0.2.0",
+      "Version": "1.0.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "361811f31f71f8a617a9a68bf63f1f42"
+      "Repository": "CRAN"
     },
     "lubridate": {
       "Package": "lubridate",
@@ -843,10 +842,9 @@
     },
     "systemfonts": {
       "Package": "systemfonts",
-      "Version": "0.3.2",
+      "Version": "1.0.1",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "046e821d454edb3722192f588f4d7884"
+      "Repository": "CRAN"
     },
     "testthat": {
       "Package": "testthat",

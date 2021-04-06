@@ -95,7 +95,16 @@ exportExposures <- function(outputFolder, exportFolder) {
   ParallelLogger::logInfo("- exposure table")
   exposure <- loadExposureCohorts(outputFolder) %>%
     filter(.data$sampled == FALSE & .data$comparator == FALSE) %>%
-    select(.data$exposureId, .data$exposureName, totalShots = .data$shots, .data$baseExposureId, .data$baseExposureName, .data$shot)
+    select(.data$exposureId, 
+           .data$exposureName, 
+           totalShots = .data$shots, 
+           .data$baseExposureId, 
+           .data$baseExposureName, 
+           .data$shot, 
+           .data$startDate, 
+           .data$endDate, 
+           .data$historyStartDate , 
+           .data$historyEndDate)
   colnames(exposure) <- SqlRender::camelCaseToSnakeCase(colnames(exposure))
   fileName <- file.path(exportFolder, "exposure.csv")
   readr::write_csv(exposure, fileName)
