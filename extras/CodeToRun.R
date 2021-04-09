@@ -30,18 +30,6 @@ Sys.setenv("AWS_DEFAULT_REGION" = "us-east-1")
 Sys.setenv("AWS_SSE_TYPE" = "AES256")
 Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
 
-# E-mail settings -----------------------------------------------------------------------------
-mailSettings <- list(from = keyring::key_get("mailAddress"),
-                     to = c(keyring::key_get("mailToAddress")),
-                     smtp = list(host.name = keyring::key_get("mailSmtpServer"),
-                                 port = keyring::key_get("mailSmtpPort"),
-                                 user.name = keyring::key_get("mailAddress"),
-                                 passwd = keyring::key_get("mailPassword"),
-                                 ssl = TRUE),
-                     authenticate = TRUE,
-                     send = TRUE)
-ParallelLogger::addDefaultEmailLogger(mailSettings = mailSettings, label = Sys.info()["nodename"])
-
 # Details specific to MDCD:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
                                                                 connectionString = keyring::key_get("redShiftConnectionStringMdcd"),
@@ -53,7 +41,7 @@ cohortDatabaseSchema <- "scratch_mschuemi2"
 cohortTable <- "mschuemi_vac_surv_mdcd"
 databaseId <- "IBM_MDCD"
 databaseName <- "IBM Health MarketScan® Multi-State Medicaid Database"
-databaseDescription <- "Truven Health MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data. [For further information link to RWE site for Truven MDCD."
+databaseDescription <- "IBM MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data."
 
 
 # # Details specific to MDCR:
@@ -157,12 +145,12 @@ execute(connectionDetails = connectionDetails,
         synthesizePositiveControls = F,
         runCohortMethod = F,
         runSccs = F,
-        runCaseControl = TRUE,
-        runHistoricalComparator = TRUE,
+        runCaseControl = F,
+        runHistoricalComparator = F,
         generateDiagnostics = TRUE,
-        computeCriticalValues = TRUE,
-        createDbCharacterization = TRUE,
-        exportResults = TRUE)
+        computeCriticalValues = F,
+        createDbCharacterization = F,
+        exportResults = F)
 
 uploadResults(outputFolder = outputFolder,
               privateKeyFileName = "c:/home/keyfiles/study-data-site-covid19.dat",

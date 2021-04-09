@@ -11,18 +11,48 @@ HistoricalComparator,9,"Unadjusted historical comparator",0-1
 HistoricalComparator,10,"Age + sex adjusted historical comparator",0-1
 HistoricalComparator,11,"Visit-anchor unadjusted historical comparator",0-1
 HistoricalComparator,12,"Visit-anchor age + sex adjusted historical comparator",0-1
+HistoricalComparator,13,"Unadjusted historical comparator, filtered",1-28
+HistoricalComparator,14,"Age + sex adjusted historical comparator, filtered",1-28
+HistoricalComparator,15,"Visit-anchor unadjusted historical comparator, filtered",1-28
+HistoricalComparator,16,"Visit-anchor age + sex adjusted historical comparator, filtered",1-28
+HistoricalComparator,17,"Unadjusted historical comparator, filtered",1-42
+HistoricalComparator,18,"Age + sex adjusted historical comparator, filtered",1-42
+HistoricalComparator,19,"Visit-anchor unadjusted historical comparator, filtered",1-42
+HistoricalComparator,20,"Visit-anchor age + sex adjusted historical comparator, filtered",1-42
+HistoricalComparator,21,"Unadjusted historical comparator, filtered",0-1
+HistoricalComparator,22,"Age + sex adjusted historical comparator, filtered",0-1
+HistoricalComparator,23,"Visit-anchor unadjusted historical comparator, filtered",0-1
+HistoricalComparator,24,"Visit-anchor age + sex adjusted historical comparator, filtered",0-1
 CohortMethod,1,"Visit-anchor crude cohort method",1-28
-CohortMethod,2,"Visit-anchor  propensity-score adjusted cohort method",1-28
+CohortMethod,2,"Visit-anchor propensity-score matched cohort method",1-28
 CohortMethod,3,"Random day crude cohort method",1-28
-CohortMethod,4,"Random day propensity-score adjusted cohort method",1-28
+CohortMethod,4,"Random day propensity-score matched cohort method",1-28
 CohortMethod,5,"Visit-anchor crude cohort method",1-42
-CohortMethod,6,"Visit-anchor  propensity-score adjusted cohort method",1-42
+CohortMethod,6,"Visit-anchor propensity-score matched cohort method",1-42
 CohortMethod,7,"Random day crude cohort method",1-42
-CohortMethod,8,"Random day propensity-score adjusted cohort method",1-42
+CohortMethod,8,"Random day propensity-score matched cohort method",1-42
 CohortMethod,9,"Visit-anchor crude cohort method",0-1
-CohortMethod,10,"Visit-anchor  propensity-score adjusted cohort method",0-1
+CohortMethod,10,"Visit-anchor propensity-score matched cohort method",0-1
 CohortMethod,11,"Random day crude cohort method",0-1
-CohortMethod,12,"Random day propensity-score adjusted cohort method",0-1
+CohortMethod,12,"Random day propensity-score matched cohort method",0-1
+CohortMethod,13,"Visit-anchor propensity-score stratified cohort method",1-28
+CohortMethod,14,"Random day propensity-score stratified cohort method",1-28
+CohortMethod,15,"Visit-anchor propensity-score stratified cohort method",1-42
+CohortMethod,16,"Random day propensity-score stratified cohort method",1-42
+CohortMethod,17,"Visit-anchor propensity-score stratified cohort method",0-1
+CohortMethod,18,"Random day propensity-score stratified cohort method",0-1
+CohortMethod,19,"Visit-anchor IPTW cohort method",1-28
+CohortMethod,20,"Random day IPTW cohort method",1-28
+CohortMethod,21,"Visit-anchor IPTW cohort method",1-42
+CohortMethod,22,"Random day IPTW cohort method",1-42
+CohortMethod,23,"Visit-anchor IPTW cohort method",0-1
+CohortMethod,24,"Random day IPTW cohort method",0-1
+CohortMethod,25,"Visit-anchor per-month PS-matched cohort method",1-28
+CohortMethod,26,"Random day per-month PS-matched cohort method",1-28
+CohortMethod,27,"Visit-anchor per-month PS-matched cohort method",1-42
+CohortMethod,28,"Random day per-month PS-matched cohort method",1-42
+CohortMethod,29,"Visit-anchor per-month PS-matched cohort method",0-1
+CohortMethod,30,"Random day per-month PS-matched cohort method",0-1
 SCCS,1,"Simple SCCS",1-28
 SCCS,2,"SCCS adjusting for age and season",1-28
 SCCS,3,"SCRI with prior control interval",1-28
@@ -35,6 +65,9 @@ SCCS,9,"Simple SCCS",0-1
 SCCS,10,"SCCS adjusting for age and season",0-1
 SCCS,11,"SCRI with prior control interval",0-1
 SCCS,12,"SCRI with posterior control interval",0-1
+SCCS,13,"SCCS excluding pre-vaccination time",1-28
+SCCS,14,"SCCS excluding pre-vaccination time",1-42
+SCCS,15,"SCCS excluding pre-vaccination time",0-1
 CaseControl,1,"age + sex matched case-control",1-28
 CaseControl,2,"Case-control using sampled controls",1-28
 CaseControl,3,"age + sex matched case-control",1-42

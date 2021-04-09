@@ -133,6 +133,13 @@ execute <- function(connectionDetails,
                     cohortTable = cohortTable,
                     outputFolder = outputFolder,
                     maxCores = maxCores)
+    ParallelLogger::logInfo("Running per-month PS CohortMethod")
+    runPerMonthCohortMethod(connectionDetails = connectionDetails,
+                            cdmDatabaseSchema = cdmDatabaseSchema,
+                            cohortDatabaseSchema = cohortDatabaseSchema,
+                            cohortTable = cohortTable,
+                            outputFolder = outputFolder,
+                            maxCores = maxCores)
   }
   
   if (runSccs) {
@@ -163,6 +170,13 @@ execute <- function(connectionDetails,
                             cohortTable = cohortTable,
                             outputFolder = outputFolder,
                             maxCores = maxCores)
+    ParallelLogger::logInfo("Running filtered HistoricalComparator")
+    runFilteredHistoricalComparator(connectionDetails = connectionDetails,
+                                    cdmDatabaseSchema = cdmDatabaseSchema,
+                                    cohortDatabaseSchema = cohortDatabaseSchema,
+                                    cohortTable = cohortTable,
+                                    outputFolder = outputFolder,
+                                    maxCores = maxCores)
   }
   
   if (generateDiagnostics) {

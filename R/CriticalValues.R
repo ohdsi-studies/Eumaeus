@@ -14,62 +14,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 computeCriticalValues <- function(outputFolder, maxCores) {
   cluster <- ParallelLogger::makeCluster(min(10, maxCores))
   ParallelLogger::clusterRequire(cluster, "dplyr")
   on.exit(ParallelLogger::stopCluster(cluster))
   
-  fileName <- file.path(outputFolder, "hcSummary_withCvs.csv")
-  if (!file.exists(fileName)) {
-    ParallelLogger::logInfo("- Computing critical values for historic comparator")
-    hcEstimates <- loadEstimates(file.path(outputFolder, "hcSummary.csv")) 
-    subsets <- split(hcEstimates, paste(hcEstimates$analysisId, hcEstimates$exposureId, hcEstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeHistoricalComparatorCv)
-    cvs <- bind_rows(cvs)
-    rm(subsets)
-    hcEstimates <- hcEstimates %>%
-      inner_join(cvs, by = c("analysisId", "exposureId", "outcomeId"))
-    readr::write_csv(hcEstimates, fileName)
-  }
+  computeCvsIncrementally(estimatesFileName = file.path(outputFolder, "hcSummary.csv"), 
+                          estimatesWithCvsFileName = file.path(outputFolder, "hcSummary_withCvs.csv"),
+                          cvFunction = Eumaeus:::computeHistoricalComparatorCv, 
+                          cluster = cluster) 
   
-  fileName <- file.path(outputFolder, "ccSummary_withCvs.csv")
-  if (!file.exists(fileName)) {
-    ParallelLogger::logInfo("- Computing critical values for case-control")
-    ccEstimates <- loadEstimates(file.path(outputFolder, "ccSummary.csv")) 
-    subsets <- split(ccEstimates, paste(ccEstimates$analysisId, ccEstimates$exposureId, ccEstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeCaseControlCv)
-    cvs <- bind_rows(cvs)
-    rm(subsets)
-    ccEstimates <- ccEstimates %>%
-      inner_join(cvs, by = c("analysisId", "exposureId", "outcomeId"))
-    readr::write_csv(ccEstimates, fileName)
-  }
+  computeCvsIncrementally(estimatesFileName = file.path(outputFolder, "ccSummary.csv"), 
+                          estimatesWithCvsFileName = file.path(outputFolder, "ccSummary_withCvs.csv"),
+                          cvFunction = computeCaseControlCv, 
+                          cluster = cluster) 
   
-  fileName <- file.path(outputFolder, "cmSummary_withCvs.csv")
-  if (!file.exists(fileName)) {
-    ParallelLogger::logInfo("- Computing critical values for cohort method")
-    cmEstimates <- loadEstimates(file.path(outputFolder, "cmSummary.csv")) 
-    subsets <- split(cmEstimates, paste(cmEstimates$analysisId, cmEstimates$exposureId, cmEstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeCohortMethodCv)
-    cvs <- bind_rows(cvs)
-    rm(subsets)
-    cmEstimates <- cmEstimates %>%
-      inner_join(cvs, by = c("analysisId", "exposureId", "outcomeId"))
-    readr::write_csv(cmEstimates, fileName)
-  }
+  computeCvsIncrementally(estimatesFileName = file.path(outputFolder, "cmSummary.csv"), 
+                          estimatesWithCvsFileName = file.path(outputFolder, "cmSummary_withCvs.csv"),
+                          cvFunction = computeCohortMethodCv, 
+                          cluster = cluster) 
   
-  fileName <- file.path(outputFolder, "sccsSummary_withCvs.csv")
-  if (!file.exists(fileName)) {
-    ParallelLogger::logInfo("- Computing critical values for SCCS / SCRI")
-    sccsstimates <- loadEstimates(file.path(outputFolder, "sccsSummary.csv")) 
-    subsets <- split(sccsstimates, paste(sccsstimates$analysisId, sccsstimates$exposureId, sccsstimates$outcomeId))
-    cvs <- ParallelLogger::clusterApply(cluster, subsets, computeSccsCv)
+  computeCvsIncrementally(estimatesFileName = file.path(outputFolder, "sccsSummary.csv"), 
+                          estimatesWithCvsFileName = file.path(outputFolder, "sccsSummary_withCvs.csv"),
+                          cvFunction = computeSccsCv, 
+                          cluster = cluster) 
+}
+
+computeCvsIncrementally <- function(estimatesFileName, estimatesWithCvsFileName, cvFunction, cluster) {
+  estimates <- loadEstimates(estimatesFileName) 
+  if (file.exists(estimatesWithCvsFileName)) {
+    estimatesWithCvs <- loadEstimates(estimatesWithCvsFileName)  
+    newEstimates <- estimates %>%
+      anti_join(select(estimatesWithCvs, 
+                       .data$exposureId, 
+                       .data$outcomeId, 
+                       .data$seqId, 
+                       .data$analysisId,
+                       .data$llr),
+                by = c("llr", "outcomeId", "analysisId", "exposureId", "seqId"))
+    oldEstimatesWithCvs <- estimatesWithCvs %>%
+      inner_join(select(estimates, 
+                        .data$exposureId, 
+                        .data$outcomeId, 
+                        .data$seqId, 
+                        .data$analysisId,
+                        .data$llr),
+                 by = c("llr", "outcomeId", "analysisId", "exposureId", "seqId"))
+  } else {
+    newEstimates <- estimates
+    oldEstimatesWithCvs <- tibble()
+  }
+  if (nrow(newEstimates) > 0) {
+    ParallelLogger::logInfo(sprintf("- Computing critical values for %s", basename(estimatesFileName)))
+    
+    subsets <- split(newEstimates, paste(newEstimates$analysisId, newEstimates$exposureId, newEstimates$outcomeId))
+    cvs <- ParallelLogger::clusterApply(cluster, subsets, cvFunction)
     cvs <- bind_rows(cvs)
     rm(subsets)
-    sccsstimates <- sccsstimates %>%
+    newEstimatesWithCvs <- newEstimates %>%
       inner_join(cvs, by = c("analysisId", "exposureId", "outcomeId"))
-    readr::write_csv(sccsstimates, fileName)
+    estimatesWithCvs <- bind_rows(oldEstimatesWithCvs, newEstimatesWithCvs)
+    readr::write_csv(estimatesWithCvs, estimatesWithCvsFileName)
   }
 }
 
@@ -148,8 +153,6 @@ computeSccsCv <- function(subset) {
                 criticalValue = cv))
 }
 
-
-
 computeHistoricalComparatorCv <- function(subset) {
   # subset <- subsets[[2]]
   expectedOutcomes <- subset %>%
@@ -212,4 +215,3 @@ computeTruncatedPoissonCv <- function(n, groupSizes) {
                                GroupSizes = groupSizes)
   return(cv)
 }
-

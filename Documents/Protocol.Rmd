@@ -3,6 +3,8 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
+  bookdown::word_document2:
+    toc: yes
   bookdown::html_document2:
     df_print: paged
     toc: yes
@@ -19,8 +21,6 @@ output:
     # citation_package: natbib
     includes:
       before_body: title.tex
-  bookdown::word_document2:
-    toc: yes
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -50,8 +50,8 @@ longtable: yes
 mainfont: Arial
 bibliography: Protocol.bib
 params:
-  date: '2021-03-22'
-  version: 1.0.0
+  date: '2021-04-09'
+  version: 1.1.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
 csl: jamia.csl
@@ -198,16 +198,25 @@ To study the comparative performance (bias, precision, and timeliness) of differ
 
 # Amendments and Updates
 
+Table \@ref(tab:amendments) lists any protocol amendments made over time.
+
 ```{r amendments, echo=FALSE, results="asis", warning=FALSE}
 amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Number; Date; Section of study protocol; Amendment or update; Reason
-  None;;;; 
+  1.1.0;2021-04-09;Methods to evaluate;Added historic comparator, cohort method, and SCCS variations;The historic comparator variation was based on initial EMAEUS results showing (preventable) outliers. The cohort method and SCCS variants are based on 3rd-party protocols for COVID-19 vaccine safety surveillance.
 ")
 
-tab <- kable(amendments, booktabs = TRUE, linesep = "")
+tab <- kable(amendments, booktabs = TRUE, linesep = "", caption = "Protocol amendments")
 
 if (knitr::is_latex_output()) {
-  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+  tab %>%
+    column_spec(1, width = "4em") %>%
+    column_spec(2, width = "6em") %>%
+    column_spec(3, width = "10em") %>%
+    column_spec(4, width = "15em") %>%
+    column_spec(5, width = "15em") %>%
+    kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
 }
@@ -215,16 +224,18 @@ if (knitr::is_latex_output()) {
 
 # Milestones
 
+Table \@ref(tab:dates) lists the study milestones.
+
 ```{r dates, echo=FALSE, results="asis", warning=FALSE}
 dates <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Milestone; Planned / actual date
-  EU PAS Registration; 
-  Start of analysis;
-  End of analysis;
-  Results presentation;
+  EU PAS Registration;2021-03-23
+  Start of analysis;2021-03-23
+  End of analysis;2021-05-01
+  Results presentation;2021-05-01
 ")
 
-tab <- kable(dates, booktabs = TRUE, linesep = "") 
+tab <- kable(dates, booktabs = TRUE, linesep = "", caption = "Study milestones") 
 
 if (knitr::is_latex_output()) {
   tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
@@ -358,24 +369,42 @@ Vaccine safety surveillance methods can be broken down in to four components: co
 **Historic rates**
 
 Traditionally, vaccine surveillance methods compute an expected count based an incidence rate estimated during some historic time period, for example in the years prior to the initiation of the surveillance study. We will use the historic period indicated in Table \@ref(tab:exposures-of-interest). 
-We will evaluate two variants:
+We will evaluate two variations:
 
 - Unadjusted, entire year. Using a single rate computed across the entire historic year for the entire population.
 - Age and sex adjusted, entire year. Using a rate stratifying by age (in 5 year increments) and sex, computed across the entire historic year. This allows the expected rate to be adjusted for the demographics of the vaccinated.
 - Unadjusted, time-at-risk relative to outpatient visit. Using a single rate computed during the time-at-risk relative to a random outpatient visit in the historic year.
 - Age and sex adjusted, time-at-risk relative to outpatient visit. Using a rate stratifying by age and sex, computed during the time-at-risk relative to a random outpatient visit in the historic year. 
 
+Initial results show that this counterfactual approach is sensitive to changes in coding practices. 
+We therefore introduce a study diagnostic: the percent change in overall incidence rate (across the entire population) between the historic and current time period. 
+For each of the four variations listed above, we add a new variation where effect-size estimate are removed if the change in incidence rate is greater than 50%.
+
 **Cohort method using a contemporary non-user comparator**
 
 A comparator cohort study most closely emulates a randomized clinical trial, comparing the target cohort (those vaccinated) to some comparator cohort.
 We define two types of non-user comparator cohort, one having an outpatient visit on the index date, and another having a random date as the index date.
 For both comparator variants we exclude subjects having a vaccinations for the same disease as the target vaccine on or before the index date.
-We will evaluate four method variants:
+When doing unadjusted comparisons, the comparator cohort will be a random sample of equal size as the target cohort.
+When doing propensity score (PS) adjusted comparisons, the comparator cohort will be a stratified (by age and sex) random sample of four times the size of the target cohort (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons).
+Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. [@Tian2018-xy]
+We will evaluate 10 method variations:
 
-- Unadjusted comparison to random outpatient visit. The comparator cohort will be a random sample (of outpatient visits) of equal size as the target cohort.
-- 1-on-1 propensity score (PS) matched outpatient visit. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. [@Tian2018-xy]
-- Unadjusted comparison to random date. The comparator cohort will be a random sample (of random dates) of equal size as the target cohort.
-- 1-on-1 propensity score (PS) matched random date. The comparator cohort before PS matching will be a stratified (by age and sex) random sample of four times the size as the target cohort. (two times for the Seasonal Flu Vaccination (all) target cohort for computational reasons). Propensity models will use a large generic set of covariates, including demographics and covariates per drug, condition, procedure, measurement, etc., and will be fitted using large-scale regularized regression as described previously. [@Tian2018-xy]
+Anchoring the comparator on a random outpatient visit:
+
+- Unadjusted comparison.
+- 1-on-1 PS matching.
+- PS stratification. Five equally-sized strata will be defined in the target (vaccinated) population.
+- Inverse Probability of Treatment Weighting (IPTW). We will use stabilized weights.
+- 1-on-1 PS matching within each period, using only the 'new' data in that period to fit the propensity model. Once a population is matched in a period, that matching will be carried forward to subsequent periods. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
+
+Anchoring the comparator on a random date:
+
+- Unadjusted comparison.
+- 1-on-1 PS matching.
+- PS stratification.
+- IPTW.
+- 1-on-1 PS matching within each period. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
 
 **Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI)**
 
@@ -383,10 +412,11 @@ The SCCS and SCRI designs are self-controlled, comparing the time-at-risk (the t
 The SCCS design uses all patient time when not at risk as the control time. [@Whitaker2006]
 The SCRI design uses a pre-specified control interval relative to the vaccination date as the control time. [@glanz2011]
 This unexposed time can be both before or after the time at risk.
-We will evaluate four variants:
+We will evaluate five variations:
 
 - A simple SCCS, using all patient time when not at risk as the control time, with the exception of the 30 days prior to vaccination which is excluded from the analysis to avoid bias due to contra-indications.
 - An SCCS adjusting for age and season. Age and season will be modeled to be constant within each calendar month, and vary across months as bicubic splines.
+- A simple SCCS discarding all time prior to vaccination.
 - An SCRI, using a control interval of 43 to 15 days prior to vaccination.
 - An SCRI, using a control interval of 43 to 71 days after to vaccination.
 

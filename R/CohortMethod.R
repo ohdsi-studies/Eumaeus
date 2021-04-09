@@ -1,5 +1,3 @@
-# @file CohortMethod.R
-#
 # Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of Eumaeus
@@ -112,7 +110,7 @@ runCohortMethod <- function(connectionDetails,
                                              timePeriods = timePeriods,
                                              bigCmDataFile = bigCmDataFile) )
       ParallelLogger::stopCluster(cluster)
-
+      
       # Fit shared propensity models per period ----------------------------------------------
       if (!crude) {
         ParallelLogger::logInfo(sprintf("Fitting propensity models across all periods for target %s and comparator %s", targetId, comparatorId))
@@ -168,7 +166,7 @@ runCohortMethod <- function(connectionDetails,
     readr::write_csv(allEstimates, cmSummaryFile)
   }
   delta <- Sys.time() - start
-  message(paste("Completed all cohort method analyses in", signif(delta, 3), attr(delta, "units")))
+  message(paste("Completed all per-month cohort method analyses in", signif(delta, 3), attr(delta, "units")))
 }
 
 getCohortMethodData <- function(cohortMethodDataFile) {
@@ -199,7 +197,7 @@ subsetCmData <- function(i,
       cmData <- bigCmData
     } else {
       endDate <- as.integer(timePeriods$endDate[i])
-
+      
       cmData <- Andromeda::andromeda()
       cmData$cohorts <- bigCmData$cohorts %>%
         filter(.data$cohortStartDate < endDate) %>%
@@ -285,7 +283,7 @@ computeCohortMethodEstimates <- function(targetId,
                                           createPsThreads = 1,
                                           psCvThreads = min(10, maxCores),
                                           trimMatchStratifyThreads = min(10, maxCores),
-                                          fitOutcomeModelThreads = min(max(1, floor(maxCores/2)), 5),
+                                          fitOutcomeModelThreads = min(max(1, floor(maxCores/2)), 8),
                                           outcomeCvThreads = min(2, maxCores),
                                           outcomeIdsOfInterest = outcomeIdsOfInterest)
   
@@ -304,18 +302,18 @@ createCmAnalysisList <- function(comparatorType) {
     startAnalysisId <- 4  
   }
   startAnalysisIdCount <- 4
-    
+  
   # Not used. CohortMethodData object already created earlier for efficiency.
   getDbCmDataArgs <- CohortMethod::createGetDbCohortMethodDataArgs(covariateSettings = NULL)
   
   # warning: if you make changes here, also make them in the fitSharedPsModel function.
   createStudyPopArgs1_28 <- CohortMethod::createCreateStudyPopulationArgs(removeSubjectsWithPriorOutcome = TRUE,
-                                                                      removeDuplicateSubjects = TRUE,
-                                                                      minDaysAtRisk = 1,
-                                                                      riskWindowStart = 1,
-                                                                      startAnchor = "cohort start",
-                                                                      riskWindowEnd = 28,
-                                                                      endAnchor = "cohort start")
+                                                                          removeDuplicateSubjects = TRUE,
+                                                                          minDaysAtRisk = 1,
+                                                                          riskWindowStart = 1,
+                                                                          startAnchor = "cohort start",
+                                                                          riskWindowEnd = 28,
+                                                                          endAnchor = "cohort start")
   
   createStudyPopArgs1_42 <- CohortMethod::createCreateStudyPopulationArgs(removeSubjectsWithPriorOutcome = TRUE,
                                                                           removeDuplicateSubjects = TRUE,
@@ -326,16 +324,16 @@ createCmAnalysisList <- function(comparatorType) {
                                                                           endAnchor = "cohort start")
   
   createStudyPopArgs0_1 <- CohortMethod::createCreateStudyPopulationArgs(removeSubjectsWithPriorOutcome = TRUE,
-                                                                          removeDuplicateSubjects = TRUE,
-                                                                          minDaysAtRisk = 1,
-                                                                          riskWindowStart = 0,
-                                                                          startAnchor = "cohort start",
-                                                                          riskWindowEnd = 1,
-                                                                          endAnchor = "cohort start")
+                                                                         removeDuplicateSubjects = TRUE,
+                                                                         minDaysAtRisk = 1,
+                                                                         riskWindowStart = 0,
+                                                                         startAnchor = "cohort start",
+                                                                         riskWindowEnd = 1,
+                                                                         endAnchor = "cohort start")
   
-  fitOutcomeModelArgs <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
-                                                                 modelType = "cox",
-                                                                 stratified = FALSE)
+  fitOutcomeModelArgs1 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
+                                                                  modelType = "cox",
+                                                                  stratified = FALSE)
   
   if (startAnalysisId %in% c(1,3)) {
     cmAnalysis1 <- CohortMethod::createCmAnalysis(analysisId = startAnalysisId,
@@ -343,21 +341,21 @@ createCmAnalysisList <- function(comparatorType) {
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs1_28,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
     
     cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = startAnalysisId + 1 * startAnalysisIdCount,
                                                   description = "Crude cohort method, tar 1-42 days",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs1_42,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
     
     cmAnalysis3 <- CohortMethod::createCmAnalysis(analysisId = startAnalysisId + 2 * startAnalysisIdCount,
                                                   description = "Crude cohort method, tar 0-1 days",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs0_1,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
     
     return(list(cmAnalysis1, cmAnalysis2, cmAnalysis3))
   } else {
@@ -375,10 +373,10 @@ createCmAnalysisList <- function(comparatorType) {
                                                   matchOnPs = TRUE,
                                                   matchOnPsArgs = matchOnPsArgs,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
-
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
+    
     cmAnalysis2 <- CohortMethod::createCmAnalysis(analysisId = startAnalysisId + 1 * startAnalysisIdCount,
-                                                  description = "1-on-1 matching, tar 1-28 days",
+                                                  description = "1-on-1 matching, tar 1-42 days",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs1_42,
                                                   createPs = TRUE,
@@ -386,10 +384,10 @@ createCmAnalysisList <- function(comparatorType) {
                                                   matchOnPs = TRUE,
                                                   matchOnPsArgs = matchOnPsArgs,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
     
     cmAnalysis3 <- CohortMethod::createCmAnalysis(analysisId = startAnalysisId + 2 * startAnalysisIdCount,
-                                                  description = "1-on-1 matching, tar 1-28 days",
+                                                  description = "1-on-1 matching, tar 0-1 days",
                                                   getDbCohortMethodDataArgs = getDbCmDataArgs,
                                                   createStudyPopArgs = createStudyPopArgs0_1,
                                                   createPs = TRUE,
@@ -397,8 +395,80 @@ createCmAnalysisList <- function(comparatorType) {
                                                   matchOnPs = TRUE,
                                                   matchOnPsArgs = matchOnPsArgs,
                                                   fitOutcomeModel = TRUE,
-                                                  fitOutcomeModelArgs = fitOutcomeModelArgs)
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs1)
     
-    return(list(cmAnalysis1, cmAnalysis2, cmAnalysis3))
+    # Added later, hence the confusing numbering
+    stratifyByPsArgs <- CohortMethod::createStratifyByPsArgs(numberOfStrata = 5, baseSelection = "target")
+    
+    fitOutcomeModelArgs2 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
+                                                                    modelType = "cox",
+                                                                    stratified = TRUE)
+    
+    cmAnalysis4 <- CohortMethod::createCmAnalysis(analysisId = 12 + startAnalysisId / 2,
+                                                  description = "stratification, tar 1-28 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs1_28,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  stratifyByPs = TRUE,
+                                                  stratifyByPsArgs = stratifyByPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs2)
+    
+    cmAnalysis5 <- CohortMethod::createCmAnalysis(analysisId = 14 + startAnalysisId / 2,
+                                                  description = "stratification, tar 1-42 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs1_42,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  stratifyByPs = TRUE,
+                                                  stratifyByPsArgs = stratifyByPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs2)
+    
+    cmAnalysis6 <- CohortMethod::createCmAnalysis(analysisId = 16 + startAnalysisId / 2,
+                                                  description = "stratification, tar 0-1 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs0_1,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  stratifyByPs = TRUE,
+                                                  stratifyByPsArgs = stratifyByPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs2)
+    
+    fitOutcomeModelArgs3 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
+                                                                    modelType = "cox",
+                                                                    stratified = FALSE,
+                                                                    inversePtWeighting = TRUE)
+    
+    cmAnalysis7 <- CohortMethod::createCmAnalysis(analysisId = 18 + startAnalysisId / 2,
+                                                  description = "IPTW, tar 1-28 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs1_28,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs3)
+    
+    cmAnalysis8 <- CohortMethod::createCmAnalysis(analysisId = 20 + startAnalysisId / 2,
+                                                  description = "IPTW, tar 1-42 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs1_42,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs3)
+    
+    cmAnalysis9 <- CohortMethod::createCmAnalysis(analysisId = 22 + startAnalysisId / 2,
+                                                  description = "IPTW, tar 0-1 days",
+                                                  getDbCohortMethodDataArgs = getDbCmDataArgs,
+                                                  createStudyPopArgs = createStudyPopArgs0_1,
+                                                  createPs = TRUE,
+                                                  createPsArgs = createPsArgs,
+                                                  fitOutcomeModel = TRUE,
+                                                  fitOutcomeModelArgs = fitOutcomeModelArgs3)
+    
+    return(list(cmAnalysis1, cmAnalysis2, cmAnalysis3, cmAnalysis4, cmAnalysis5, cmAnalysis6, cmAnalysis7, cmAnalysis8, cmAnalysis9))
   }
 }

@@ -503,6 +503,57 @@ createSccsAnalysesList <- function(startDate, endDate) {
                                                                 createScriIntervalDataArgs = createScriIntervalDataArgsPost0_1,
                                                                 fitSccsModelArgs = fitSccsModelArgs)
   
+  
+  # Added later
+  controlIntervalSettings3 <- SelfControlledCaseSeries::createControlIntervalSettings(
+    includeEraIds = c("exposureId", "exposureId2"),
+    start = 1,
+    startAnchor = "era start",
+    end = 999999,
+    endAnchor = "era start"
+  )
+  
+  createScriIntervalDataArgsAllPost1_28 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_28,
+                                covarExposureOfInt2nd1_28),
+    controlIntervalSettings = controlIntervalSettings3
+  )
+  
+  createScriIntervalDataArgsAllPost1_42 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt1_42,
+                                covarExposureOfInt2nd1_42),
+    controlIntervalSettings = controlIntervalSettings3
+  )
+  
+  createScriIntervalDataArgsAllPost0_1 <- SelfControlledCaseSeries::createCreateScriIntervalDataArgs(
+    eraCovariateSettings = list(covarExposureOfInt0_1,
+                                covarExposureOfInt2nd0_1),
+    controlIntervalSettings = controlIntervalSettings3
+  )
+  
+  sccsAnalysis13 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 13,
+                                                                 description = "SCCS excluding pre-vaccination time, tar 1-28 days",
+                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                 design = "SCRI",
+                                                                 createScriIntervalDataArgs = createScriIntervalDataArgsAllPost1_28,
+                                                                 fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis14 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 14,
+                                                                 description = "SCCS excluding pre-vaccination time, tar 1-42 days",
+                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                 design = "SCRI",
+                                                                 createScriIntervalDataArgs = createScriIntervalDataArgsAllPost1_42,
+                                                                 fitSccsModelArgs = fitSccsModelArgs)
+  
+  sccsAnalysis15 <- SelfControlledCaseSeries::createSccsAnalysis(analysisId = 15,
+                                                                 description = "SCCS excluding pre-vaccination time, tar 0-1 days",
+                                                                 getDbSccsDataArgs = getDbSccsDataArgs,
+                                                                 createStudyPopulationArgs = createStudyPopulationArgs,
+                                                                 design = "SCRI",
+                                                                 createScriIntervalDataArgs = createScriIntervalDataArgsAllPost0_1,
+                                                                 fitSccsModelArgs = fitSccsModelArgs)
     
   sccsAnalysisList <- list(sccsAnalysis1, 
                            sccsAnalysis2, 
@@ -515,6 +566,9 @@ createSccsAnalysesList <- function(startDate, endDate) {
                            sccsAnalysis9, 
                            sccsAnalysis10, 
                            sccsAnalysis11, 
-                           sccsAnalysis12)
+                           sccsAnalysis12, 
+                           sccsAnalysis13, 
+                           sccsAnalysis14, 
+                           sccsAnalysis15)
   return(sccsAnalysisList)
 }
