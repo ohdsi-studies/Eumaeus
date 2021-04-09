@@ -395,7 +395,7 @@ Anchoring the comparator on a random outpatient visit:
 - Unadjusted comparison.
 - 1-on-1 PS matching.
 - PS stratification. Five equally-sized strata will be defined in the target (vaccinated) population.
-- Inverse Probability of Treatment Weighting (IPTW). We will use stabilized weights.
+- Inverse Probability of Treatment Weighting (IPTW). We will use stabilized weights, and trim the most extreme 5% of target and comparator cohorts.
 - 1-on-1 PS matching within each period, using only the 'new' data in that period to fit the propensity model. Once a population is matched in a period, that matching will be carried forward to subsequent periods. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
 
 Anchoring the comparator on a random date:
@@ -403,7 +403,7 @@ Anchoring the comparator on a random date:
 - Unadjusted comparison.
 - 1-on-1 PS matching.
 - PS stratification.
-- IPTW.
+- IPTW with trimming.
 - 1-on-1 PS matching within each period. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
 
 **Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI)**

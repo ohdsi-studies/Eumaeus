@@ -437,6 +437,8 @@ createCmAnalysisList <- function(comparatorType) {
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs2)
     
+    trimyByPsArgs <- CohortMethod::createTrimByPsArgs(trimFraction = 0.05)
+    
     fitOutcomeModelArgs3 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
                                                                     modelType = "cox",
                                                                     stratified = FALSE,
@@ -448,6 +450,8 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs1_28,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
+                                                  trimByPs = TRUE,
+                                                  trimByPsArgs = trimyByPsArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     
@@ -457,6 +461,8 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs1_42,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
+                                                  trimByPs = TRUE,
+                                                  trimByPsArgs = trimyByPsArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     
@@ -466,6 +472,8 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs0_1,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
+                                                  trimByPs = TRUE,
+                                                  trimByPsArgs = trimyByPsArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     

@@ -20,8 +20,8 @@ unlink(toDelete)
 unlink(file.path(outputFolder, "cmSummary.csv"))
 toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "estimates_t[0-9]+.csv", recursive = TRUE, full.names = TRUE)
 unlink(toDelete)
-
-# unlink(file.path(outputFolder, "hcSummary.csv"))
+toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "Analysis_(19|20|21|22|23|24)$", recursive = TRUE, full.names = TRUE, include.dirs = TRUE)
+unlink(toDelete)
 
 execute(connectionDetails = connectionDetails,
         cdmDatabaseSchema = cdmDatabaseSchema,
