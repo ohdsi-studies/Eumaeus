@@ -301,39 +301,72 @@ exportMainResults <- function(outputFolder,
                          sccsEstimates)
   
   ParallelLogger::logInfo("  - Performing empirical calibration on estimates using leave-one-out")
-  exposures <- loadExposureCohorts(outputFolder) %>%
-    select(.data$exposureId, .data$baseExposureId)
-  
-  allControls <- loadAllControls(outputFolder) %>%
-    select(baseExposureId = .data$exposureId, .data$outcomeId, .data$oldOutcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
-    inner_join(exposures, by = "baseExposureId") %>%
-    select(-.data$baseExposureId)
-  
-  estimates <- estimates %>%
-    inner_join(allControls, by = c("exposureId", "outcomeId"))
-  
-  cluster <- ParallelLogger::makeCluster(min(8, maxCores))
-  ParallelLogger::clusterRequire(cluster, "dplyr")
-  subsets <- split(estimates,
-                   paste(estimates$exposureId, estimates$method, estimates$analysisId, estimates$periodId))
-  rm(estimates)  # Free up memory
-  results <- ParallelLogger::clusterApply(cluster,
-                                          subsets,
-                                          calibrate)
-  ParallelLogger::stopCluster(cluster)
-  rm(subsets)  # Free up memory
-  columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr", "calibratedSeLogRr", "calibratedP"))
-  results <- bind_rows(results) %>%
-    select(all_of(columns))
-  
-  results <- enforceMinCellValue(results, "exposureSubjects", minCellCount)
-  results <- enforceMinCellValue(results, "counterfactualSubjects", minCellCount)
-  # results <- enforceMinCellValue(results, "exposureOutcomes", minCellCount)
-  results <- enforceMinCellValue(results, "counterfactualOutcomes", minCellCount)
-  colnames(results) <- SqlRender::camelCaseToSnakeCase(colnames(results))
+  # Try to reuse previous calibration to save time:
   fileName <- file.path(exportFolder, "estimate.csv")
-  readr::write_csv(results, fileName)
-  rm(results)  # Free up memory
+  if (file.exists(fileName)) {
+    estimatesWithCalibration <- readr::read_csv(fileName, col_types = readr::cols(), guess_max = 1e5)  
+    colnames(estimatesWithCalibration) <- SqlRender::snakeCaseToCamelCase(colnames(estimatesWithCalibration))
+    newGroups <- estimates %>%
+      anti_join(select(estimatesWithCalibration, 
+                       .data$exposureId, 
+                       .data$outcomeId, 
+                       .data$periodId,
+                       .data$method,
+                       .data$analysisId,
+                       .data$logRr,
+                       .data$seLogRr),
+                by = c("method", "analysisId", "exposureId", "outcomeId", "periodId", "logRr", "seLogRr")) %>%
+      distinct(.data$exposureId, 
+               .data$periodId,
+               .data$method,
+               .data$analysisId)
+    
+    newEstimates <- estimates %>%
+      inner_join(newGroups, by = c("method", "analysisId", "exposureId", "periodId"))
+    
+    oldEstimatesWithCalibration <- estimatesWithCalibration %>%
+      anti_join(newGroups, by = c("method", "analysisId", "exposureId", "periodId"))
+  } else {
+    newEstimates <- estimates
+    oldEstimatesWithCalibration <- tibble()
+  }
+  
+  if (nrow(newEstimates) > 0) { 
+    exposures <- loadExposureCohorts(outputFolder) %>%
+      select(.data$exposureId, .data$baseExposureId)
+    
+    allControls <- loadAllControls(outputFolder) %>%
+      select(baseExposureId = .data$exposureId, .data$outcomeId, .data$oldOutcomeId, .data$targetEffectSize, .data$trueEffectSize) %>%
+      inner_join(exposures, by = "baseExposureId") %>%
+      select(-.data$baseExposureId)
+    
+    newEstimates <- newEstimates %>%
+      inner_join(allControls, by = c("exposureId", "outcomeId"))
+    
+    cluster <- ParallelLogger::makeCluster(min(8, maxCores))
+    ParallelLogger::clusterRequire(cluster, "dplyr")
+    subsets <- split(newEstimates,
+                     paste(newEstimates$exposureId, newEstimates$method, newEstimates$analysisId, newEstimates$periodId))
+    rm(newEstimates)  # Free up memory
+    results <- ParallelLogger::clusterApply(cluster,
+                                            subsets,
+                                            Eumaeus:::calibrate)
+    ParallelLogger::stopCluster(cluster)
+    rm(subsets)  # Free up memory
+    columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr", "calibratedSeLogRr", "calibratedP"))
+    results <- bind_rows(results) %>%
+      select(all_of(columns))
+    
+    results <- enforceMinCellValue(results, "exposureSubjects", minCellCount)
+    results <- enforceMinCellValue(results, "counterfactualSubjects", minCellCount)
+    # results <- enforceMinCellValue(results, "exposureOutcomes", minCellCount)
+    results <- enforceMinCellValue(results, "counterfactualOutcomes", minCellCount)
+    
+    estimatesWithCalibration <- bind_rows(oldEstimatesWithCalibration, results)
+    colnames(estimatesWithCalibration) <- SqlRender::camelCaseToSnakeCase(colnames(estimatesWithCalibration))
+    readr::write_csv(estimatesWithCalibration, fileName)
+    rm(results)  # Free up memory
+  }
 }
 
 calibratePLoo <- function(subset, leaveOutId) {
