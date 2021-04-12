@@ -195,6 +195,11 @@ computeTruncatedBinomialCv <- function(n, z, groupSizes) {
     groupSizes <- groupSizes[groupSizes > 0]
     n <- sum(groupSizes)
   }
+  # This check is done inside Sequential::CV.Binomial as well, but will throw an error there:
+  pst <- 1/(1 + z)
+  if (1 - pbinom(n - 1, n, pst) > 0.05) {
+    return(NA)
+  }
   cv <- Sequential::CV.Binomial(N = n,
                                 M = 1,
                                 alpha = 0.05,
