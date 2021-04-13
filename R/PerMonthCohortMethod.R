@@ -101,6 +101,8 @@ runPerMonthCohortMethod <- function(connectionDetails,
       filter(.data$eventsComparator > 0) %>%
       mutate(exposureId = .data$targetId,
              expectedOutcomes = .data$targetDays * (.data$eventsComparator / .data$comparatorDays)) 
+    cmSummary <- bind_rows(cmSummary, allEstimates)
+    readr::write_csv(cmSummary, cmSummaryFile)
   }
 }
 
