@@ -437,8 +437,8 @@ createCmAnalysisList <- function(comparatorType) {
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs2)
     
-    trimyByIptwArgs <- CohortMethod::createTrimByIptw(maxWeight = 10,
-                                                      estimator = "att")
+    trimyByIptwArgs <- CohortMethod::createTrimByIptwArgs(maxWeight = 10,
+                                                          estimator = "att")
     
     fitOutcomeModelArgs3 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
                                                                     modelType = "cox",
