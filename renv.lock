@@ -47,7 +47,7 @@
     },
     "CohortMethod": {
       "Package": "CohortMethod",
-      "Version": "4.1.1",
+      "Version": "4.2.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",

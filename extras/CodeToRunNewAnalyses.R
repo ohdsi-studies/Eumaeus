@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# All new in 1.1.0
 unlink(file.path(outputFolder, "sccsSummary.csv"))
 toDelete <- list.files(file.path(outputFolder, "sccs"), "estimates_t[0-9]+.csv", recursive = TRUE, full.names = TRUE)
 unlink(toDelete)
@@ -22,6 +23,13 @@ toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "estimates_t[0-9
 unlink(toDelete)
 toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "Analysis_(19|20|21|22|23|24)$", recursive = TRUE, full.names = TRUE, include.dirs = TRUE)
 unlink(toDelete)
+
+# Just IPTW
+toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "Analysis_(19|20|21|22|23|24)$", recursive = TRUE, full.names = TRUE, include.dirs = TRUE)
+unlink(toDelete)
+toDelete <- list.files(file.path(outputFolder, "cohortMethod"), "StratPop_.*.rds", recursive = TRUE, full.names = TRUE)
+unlink(toDelete)
+
 
 execute(connectionDetails = connectionDetails,
         cdmDatabaseSchema = cdmDatabaseSchema,
