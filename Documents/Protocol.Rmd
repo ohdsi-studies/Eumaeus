@@ -3,8 +3,6 @@ title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Advers
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::word_document2:
-    toc: yes
   bookdown::html_document2:
     df_print: paged
     toc: yes
@@ -13,6 +11,8 @@ output:
     number_sections: yes
     number_tables: yes
     css: "style.css"
+  bookdown::word_document2:
+    toc: yes
   bookdown::pdf_document2:
     keep_tex: yes
     latex_engine: xelatex
@@ -102,7 +102,7 @@ abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRU
   EHR; Electronic Health Record
   EMA; European Medicines Agency
   ENCEPP; European Network of Centres for Pharmacoepidemiology and Pharmacovigilance
-  H1N1; Hemagglutinin Type 1 and Neuraminidase Type 1 (influenza strain, aka swine flu)
+  H1N1pdm; Hemagglutinin Type 1 and Neuraminidase Type 1 (2009 pandemic influenza)
   HPV; Human PapillomaVirus
   IRB; Institutional review board
   JMDC; Japan Medical Data Center
@@ -178,7 +178,7 @@ To study the comparative performance (bias, precision, and timeliness) of differ
 **Study Description**
 
 * Design: Cohort, self-controlled, and case-control studies 
-* Exposures: previous viral vaccines including 2017-2018 flu, H1N1 flu, Human Papillomavirus (HPV), and Varicella-Zoster.
+* Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV), and Varicella-Zoster.
 * Outcomes: selected adverse events of special interest; negative control outcomes; synthetic positive control outcomes
 * Analyses: 
     1) Historical rate comparisons. 
@@ -378,7 +378,7 @@ We will evaluate two variations:
 
 Initial results show that this counterfactual approach is sensitive to changes in coding practices. 
 We therefore introduce a study diagnostic: the percent change in overall incidence rate (across the entire population) between the historic and current time period. 
-For each of the four variations listed above, we add a new variation where effect-size estimate are removed if the change in incidence rate is greater than 50%.
+For each of the four variations listed above, we add a new variation where effect-size estimates are removed if the change in incidence rate is greater than 50%.
 
 **Cohort method using a contemporary non-user comparator**
 
@@ -395,8 +395,8 @@ Anchoring the comparator on a random outpatient visit:
 - Unadjusted comparison.
 - 1-on-1 PS matching.
 - PS stratification. Five equally-sized strata will be defined in the target (vaccinated) population.
-- Inverse Probability of Treatment Weighting (IPTW). We will use stabilized weights, and trim the most extreme 5% of target and comparator cohorts.
-- 1-on-1 PS matching within each period, using only the 'new' data in that period to fit the propensity model. Once a population is matched in a period, that matching will be carried forward to subsequent periods. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
+- Inverse Probability of Treatment Weighting (IPTW). We will use stabilized weights to compute the average treatment effect in the treated (ATT). Weights will be truncated to a maximum value of 10, similar to Izurieta et al. (2020). [@Izurieta2020]
+- 1-on-1 PS matching within each period, using only the 'new' data in that period to fit the propensity model. Once a population is matched in a period, that matching will be carried forward to subsequent periods. This method will only be evaluated using the H1N1pdm vaccinations for computational reasons.
 
 Anchoring the comparator on a random date:
 
@@ -404,7 +404,7 @@ Anchoring the comparator on a random date:
 - 1-on-1 PS matching.
 - PS stratification.
 - IPTW with trimming.
-- 1-on-1 PS matching within each period. This method will only be evaluated using the H1N1 vaccinations for computational reasons.
+- 1-on-1 PS matching within each period. This method will only be evaluated using the H1N1pdm vaccinations for computational reasons.
 
 **Self-Controlled Case Series (SCCS) / Self-Controlled Risk Interval (SCRI)**
 
@@ -490,7 +490,7 @@ In total, we will evaluate:
 - 6 vaccines, with a total of 9 + 9 + 9 + 9 + 12 + 12 = 60 time periods
 - `r numberOfNcs` negative controls
 - 3 $\times$ `r numberOfNcs` = `r 3*numberOfNcs` positive controls
-- 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1 and seasonal flu.
+- 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1pdm and seasonal flu.
 
 Resulting in a total of 14 $\times$ 3 $\times$ [(9 + 9 + 9 + 9) $\times$ 1 + (12 + 12) $\times$ 3]  $\times$ (`r numberOfNcs` + `r numberOfNcs*3`) = `r format(14 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3) * numberOfNcs * (numberOfNcs*3), scientific = FALSE, big.mark = ",")` effect-size estimates. Each estimate will contain:
 
@@ -608,7 +608,7 @@ baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
 
-printCohortDefinitionFromNameAndJson(name = "H1N1 Vaccines",
+printCohortDefinitionFromNameAndJson(name = "H1N1pdm Vaccines",
                                      json = baseCohortJson)
 ```
 

@@ -380,7 +380,7 @@ deleteAllRecordsForDatabaseId <- function(connection,
                            database_id = databaseId)
   databaseIdCount <- DatabaseConnector::querySql(connection, sql)[, 1]
   if (databaseIdCount != 0) {
-    ParallelLogger::logInfo(sprintf("- Found %s rows in  database with database ID '%s'. Deleting all before inserting.",
+    ParallelLogger::logInfo(sprintf("- Found %s rows in database with database ID '%s'. Deleting all before inserting.",
                                     databaseIdCount,
                                     databaseId))
     sql <- "DELETE FROM @schema.@table_name WHERE database_id = '@database_id';"
