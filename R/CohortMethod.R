@@ -437,13 +437,11 @@ createCmAnalysisList <- function(comparatorType) {
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs2)
     
-    trimyByIptwArgs <- CohortMethod::createTrimByIptwArgs(maxWeight = 10,
-                                                          estimator = "att")
-    
     fitOutcomeModelArgs3 <- CohortMethod::createFitOutcomeModelArgs(useCovariates = FALSE,
                                                                     modelType = "cox",
                                                                     stratified = FALSE,
                                                                     inversePtWeighting = TRUE,
+                                                                    maxWeight = 10,
                                                                     estimator = "att")
     
     cmAnalysis7 <- CohortMethod::createCmAnalysis(analysisId = 18 + startAnalysisId / 2,
@@ -452,8 +450,6 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs1_28,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
-                                                  trimByIptw = TRUE,
-                                                  trimByIptwArgs = trimyByIptwArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     
@@ -463,8 +459,6 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs1_42,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
-                                                  trimByIptw = TRUE,
-                                                  trimByIptwArgs = trimyByIptwArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     
@@ -474,8 +468,6 @@ createCmAnalysisList <- function(comparatorType) {
                                                   createStudyPopArgs = createStudyPopArgs0_1,
                                                   createPs = TRUE,
                                                   createPsArgs = createPsArgs,
-                                                  trimByIptw = TRUE,
-                                                  trimByIptwArgs = trimyByIptwArgs,
                                                   fitOutcomeModel = TRUE,
                                                   fitOutcomeModelArgs = fitOutcomeModelArgs3)
     
