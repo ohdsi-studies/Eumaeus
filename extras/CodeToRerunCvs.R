@@ -17,7 +17,7 @@
 # Delete NA critical values ------------------------------
 cvFiles <- list.files(outputFolder, ".*_withCvs.csv")
 for (cvFile in cvFiles) {
-  cvs <- readr::read_csv(file.path(outputFolder, cvFile), col_types = readr::cols())  
+  cvs <- readr::read_csv(file.path(outputFolder, cvFile), col_types = readr::cols(), guess_max = 1e5)  
   idx <- is.na(cvs$criticalValue)
   if (any(idx)) {
     message(sprintf("Removing %d (%0.1f%%) NA values from %s", sum(idx), 100*mean(idx), cvFile))
@@ -75,9 +75,9 @@ sccsCvs <- Eumaeus:::loadEstimates(file.path(outputFolder, "sccsSummary_withCvs.
             .data$criticalValue) 
 
 cvs <- bind_rows(historicComparatorCvs,
-          cohortMethodCvs,
-          caseControlCvs,
-          sccsCvs)
+                 cohortMethodCvs,
+                 caseControlCvs,
+                 sccsCvs)
 colnames(cvs) <- SqlRender::camelCaseToSnakeCase(colnames(cvs))
 
 estimate <- readr::read_csv(file.path(outputFolder, "export", "estimate.csv"), col_types = readr::cols(), guess_max = 1e5)
