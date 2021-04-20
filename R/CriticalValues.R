@@ -81,7 +81,7 @@ computeCvsIncrementally <- function(estimatesFileName, estimatesWithCvsFileName,
 computeCaseControlCv <- function(subset) {
   # subset <- subsets[[1]]
   sampleSizeUpperLimit <- max(subset$cases, na.rm = TRUE)
-  if (sampleSizeUpperLimit <= 5) {
+  if (sampleSizeUpperLimit == 0) {
     cv <- NA
   } else {
     cases <- subset %>%
@@ -107,7 +107,7 @@ computeCohortMethodCv <- function(subset) {
   # subset <- cmEstimates[cmEstimates$analysisId == 10 & cmEstimates$exposureId == 211841 & cmEstimates$outcomeId == 10703, ]
   subset$events <- subset$eventsTarget + subset$eventsComparator
   sampleSizeUpperLimit <- max(subset$events, na.rm = TRUE)
-  if (sampleSizeUpperLimit <= 5) {
+  if (sampleSizeUpperLimit == 0) {
     cv <- NA
   } else {
     events <- subset %>%
@@ -132,7 +132,7 @@ computeCohortMethodCv <- function(subset) {
 computeSccsCv <- function(subset) {
   # subset <- subsets[[1]]
   sampleSizeUpperLimit <- max(subset$outcomeEvents , na.rm = TRUE)
-  if (sampleSizeUpperLimit <= 5) {
+  if (sampleSizeUpperLimit == 0) {
     cv <- NA
   } else {
     events <- subset %>%
@@ -154,7 +154,7 @@ computeSccsCv <- function(subset) {
 }
 
 computeHistoricalComparatorCv <- function(subset) {
-  # subset <- subsets[[2]]
+  # subset <- subsets[[2611]]
   expectedOutcomes <- subset %>%
     arrange(.data$seqId) %>%
     pull(.data$expectedOutcomes)
@@ -177,7 +177,7 @@ computeHistoricalComparatorCv <- function(subset) {
     expectedOutcomes <- eos
     sampleSizeUpperLimit <- sum(expectedOutcomes)
   }
-  if (sampleSizeUpperLimit <= 5) {
+  if (sampleSizeUpperLimit == 0) {
     cv <- NA
   } else {
     cv <- computeTruncatedPoissonCv(n = sampleSizeUpperLimit,
@@ -200,11 +200,22 @@ computeTruncatedBinomialCv <- function(n, z, groupSizes) {
   if (1 - pbinom(n - 1, n, pst) > 0.05) {
     return(NA)
   }
-  cv <- Sequential::CV.Binomial(N = n,
-                                M = 1,
-                                alpha = 0.05,
-                                z = z,
-                                GroupSizes = groupSizes)$cv
+  cv <- try({
+    # Setting time-out to escape infinite loops in Sequential:
+    if (is.null(getOption("CvTimeout"))) {
+      setTimeLimit(60, Inf)
+    } else {
+      setTimeLimit(getOption("CvTimeout"), Inf)
+    }
+    Sequential::CV.Binomial(N = n,
+                            M = 1,
+                            alpha = 0.05,
+                            z = z,
+                            GroupSizes = groupSizes)$cv
+    }, silent = TRUE) 
+  if (inherits(cv, "try-error")) {
+    cv <- NA
+  }
   return(cv)
 }
 
@@ -214,9 +225,20 @@ computeTruncatedPoissonCv <- function(n, groupSizes) {
     groupSizes <- groupSizes[groupSizes > 0]
     n <- sum(groupSizes)
   }
-  cv <- Sequential::CV.Poisson(SampleSize = n,
-                               alpha = 0.05,
-                               M = 1,
-                               GroupSizes = groupSizes)
+  cv <- try({
+    # Setting time-out to escape infinite loops in Sequential:
+    if (is.null(getOption("CvTimeout"))) {
+      setTimeLimit(60, Inf)
+    } else {
+      setTimeLimit(getOption("CvTimeout"), Inf)
+    }
+    cv <- Sequential::CV.Poisson(SampleSize = n,
+                                 alpha = 0.05,
+                                 M = 1,
+                                 GroupSizes = groupSizes)
+  }, silent = TRUE) 
+  if (inherits(cv, "try-error")) {
+    cv <- NA
+  }
   return(cv)
 }

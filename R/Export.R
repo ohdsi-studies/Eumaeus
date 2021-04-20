@@ -219,7 +219,7 @@ exportMainResults <- function(outputFolder,
   ParallelLogger::logInfo("- estimate table")
   columns <- c("databaseId",  "method", "analysisId", "exposureId", "outcomeId", "periodId", "rr", "ci95Lb", "ci95Ub", "p", "exposureSubjects", "counterfactualSubjects", "exposureDays", "counterfactualDays", "exposureOutcomes", "counterfactualOutcomes", "logRr", "seLogRr", "llr", "criticalValue")
   
-  ParallelLogger::logInfo("  - Adding cohort method estimates")
+  ParallelLogger::logInfo("  - Adding historical comparator estimates")
   historicComparatorEstimates <- loadEstimates(file.path(outputFolder, "hcSummary_withCvs.csv")) %>%
     mutate(databaseId = !!databaseId,
            method = "HistoricalComparator",
