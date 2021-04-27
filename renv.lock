@@ -85,7 +85,7 @@
     },
     "Eumaeus": {
       "Package": "Eumaeus",
-      "Version": "1.0.0",
+      "Version": "1.1.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",

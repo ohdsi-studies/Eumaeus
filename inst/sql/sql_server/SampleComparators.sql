@@ -200,7 +200,9 @@ FROM (
 		index_date AS cohort_end_date,
 		ROW_NUMBER() OVER (
 			PARTITION BY YEAR(index_date),
-			MONTH(index_date) ORDER BY NEWID()
+			MONTH(index_date),
+			FLOOR((YEAR(index_date) - year_of_birth) / 10),
+			gender_concept_id ORDER BY NEWID()
 			) AS rn,
 		YEAR(index_date) AS index_year,
 		MONTH(index_date) AS index_month,
