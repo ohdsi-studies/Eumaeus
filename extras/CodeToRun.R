@@ -32,13 +32,13 @@ Sys.setenv("DATABASE_CONNECTOR_BULK_UPLOAD" = TRUE)
 
 # Details specific to MDCD:
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
-                                                                connectionString = keyring::key_get("redShiftConnectionStringMdcd"),
+                                                                connectionString = keyring::key_get("redShiftConnectionStringOhdaMdcd"),
                                                                 user = keyring::key_get("redShiftUserName"),
                                                                 password = keyring::key_get("redShiftPassword"))
 outputFolder <- "r:/Eumaeus/mdcd"
-cdmDatabaseSchema <- "cdm"
-cohortDatabaseSchema <- "scratch_mschuemi2"
-cohortTable <- "mschuemi_vac_surv_mdcd"
+cdmDatabaseSchema <- "cdm_truven_mdcd_v1476"
+cohortDatabaseSchema <- "scratch_mschuemi"
+cohortTable <- "eumaeus_mdcd"
 databaseId <- "IBM_MDCD"
 databaseName <- "IBM Health MarketScan® Multi-State Medicaid Database"
 databaseDescription <- "IBM MarketScan® Multi-State Medicaid Database (MDCD) adjudicated US health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims as well as ethnicity and Medicare eligibility. Members maintain their same identifier even if they leave the system for a brief period however the dataset lacks lab data."
