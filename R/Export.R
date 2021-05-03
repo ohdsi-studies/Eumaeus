@@ -325,7 +325,20 @@ exportMainResults <- function(outputFolder,
       inner_join(newGroups, by = c("method", "analysisId", "exposureId", "periodId"))
     
     oldEstimatesWithCalibration <- estimatesWithCalibration %>%
+      inner_join(select(estimates, 
+             .data$exposureId, 
+             .data$outcomeId, 
+             .data$periodId,
+             .data$method,
+             .data$analysisId,
+             .data$logRr,
+             .data$seLogRr),
+             by = c("method", "analysisId", "exposureId", "outcomeId", "periodId", "logRr", "seLogRr")) %>%
       anti_join(newGroups, by = c("method", "analysisId", "exposureId", "periodId"))
+    
+    if (nrow(newEstimates) + nrow(oldEstimatesWithCalibration) != nrow(estimates)) {
+      stop("Error reusing calibration")
+    }
   } else {
     newEstimates <- estimates
     oldEstimatesWithCalibration <- tibble()
