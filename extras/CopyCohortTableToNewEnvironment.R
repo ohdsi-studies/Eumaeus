@@ -27,9 +27,18 @@ Andromeda::saveAndromeda(cohortAndromeda, tempCohortFile)
 cohortAndromeda <- Andromeda::loadAndromeda(tempCohortFile)
 
 connection <- connect(connectionDetails)
+
+# Only if you made a mistake: drop the table
+# renderTranslateExecuteSql(connection = connection,
+#                           sql = "TRUNCATE TABLE @cohort_database_schema.@cohort_table; DROP TABLE @cohort_database_schema.@cohort_table;",
+#                           cohort_database_schema = cohortDatabaseSchema,
+#                           cohort_table = cohortTable)
+
 env <- new.env()
 env$first <- TRUE
 uploadChunk <- function(chunk, env) {
+  chunk$COHORT_START_DATE <- Andromeda::restoreDate(chunk$COHORT_START_DATE)
+  chunk$COHORT_END_DATE <- Andromeda::restoreDate(chunk$COHORT_END_DATE)
   insertTable(connection = connection,
               databaseSchema = cohortDatabaseSchema,
               tableName = cohortTable,
