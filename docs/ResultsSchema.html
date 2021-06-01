@@ -3256,6 +3256,20 @@ The two-sided p-value considering the null hypothesis of no effect.
 </tr>
 <tr>
 <td style="text-align:left;">
+one_sided_p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The one-sided p-value considering the null hypothesis of no effect. Is lower when the effect size is higher.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 exposure_subjects
 </td>
 <td style="text-align:left;">
@@ -3475,7 +3489,35 @@ NUMERIC
 No
 </td>
 <td style="text-align:left;">
-The calibrated p-value.
+The calibrated two-sided p-value.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_one_sided_p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated one-sided p-value. Is lower when the effect size is higher.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_llr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated log likelihood ratio.
 </td>
 </tr>
 </tbody>
@@ -3788,6 +3830,141 @@ No
 </td>
 <td style="text-align:left;">
 The number of subjects that contributed time-at-risk.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-likelihood_profile" class="section level2">
+<h2>Table likelihood_profile</h2>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:left;">
+Type
+</th>
+<th style="text-align:left;">
+Key
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+database_id
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the database table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A unique name for the method, e.g. ‘CohortMethod.’ References the analysis table
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+analysis_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the analysis table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the exposure table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outcome_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+period_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the time_period table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+point
+</td>
+<td style="text-align:left;">
+TEXT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+A semicolon-delimited text blob containing the points (on the log relative risk scale) at which the likelihood was sampled.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+value
+</td>
+<td style="text-align:left;">
+TEXT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+A semicolon-delimited text blob containing the log likelihood at each point.
 </td>
 </tr>
 </tbody>
@@ -4176,7 +4353,7 @@ analysis &lt;- querySql(connection, sql, snakeCaseToCamelCase = TRUE)
 head(analysis)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["method"],"name":[1],"type":["chr"],"align":["left"]},{"label":["analysisId"],"name":[2],"type":["int"],"align":["right"]},{"label":["description"],"name":[3],"type":["chr"],"align":["left"]},{"label":["timeAtRisk"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"HistoricalComparator","2":"1","3":"Unadjusted historical comparator","4":"1-28","_rn_":"1"},{"1":"HistoricalComparator","2":"2","3":"Age + sex adjusted historical comparator","4":"1-28","_rn_":"2"},{"1":"HistoricalComparator","2":"3","3":"Visit-anchor unadjusted historical comparator","4":"1-28","_rn_":"3"},{"1":"HistoricalComparator","2":"4","3":"Visit-anchor age + sex adjusted historical comparator","4":"1-28","_rn_":"4"},{"1":"HistoricalComparator","2":"5","3":"Unadjusted historical comparator","4":"1-42","_rn_":"5"},{"1":"HistoricalComparator","2":"6","3":"Age + sex adjusted historical comparator","4":"1-42","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["method"],"name":[1],"type":["chr"],"align":["left"]},{"label":["analysisId"],"name":[2],"type":["int"],"align":["right"]},{"label":["description"],"name":[3],"type":["chr"],"align":["left"]},{"label":["timeAtRisk"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"HistoricalComparator","2":"1","3":"Unadjusted, using entire historic period","4":"1-28","_rn_":"1"},{"1":"HistoricalComparator","2":"2","3":"Age & sex adjusted, using entire historic period","4":"1-28","_rn_":"2"},{"1":"HistoricalComparator","2":"3","3":"Unadjusted, using TaR after historic visit","4":"1-28","_rn_":"3"},{"1":"HistoricalComparator","2":"4","3":"Age & sex adjusted, using TaR after historic visit","4":"1-28","_rn_":"4"},{"1":"HistoricalComparator","2":"5","3":"Unadjusted, using entire historic period","4":"1-42","_rn_":"5"},{"1":"HistoricalComparator","2":"6","3":"Age & sex adjusted, using entire historic period","4":"1-42","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Or the exposures:</p>
@@ -4211,7 +4388,7 @@ estimate %&gt;%
   select(label, exposureSubjects, exposureOutcomes, rr, llr, criticalValue)</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["label"],"name":[1],"type":["chr"],"align":["left"]},{"label":["exposureSubjects"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["exposureOutcomes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rr"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["llr"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["criticalValue"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["label"],"name":[1],"type":["chr"],"align":["left"]},{"label":["exposureSubjects"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["exposureOutcomes"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["rr"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["llr"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["criticalValue"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1 month","2":"0","3":"0","4":"NA","5":"NA","6":"2.030071","_rn_":"1"},{"1":"2 months","2":"31707","3":"1","4":"1.6265892","5":"0.1012687","6":"2.030071","_rn_":"2"},{"1":"3 months","2":"93969","3":"2","4":"0.4732956","5":"0.0000000","6":"2.030071","_rn_":"3"},{"1":"4 months","2":"152079","3":"3","4":"0.3764358","5":"0.0000000","6":"2.030071","_rn_":"4"},{"1":"5 months","2":"181588","3":"3","4":"0.3016862","5":"0.0000000","6":"2.030071","_rn_":"5"},{"1":"6 months","2":"195199","3":"4","4":"0.3562751","5":"0.0000000","6":"2.030071","_rn_":"6"},{"1":"7 months","2":"202094","3":"4","4":"0.3382648","5":"0.0000000","6":"2.030071","_rn_":"7"},{"1":"8 months","2":"205439","3":"4","4":"0.3303352","5":"0.0000000","6":"2.030071","_rn_":"8"},{"1":"9 months","2":"206865","3":"4","4":"0.3268358","5":"0.0000000","6":"2.030071","_rn_":"9"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>Note that in many cases the number of exposed subjects within a time period can be 0, and other values such as the relative risk (rr) cannot be computed and are therefore set to NA.</p>
