@@ -46,13 +46,13 @@ databaseDescription <- "IBM MarketScan® Multi-State Medicaid Database (MDCD) ad
 
 # # Details specific to MDCR:
 # connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "redshift",
-#                                                                 connectionString = keyring::key_get("redShiftConnectionStringMdcr"),
+#                                                                 connectionString = keyring::key_get("redShiftConnectionStringOhdaMdcr"),
 #                                                                 user = keyring::key_get("redShiftUserName"),
 #                                                                 password = keyring::key_get("redShiftPassword"))
 # outputFolder <- "s:/Eumaeus/mdcr"
-# cdmDatabaseSchema <- "cdm"
-# cohortDatabaseSchema <- "scratch_mschuemi4"
-# cohortTable <- "mschuemi_vac_surv_mdcr"
+# cdmDatabaseSchema <- "cdm_truven_mdcr_v1477"
+# cohortDatabaseSchema <- "scratch_mschuemi"
+# cohortTable <- "eumaeus_mdcr"
 # databaseId <- "IBM_MDCR"
 # databaseName <- "IBM MarketScan® Medicare Supplemental and Coordination of Benefits Database"
 # databaseDescription <- "IBM MarketScan® Medicare Supplemental and Coordination of Benefits Database (MDCR) represents health services of retirees in the United States with primary or Medicare supplemental coverage through privately insured fee-for-service, point-of-service, or capitated health plans.  These data include adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy). Additionally, it captures laboratory tests for a subset of the covered lives."

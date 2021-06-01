@@ -62,6 +62,6 @@ for (i in (1:length(zipFilesToUpload))) {
                           schema = schema,
                           zipFileName = file.path(allDbsFolder, zipFilesToUpload[i]),
                           purgeSiteDataBeforeUploading = FALSE)
-♦  # Move to uploaded folder:
+  # Move to uploaded folder:
   file.rename(file.path(allDbsFolder, zipFilesToUpload[i]), file.path(uploadedFolder, zipFilesToUpload[i]))
 }

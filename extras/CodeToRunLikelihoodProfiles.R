@@ -87,9 +87,9 @@ execute(connectionDetails = connectionDetails,
         runCaseControl = TRUE,
         runHistoricalComparator = F,
         generateDiagnostics = F,
-        computeCriticalValues = F,
+        computeCriticalValues = TRUE,
         createDbCharacterization = F,
-        exportResults = F)
+        exportResults = TRUE)
 
 uploadResults(outputFolder = outputFolder,
               privateKeyFileName = "c:/home/keyfiles/study-data-site-covid19.dat",
