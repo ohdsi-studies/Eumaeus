@@ -179,7 +179,8 @@ computeCcEstimates <- function(connectionDetails,
                                                selectControlsThreads = min(5, maxCores),
                                                getDbExposureDataThreads = min(5, maxCores),
                                                createCaseControlDataThreads = min(5, maxCores),
-                                               fitCaseControlModelThreads =  min(5, maxCores))
+                                               fitCaseControlModelThreads =  min(5, maxCores), 
+                                               cvThreads = max(1, floor(maxCores / 5)))
   
   estimates <- CaseControl::summarizeCcAnalyses(referenceTable, periodFolder)
   return(estimates)
@@ -188,7 +189,8 @@ computeCcEstimates <- function(connectionDetails,
 createCcAnalysesList <- function(startDate, endDate) {
   
   prior <- Cyclops::createPrior("none")
-  
+  control <- Cyclops::createControl(seed = 123)
+
   getDbCaseDataArgs1 <- CaseControl::createGetDbCaseDataArgs(useNestingCohort = FALSE, 
                                                              getVisits = FALSE,
                                                              studyStartDate = format(startDate, "%Y%m%d"),
@@ -224,7 +226,8 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                                                exposureWashoutPeriod = 365)
   
   fitCaseControlModelArgs1 <- CaseControl::createFitCaseControlModelArgs(useCovariates = TRUE,
-                                                                         prior = prior)
+                                                                         prior = prior,
+                                                                         control = control)
   
   ccAnalysis1 <- CaseControl::createCcAnalysis(analysisId = 1,
                                                description = "Sampling, adj. for age & sex, tar 1-28 days",
@@ -260,7 +263,8 @@ createCcAnalysesList <- function(startDate, endDate) {
                                                                controlSelectionCriteria = matchingCriteria)
   
   fitCaseControlModelArgs2 <- CaseControl::createFitCaseControlModelArgs(useCovariates = FALSE,
-                                                                         prior = prior)
+                                                                         prior = prior,
+                                                                         control = control)
   
   ccAnalysis2 <- CaseControl::createCcAnalysis(analysisId = 2,
                                                description = "Matching on age & sex, tar 1-28 days",

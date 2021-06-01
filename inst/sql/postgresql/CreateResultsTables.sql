@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS positive_control_outcome;
 DROP TABLE IF EXISTS time_period;
 DROP TABLE IF EXISTS historical_rate;
 DROP TABLE IF EXISTS monthly_rate;
+DROP TABLE IF EXISTS likelihood_profile;
 
 
 -- Create tables
@@ -41,7 +42,7 @@ CREATE TABLE database (
 --Table database_characterization
 
 CREATE TABLE database_characterization (
-			subject_count INTEGER NOT NULL,
+			subject_count BIGINT NOT NULL,
 			stratum TEXT NOT NULL,
 			stratification VARCHAR(255) NOT NULL,
 			database_id VARCHAR(255) NOT NULL,
@@ -61,6 +62,7 @@ CREATE TABLE estimate (
 			ci_95_lb NUMERIC,
 			ci_95_ub NUMERIC,
 			p NUMERIC,
+			one_sided_p NUMERIC,
 			exposure_subjects BIGINT,
 			counterfactual_subjects BIGINT,
 			exposure_days BIGINT,
@@ -77,6 +79,8 @@ CREATE TABLE estimate (
 			calibrated_log_rr NUMERIC,
 			calibrated_se_log_rr NUMERIC,
 			calibrated_p NUMERIC,
+			calibrated_one_sided_p NUMERIC,
+			calibrated_llr NUMERIC,
 			PRIMARY KEY(database_id, method, analysis_id, exposure_id, outcome_id, period_id)
 );
 
@@ -151,4 +155,18 @@ CREATE TABLE monthly_rate (
 			outcomes BIGINT,
 			days BIGINT,
 			PRIMARY KEY(database_id, outcome_id, start_date, end_date)
+);
+
+--Table likelihood_profile
+
+CREATE TABLE likelihood_profile (
+			database_id VARCHAR(255) NOT NULL,
+			method VARCHAR(255) NOT NULL,
+			analysis_id INTEGER NOT NULL,
+			exposure_id INTEGER NOT NULL,
+			outcome_id INTEGER NOT NULL,
+			period_id INTEGER NOT NULL,
+			point TEXT NOT NULL,
+			value TEXT NOT NULL,
+			PRIMARY KEY(database_id, method, analysis_id, exposure_id, outcome_id, period_id)
 );

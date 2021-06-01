@@ -25,14 +25,13 @@
     },
     "CaseControl": {
       "Package": "CaseControl",
-      "Version": "3.1.0",
+      "Version": "3.2.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "CaseControl",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "v3.1.0",
-      "Hash": "7b6b3c0ac8146c376e0e96bdeeed48e1"
+      "RemoteRef": "develop"
     },
     "CohortDiagnostics": {
       "Package": "CohortDiagnostics",
@@ -57,10 +56,13 @@
     },
     "Cyclops": {
       "Package": "Cyclops",
-      "Version": "3.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "f4bddfd172c0cbc36923c68b230faae4"
+      "Version": "3.1.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "Cyclops",
+      "RemoteUsername": "ohdsi",
+      "RemoteRef": "develop"
     },
     "DBI": {
       "Package": "DBI",
@@ -71,38 +73,29 @@
     },
     "DatabaseConnector": {
       "Package": "DatabaseConnector",
-      "Version": "4.0.0",
+      "Version": "4.0.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "07b629b94dd031fc56a8e2d99f64f245"
+      "Repository": "CRAN"
     },
     "EmpiricalCalibration": {
       "Package": "EmpiricalCalibration",
-      "Version": "2.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e33a870ba7020a826adf07e938912751"
-    },
-    "Eumaeus": {
-      "Package": "Eumaeus",
-      "Version": "1.1.1",
+      "Version": "2.2.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "Eumaeus",
-      "RemoteUsername": "ohdsi-studies",
-      "RemoteRef": "main"
+      "RemoteRepo": "EmpiricalCalibration",
+      "RemoteUsername": "ohdsi",
+      "RemoteRef": "develop"
     },
     "FeatureExtraction": {
       "Package": "FeatureExtraction",
-      "Version": "3.1.0",
+      "Version": "3.1.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "FeatureExtraction",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "v3.1.0",
-      "Hash": "bb2175e767455b95090b776ccc0a39e2"
+      "RemoteRef": "v3.1.1"
     },
     "MASS": {
       "Package": "MASS",
@@ -223,7 +216,7 @@
     },
     "SelfControlledCaseSeries": {
       "Package": "SelfControlledCaseSeries",
-      "Version": "3.0.1",
+      "Version": "3.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",

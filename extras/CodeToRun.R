@@ -147,8 +147,8 @@ execute(connectionDetails = connectionDetails,
         runSccs = F,
         runCaseControl = F,
         runHistoricalComparator = F,
-        generateDiagnostics = TRUE,
-        computeCriticalValues = F,
+        generateDiagnostics = F,
+        computeCriticalValues = TRUE,
         createDbCharacterization = F,
         exportResults = F)
 

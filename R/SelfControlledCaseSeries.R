@@ -189,7 +189,7 @@ computeSccsEstimates <- function(connectionDetails,
                                                               createStudyPopulationThreads = min(10, maxCores),
                                                               createSccsIntervalDataThreads = min(10, maxCores),
                                                               fitSccsModelThreads = min(10, floor(maxCores/4)),
-                                                              cvThreads = 4)
+                                                              cvThreads = min(maxCores, 4))
   
   estimates <- summarizeSccsAnalyses(referenceTable, periodFolder)
   return(estimates)
@@ -251,21 +251,24 @@ createSccsAnalysesList <- function(startDate, endDate) {
                                                                                  start = 1,
                                                                                  startAnchor = "era start",
                                                                                  end = 28,
-                                                                                 endAnchor = "era start")
+                                                                                 endAnchor = "era start",
+                                                                                 profileLikelihood = TRUE)
   
   covarExposureOfInt1_42 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
                                                                                  includeEraIds = "exposureId",
                                                                                  start = 1,
                                                                                  startAnchor = "era start",
                                                                                  end = 42,
-                                                                                 endAnchor = "era start")
+                                                                                 endAnchor = "era start",
+                                                                                 profileLikelihood = TRUE)
   
   covarExposureOfInt0_1 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Main",
                                                                                 includeEraIds = "exposureId",
                                                                                 start = 0,
                                                                                 startAnchor = "era start",
                                                                                 end = 1,
-                                                                                endAnchor = "era start")
+                                                                                endAnchor = "era start",
+                                                                                profileLikelihood = TRUE)
   
   covarPreExp <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure",
                                                                       includeEraIds = "exposureId",
@@ -278,21 +281,24 @@ createSccsAnalysesList <- function(startDate, endDate) {
                                                                                     start = 1,
                                                                                     startAnchor = "era start",
                                                                                     end = 28,
-                                                                                    endAnchor = "era start")
+                                                                                    endAnchor = "era start",
+                                                                                    profileLikelihood = TRUE)
   
   covarExposureOfInt2nd1_42 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
                                                                                     includeEraIds = "exposureId2",
                                                                                     start = 1,
                                                                                     startAnchor = "era start",
                                                                                     end = 42,
-                                                                                    endAnchor = "era start")
+                                                                                    endAnchor = "era start",
+                                                                                    profileLikelihood = TRUE)
   
   covarExposureOfInt2nd0_1 <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Second",
                                                                                    includeEraIds = "exposureId2",
                                                                                    start = 0,
                                                                                    startAnchor = "era start",
                                                                                    end = 1,
-                                                                                   endAnchor = "era start")
+                                                                                   endAnchor = "era start",
+                                                                                   profileLikelihood = TRUE)
   
   covarPreExp2nd <- SelfControlledCaseSeries::createEraCovariateSettings(label = "Pre-exposure second",
                                                                        includeEraIds = "exposureId2",

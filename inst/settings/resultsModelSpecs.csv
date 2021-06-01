@@ -25,6 +25,7 @@ estimate,rr,NUMERIC,No,No,Yes,"The estimated relative risk (hazard ratio, odds r
 estimate,ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the 95% confidence interval of the relative risk. 
 estimate,ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the 95% confidence interval of the relative risk.
 estimate,p,NUMERIC,No,No,Yes,The two-sided p-value considering the null hypothesis of no effect.
+estimate,one_sided_p,NUMERIC,No,No,Yes,The one-sided p-value considering the null hypothesis of no effect. Is lower when the effect size is higher.
 estimate,exposure_subjects,BIGINT,No,No,Yes,The number of subject in the exposure cohort.
 estimate,counterfactual_subjects,BIGINT,No,No,Yes,The number of subject in the cohort used to determine the counterfactual.
 estimate,exposure_days,BIGINT,No,No,Yes,The number of days in the exposure cohort.
@@ -40,7 +41,9 @@ estimate,calibrated_ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the calibrated
 estimate,calibrated_ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the calibrated 95% confidence interval of the relative risk.
 estimate,calibrated_log_rr,NUMERIC,No,No,Yes,The log of the calibrated relative risk.
 estimate,calibrated_se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of the calibrated relative risk.
-estimate,calibrated_p,NUMERIC,No,No,Yes,The calibrated p-value.
+estimate,calibrated_p,NUMERIC,No,No,Yes,The calibrated two-sided p-value.
+estimate,calibrated_one_sided_p,NUMERIC,No,No,Yes,The calibrated one-sided p-value. Is lower when the effect size is higher.
+estimate,calibrated_llr,NUMERIC,No,No,Yes,The calibrated log likelihood ratio.
 exposure,exposure_id,INTEGER,Yes,Yes,Yes,"A unique ID for each exposure. The first, second, and both shots of a vaccine each have a unique ID here."
 exposure,exposure_name,VARCHAR(255),Yes,No,Yes,The name of the exposure.
 exposure,total_shots,INTEGER,Yes,No,Yes,The number of shots for a vaccine. (1 or 2)
@@ -78,3 +81,11 @@ monthly_rate,start_date,DATE,Yes,Yes,Yes,The start date of the time period.
 monthly_rate,end_date,DATE,Yes,Yes,Yes,The end date of the time period.
 monthly_rate,outcomes,BIGINT,No,No,Yes,The number of outcomes observed during the month.
 monthly_rate,days,BIGINT,No,No,Yes,The number of patient days in themonth.
+likelihood_profile,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
+likelihood_profile,method,VARCHAR(255),Yes,Yes,Yes,"A unique name for the method, e.g. 'CohortMethod'. References the analysis table"
+likelihood_profile,analysis_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the analysis table.
+likelihood_profile,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.
+likelihood_profile,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+likelihood_profile,period_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the time_period table.
+likelihood_profile,point,TEXT,Yes,No,Yes,A semicolon-delimited text blob containing the points (on the log relative risk scale) at which the likelihood was sampled.
+likelihood_profile,value,TEXT,Yes,No,Yes,A semicolon-delimited text blob containing the log likelihood at each point.

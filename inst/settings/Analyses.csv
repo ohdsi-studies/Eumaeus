@@ -68,9 +68,9 @@ SCCS,12,"SCRI with posterior control interval",01
 SCCS,13,"Unadjusted SCCS excluding all pre-vaccination time",1-28
 SCCS,14,"Unadjusted SCCS excluding all pre-vaccination time",1-42
 SCCS,15,"Unadjusted SCCS excluding all pre-vaccination time",0-1
-CaseControl,1,"Age & sex matched controls",1-28
-CaseControl,2,"Age & sex adjusted, using random controls",1-28
-CaseControl,3,"Age & sex matched controls",1-42
-CaseControl,4,"Age & sex adjusted, using random controls",1-42
-CaseControl,5,"Age & sex matched controls",0-1
-CaseControl,6,"Age & sex adjusted, using random controls",0-1
+CaseControl,1,"Age & sex adjusted, using random controls",1-28
+CaseControl,2,"Age & sex matched controls",1-28
+CaseControl,3,"Age & sex adjusted, using random controls",1-42
+CaseControl,4,"Age & sex matched controls",1-42
+CaseControl,5,"Age & sex adjusted, using random controls",0-1
+CaseControl,6,"Age & sex matched controls",0-1
