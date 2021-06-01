@@ -18,8 +18,9 @@
 "_PACKAGE"
 
 #' @importFrom rlang .data
+#' @importFrom methods is
 #' @importFrom grDevices rgb
-#' @importFrom stats aggregate coef confint density pnorm qnorm quantile
+#' @importFrom stats aggregate coef confint density pnorm qnorm quantile dpois pbinom pchisq
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar write.csv write.table installed.packages packageVersion
 #' @import dplyr
 #' @import DatabaseConnector
