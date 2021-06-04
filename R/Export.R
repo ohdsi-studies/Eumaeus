@@ -238,7 +238,7 @@ exportLikelihoodProfiles <- function(outputFolder,
                by = c("baseExposureId", "shot", "comparator")) %>%
     select(.data$nonSampleExposureId, .data$exposureId) 
   starts <- seq(1, length(modelFiles), by = batchSize)
-  # modelFile = modelFiles[1]
+  # modelFile = modelFiles[start]
   extractCmProfile <- function(modelFile) {
     model <- readRDS(modelFile)
     profile <- model$logLikelihoodProfile
@@ -260,16 +260,18 @@ exportLikelihoodProfiles <- function(outputFolder,
     end <- min(length(modelFiles), start + batchSize - 1)
     if (end > start) {
       rows <- purrr::map_dfr(modelFiles[start:end], extractCmProfile)
-      rows <- rows %>%
-        inner_join(mapping, by = "exposureId") %>%
-        select(-.data$exposureId) %>%
-        rename(exposureId = .data$nonSampleExposureId) %>%
-        mutate(databaseId = databaseId,
-               method = "CohortMethod")
-      if (is.null(masterProfileTable$profiles)) {
-        masterProfileTable$profiles <- rows
-      } else {
-        Andromeda::appendToTable(masterProfileTable$profiles, rows)
+      if (nrow(rows) > 0) {
+        rows <- rows %>%
+          inner_join(mapping, by = "exposureId") %>%
+          select(-.data$exposureId) %>%
+          rename(exposureId = .data$nonSampleExposureId) %>%
+          mutate(databaseId = databaseId,
+                 method = "CohortMethod")
+        if (is.null(masterProfileTable$profiles)) {
+          masterProfileTable$profiles <- rows
+        } else {
+          Andromeda::appendToTable(masterProfileTable$profiles, rows)
+        }
       }
     }
     return(NULL)
