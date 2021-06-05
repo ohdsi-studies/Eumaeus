@@ -94,3 +94,28 @@ execute(connectionDetails = connectionDetails,
 uploadResults(outputFolder = outputFolder,
               privateKeyFileName = "c:/home/keyfiles/study-data-site-covid19.dat",
               userName = "study-data-site-covid19")
+
+
+
+# New EmpiricalCalibration -------------------
+remove.packages("EmpiricalCalibration")
+renv::purge("EmpiricalCalibration", version = "2.2.0", prompt = FALSE)
+renv::restore(packages = "EmpiricalCalibration")
+
+# Redo calibration just for those affected
+estimate <- readr::read_csv(file.path(outputFolder, "export", "estimate.csv"), guess_max = 1e6)
+idx <- is.na(estimate$calibrated_llr) & !is.na(estimate$calibrated_p)
+estimate <- estimate[!idx, ]
+readr::write_csv(estimate, file.path(outputFolder, "export", "estimate.csv"))
+exportFolder <- file.path(outputFolder, "export")
+Eumaeus:::exportMainResults(outputFolder = outputFolder,
+                            databaseId = databaseId,
+                            exportFolder = exportFolder,
+                            minCellCount = 5,
+                            maxCores = maxCores)
+# Regenerate zip file
+zipName <- normalizePath(file.path(exportFolder, sprintf("Results_%s.zip", databaseId)), mustWork = FALSE)
+files <- list.files(exportFolder, pattern = ".*\\.csv$")
+oldWd <- setwd(exportFolder)
+DatabaseConnector::createZipFile(zipFile = zipName, files = files)
+setwd(oldWd)
