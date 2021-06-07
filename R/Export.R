@@ -563,7 +563,7 @@ exportMainResults <- function(outputFolder,
   # Try to reuse previous calibration to save time:
   fileName <- file.path(exportFolder, "estimate.csv")
   if (file.exists(fileName)) {
-    estimatesWithCalibration <- readr::read_csv(fileName, col_types = readr::cols(), guess_max = 1e5)  
+    estimatesWithCalibration <- readr::read_csv(fileName, col_types = readr::cols(), guess_max = 1e6)
     colnames(estimatesWithCalibration) <- SqlRender::snakeCaseToCamelCase(colnames(estimatesWithCalibration))
     newGroups <- estimates %>%
       anti_join(select(estimatesWithCalibration, 
@@ -620,15 +620,18 @@ exportMainResults <- function(outputFolder,
     ParallelLogger::clusterRequire(cluster, "dplyr")
     ParallelLogger::logInfo("Loading master profile table in each thread")
     profileMasterTableFile <- file.path(outputFolder, "llProfileTable.zip")
+    # perThreadGlobalVariables = new.env()
+    # perThreadGlobalVariables$profileMasterTable <- Andromeda::loadAndromeda(profileMasterTableFile)
     invisible(ParallelLogger::clusterApply(cluster,
-                                 rep(profileMasterTableFile, threads),
-                                 Eumaeus:::loadProfileMasterTable))
+                                           rep(profileMasterTableFile, threads),
+                                           Eumaeus:::loadProfileMasterTable))
     subsets <- split(newEstimates,
                      paste(newEstimates$exposureId, newEstimates$method, newEstimates$analysisId, newEstimates$periodId))
     rm(newEstimates)  # Free up memory
     results <- ParallelLogger::clusterApply(cluster,
                                             subsets,
                                             Eumaeus:::calibrate)
+
     ParallelLogger::stopCluster(cluster)
     rm(subsets)  # Free up memory
     columns <- c(columns, c("calibratedRr", "calibratedCi95Lb", "calibratedCi95Ub", "calibratedLogRr", "calibratedSeLogRr", 
@@ -658,7 +661,6 @@ loadProfileMasterTable <- function(profileMasterTableFile) {
 # leaveOutId = subset$oldOutcomeId[1]
 calibratePLoo <- function(leaveOutId, subset, profiles) {
   looSet <- subset[subset$oldOutcomeId == leaveOutId, ]
-
   ncsLoo <- subset %>%
     filter(.data$oldOutcomeId != leaveOutId & .data$targetEffectSize == 1 & !is.na(.data$seLogRr))
   null <- EmpiricalCalibration::fitMcmcNull(logRr = ncsLoo$logRr, 
@@ -670,7 +672,7 @@ calibratePLoo <- function(leaveOutId, subset, profiles) {
   
   return(purrr::map_dfr(split(looSet, 1:nrow(looSet)), calibratePOne, null = null, profiles = profiles))
 }
-  
+
 # one = split(looSet, 1:nrow(looSet))[[4]]
 calibratePOne <- function(one, null, profiles) {
   if (is.na(one$seLogRr)) {
@@ -700,7 +702,10 @@ calibratePOne <- function(one, null, profiles) {
       # temp fix. Should not be necessary when all profiles are rerun:
       profile <- profile[!is.na(profile)]
       if (length(profile) > 1) {
-      one$calibratedLlr <- EmpiricalCalibration::calibrateLlr(null, profile)
+        one$calibratedLlr <- EmpiricalCalibration::calibrateLlr(null, profile)
+        if (is.infinite(one$calibratedLlr)) {
+          one$calibratedLlr <- 99999
+        }
       } else {
         one$calibratedLlr <- NA
       }
@@ -728,7 +733,7 @@ calibrateCiLoo <- function(subset, leaveOutId) {
 }
 
 calibrate <- function(subset) {
-  # subset <- subsets[[1]]
+  # subset <- subsets[[3]]
   # Performing calibration using leave-one-out (LOO) because this is a methods experiment.
   
   ncs <- subset %>%
@@ -736,9 +741,9 @@ calibrate <- function(subset) {
   if (nrow(ncs) > 5) {
     profiles <- perThreadGlobalVariables$profileMasterTable$profiles %>%
       filter(.data$method == !!subset$method[1] &
-             .data$analysisId == !!subset$analysisId[1] &
-             .data$exposureId == !!subset$exposureId[1] &
-             .data$periodId == !!subset$periodId[1]) %>%
+               .data$analysisId == !!subset$analysisId[1] &
+               .data$exposureId == !!subset$exposureId[1] &
+               .data$periodId == !!subset$periodId[1]) %>%
       collect()
     subset <- purrr::map_dfr(unique(subset$oldOutcomeId), calibratePLoo, subset = subset, profiles = profiles)
   } else {

@@ -104,7 +104,7 @@ renv::restore(packages = "EmpiricalCalibration")
 
 # Redo calibration just for those affected
 estimate <- readr::read_csv(file.path(outputFolder, "export", "estimate.csv"), guess_max = 1e6)
-idx <- is.na(estimate$calibrated_llr) & !is.na(estimate$calibrated_p)
+idx <- is.infinite(estimate$calibrated_llr)
 estimate <- estimate[!idx, ]
 readr::write_csv(estimate, file.path(outputFolder, "export", "estimate.csv"))
 exportFolder <- file.path(outputFolder, "export")
