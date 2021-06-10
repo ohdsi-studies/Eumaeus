@@ -89,3 +89,37 @@ likelihood_profile,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the 
 likelihood_profile,period_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the time_period table.
 likelihood_profile,point,TEXT,Yes,No,Yes,A semicolon-delimited text blob containing the points (on the log relative risk scale) at which the likelihood was sampled.
 likelihood_profile,value,TEXT,Yes,No,Yes,A semicolon-delimited text blob containing the log likelihood at each point.
+estimate_imputed_pcs,database_id,VARCHAR(255),Yes,Yes,Yes,Foreign key referencing the database table.
+estimate_imputed_pcs,method,VARCHAR(255),Yes,Yes,Yes,"A unique name for the method, e.g. 'CohortMethod'. References the analysis table"
+estimate_imputed_pcs,analysis_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the analysis table.
+estimate_imputed_pcs,exposure_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the exposure table.
+estimate_imputed_pcs,outcome_id,INTEGER,Yes,Yes,Yes,A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+estimate_imputed_pcs,period_id,INTEGER,Yes,Yes,Yes,Foreign key referencing the time_period table.
+estimate_imputed_pcs,rr,NUMERIC,No,No,Yes,"The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio)."
+estimate_imputed_pcs,ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the 95% confidence interval of the relative risk. 
+estimate_imputed_pcs,ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the 95% confidence interval of the relative risk.
+estimate_imputed_pcs,p,NUMERIC,No,No,Yes,The two-sided p-value considering the null hypothesis of no effect.
+estimate_imputed_pcs,one_sided_p,NUMERIC,No,No,Yes,The one-sided p-value considering the null hypothesis of no effect. Is lower when the effect size is higher.
+estimate_imputed_pcs,exposure_subjects,BIGINT,No,No,Yes,The number of subject in the exposure cohort.
+estimate_imputed_pcs,counterfactual_subjects,BIGINT,No,No,Yes,The number of subject in the cohort used to determine the counterfactual.
+estimate_imputed_pcs,exposure_days,BIGINT,No,No,Yes,The number of days in the exposure cohort.
+estimate_imputed_pcs,counterfactual_days,BIGINT,No,No,Yes,The number of days in the cohort used to determine the counterfactual.
+estimate_imputed_pcs,exposure_outcomes,BIGINT,No,No,Yes,The number of outcomes observed in the exposure cohort.
+estimate_imputed_pcs,counterfactual_outcomes,BIGINT,No,No,Yes,The number of outcomes observed in the cohort used to determine the counterfactual.
+estimate_imputed_pcs,log_rr,NUMERIC,No,No,Yes,The log of the relative risk.
+estimate_imputed_pcs,se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of the relative risk. 
+estimate_imputed_pcs,llr,NUMERIC,No,No,Yes,The one-sided log-likelihood ratio.
+estimate_imputed_pcs,critical_value,NUMERIC,No,No,Yes,The critical value for the log-likelihood ratio according to MaxSPRT.
+estimate_imputed_pcs,calibrated_rr,NUMERIC,No,No,Yes,The calibrated relative risk.
+estimate_imputed_pcs,calibrated_ci_95_lb,NUMERIC,No,No,Yes,The lower bound of the calibrated 95% confidence interval of the relative risk.
+estimate_imputed_pcs,calibrated_ci_95_ub,NUMERIC,No,No,Yes,The upper bound of the calibrated 95% confidence interval of the relative risk.
+estimate_imputed_pcs,calibrated_log_rr,NUMERIC,No,No,Yes,The log of the calibrated relative risk.
+estimate_imputed_pcs,calibrated_se_log_rr,NUMERIC,No,No,Yes,The standard error of the log of the calibrated relative risk.
+estimate_imputed_pcs,calibrated_p,NUMERIC,No,No,Yes,The calibrated two-sided p-value.
+estimate_imputed_pcs,calibrated_one_sided_p,NUMERIC,No,No,Yes,The calibrated one-sided p-value. Is lower when the effect size is higher.
+estimate_imputed_pcs,calibrated_llr,NUMERIC,No,No,Yes,The calibrated log likelihood ratio.
+imputed_positive_control_outcome,outcome_id,INTEGER,Yes,Yes,Yes,A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.
+imputed_positive_control_outcome,outcome_name,VARCHAR(255),Yes,No,Yes,The name of the outcome.
+imputed_positive_control_outcome,exposure_id,INTEGER,Yes,No,Yes,Foreign key referencing the exposure in the exposure table for which the effect was synthesized.
+imputed_positive_control_outcome,negative_control_id,INTEGER,Yes,No,Yes,A foreign key referencing the outcome in the negative_control_outcome table on which the positive control is based.
+imputed_positive_control_outcome,effect_size,NUMERIC,Yes,No,Yes,The synthesized effect size.

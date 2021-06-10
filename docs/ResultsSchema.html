@@ -2801,6 +2801,7 @@ Note that the value 0 is permissible, as it identifies no persons.</p>
 </div>
 <div id="tables" class="section level1">
 <h1>Tables</h1>
+<p>In this section you will find the list of tables. Note that the <code>estimate</code> and <code>estimate_imputed_pcs</code> tables both contain the same negative control estimates, although the calibrated confidence intervals (CI) will differ. In the <code>estimate</code> table, CI calibration was done using the synthetic positive controls, in the <code>estimate_imputed_pcs</code> table the CI calibration was done assuming the systematic error distribution does not change as a function of the true effect size. Positive controls listed in the <code>estimate</code> table can be found in the <code>positive_control_outcome</code> table, whereas positive controls in the <code>estimate_imputed_pcs</code> can be found in the <code>imputed_positive_control_outcome</code> table.</p>
 <div id="table-analysis" class="section level2">
 <h2>Table analysis</h2>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
@@ -3096,6 +3097,435 @@ Foreign key referencing the database table.
 </div>
 <div id="table-estimate" class="section level2">
 <h2>Table estimate</h2>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:left;">
+Type
+</th>
+<th style="text-align:left;">
+Key
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+database_id
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the database table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A unique name for the method, e.g. ‘CohortMethod.’ References the analysis table
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+analysis_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the analysis table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the exposure table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outcome_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A foreign key referencing the negative_control_outcome or positive_control_outcome table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+period_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Foreign key referencing the time_period table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The estimated relative risk (hazard ratio, odds ratio, or incidence rate ratio).
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ci_95_lb
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The lower bound of the 95% confidence interval of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ci_95_ub
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The upper bound of the 95% confidence interval of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The two-sided p-value considering the null hypothesis of no effect.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+one_sided_p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The one-sided p-value considering the null hypothesis of no effect. Is lower when the effect size is higher.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_subjects
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of subject in the exposure cohort.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+counterfactual_subjects
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of subject in the cohort used to determine the counterfactual.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_days
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of days in the exposure cohort.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+counterfactual_days
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of days in the cohort used to determine the counterfactual.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_outcomes
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of outcomes observed in the exposure cohort.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+counterfactual_outcomes
+</td>
+<td style="text-align:left;">
+BIGINT
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The number of outcomes observed in the cohort used to determine the counterfactual.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log_rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The log of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+se_log_rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The standard error of the log of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+llr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The one-sided log-likelihood ratio.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+critical_value
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The critical value for the log-likelihood ratio according to MaxSPRT.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_ci_95_lb
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The lower bound of the calibrated 95% confidence interval of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_ci_95_ub
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The upper bound of the calibrated 95% confidence interval of the relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_log_rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The log of the calibrated relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_se_log_rr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The standard error of the log of the calibrated relative risk.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated two-sided p-value.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_one_sided_p
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated one-sided p-value. Is lower when the effect size is higher.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+calibrated_llr
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The calibrated log likelihood ratio.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-estimate_imputed_pcs" class="section level2">
+<h2>Table estimate_imputed_pcs</h2>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -3830,6 +4260,99 @@ No
 </td>
 <td style="text-align:left;">
 The number of subjects that contributed time-at-risk.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="table-imputed_positive_control_outcome" class="section level2">
+<h2>Table imputed_positive_control_outcome</h2>
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Field
+</th>
+<th style="text-align:left;">
+Type
+</th>
+<th style="text-align:left;">
+Key
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+outcome_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+A unique identifier for an outcome. Does not overlap with the outcome IDs in the negative_control_outcome table.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outcome_name
+</td>
+<td style="text-align:left;">
+VARCHAR(255)
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The name of the outcome.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exposure_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Foreign key referencing the exposure in the exposure table for which the effect was synthesized.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+negative_control_id
+</td>
+<td style="text-align:left;">
+INTEGER
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+A foreign key referencing the outcome in the negative_control_outcome table on which the positive control is based.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+effect_size
+</td>
+<td style="text-align:left;">
+NUMERIC
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+The synthesized effect size.
 </td>
 </tr>
 </tbody>

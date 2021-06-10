@@ -99,6 +99,8 @@ Note that the value 0 is permissible, as it identifies no persons.
 
 # Tables
 
+In this section you will find the list of tables. Note that the `estimate` and `estimate_imputed_pcs` tables both contain the same negative control estimates, although the calibrated confidence intervals (CI) will differ. In the `estimate` table, CI calibration was done using the synthetic positive controls, in the `estimate_imputed_pcs` table the CI calibration was done assuming the systematic error distribution does not change as a function of the true effect size. Positive controls listed in the `estimate` table can be found in the `positive_control_outcome` table, whereas positive controls in the `estimate_imputed_pcs` can be found in the `imputed_positive_control_outcome` table.
+
 ```{r echo=FALSE, results="asis", warning=FALSE, message=FALSE}
 specifications <- readr::read_csv("../inst/settings/resultsModelSpecs.csv")
 tables <- split(specifications, specifications$tableName)

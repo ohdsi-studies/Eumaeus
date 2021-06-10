@@ -61,7 +61,14 @@ for (i in (1:length(zipFilesToUpload))) {
   uploadResultsToDatabase(connectionDetails = connectionDetails,
                           schema = schema,
                           zipFileName = file.path(allDbsFolder, zipFilesToUpload[i]),
-                          purgeSiteDataBeforeUploading = FALSE)
+                          purgeSiteDataBeforeUploading = T)
   # Move to uploaded folder:
   file.rename(file.path(allDbsFolder, zipFilesToUpload[i]), file.path(uploadedFolder, zipFilesToUpload[i]))
 }
+
+# Add imputed positive controls -------------------------------------
+source("extras/AddImputedPositiveControls.R")
+addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "IBM_MDCD") 
+addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "IBM_MDCR")
+addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "CCAE")
+addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "OptumEhr")
