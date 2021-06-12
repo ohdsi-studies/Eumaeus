@@ -333,7 +333,8 @@ exportLikelihoodProfiles <- function(outputFolder,
             periodId =  as.numeric(gsub("/.*", "", gsub(".*sccsOutput_t", "", modelFile))),
             point = points,
             value = values
-          )
+          ) %>%
+            filter(!is.na(exposureId))
           return(rows)
         }
       }
