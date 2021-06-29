@@ -3028,7 +3028,7 @@ div.tocify {
 <h1 class="title toc-ignore"><div class="line-block">RESEARCH PROTOCOL<br />
 <br />
 EUMAEUS: Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)</div></h1>
-<h3 class="subtitle">Version: 1.1.0</h3>
+<h3 class="subtitle">Version: 1.2.0</h3>
 
 </div>
 
@@ -3349,7 +3349,7 @@ Department of Biostatistics, University of California, Los Angeles, Los Angeles,
 <ul>
 <li>Design: Cohort, self-controlled, and case-control studies</li>
 <li>Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV), and Varicella-Zoster.</li>
-<li>Outcomes: selected adverse events of special interest; negative control outcomes; synthetic positive control outcomes</li>
+<li>Outcomes: selected adverse events of special interest; negative control outcomes; imputed positive control outcomes</li>
 <li>Analyses:
 <ol style="list-style-type: decimal">
 <li>Historical rate comparisons.</li>
@@ -3415,6 +3415,23 @@ Added historic comparator, cohort method, and SCCS variations
 The historic comparator variation was based on initial EMAEUS results showing (preventable) outliers. The cohort method and SCCS variants are based on 3rd-party protocols for COVID-19 vaccine safety surveillance.
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+2021-06-29
+</td>
+<td style="text-align:left;">
+Exposure-outcome pairs
+</td>
+<td style="text-align:left;">
+Switched from synthetic to imputed positive controls
+</td>
+<td style="text-align:left;">
+Positive control synthesis requires a minimum number of outcomes in the data, precluding many negative controls and leading to only ‘highly’ powered positive controls. This limited the ability to measure performance of methods in low-power settings. Positive control imputation is more simplistic but can be applied in low-power settings.
+</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -3473,7 +3490,7 @@ Results presentation
 </div>
 <div id="rationale-and-background" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Rationale and Background</h1>
-<p>A total of 3 COVID-19 vaccines have been approved for clinical use in Europe, and 4 in the USA.
+<p>A total of 3 COVID-19 vaccines have been approved for clinical use in Europe, and 3 in the USA.
 Many more are in pipeline, and at least two more have reported to date on phase 3 efficacy data. Although safe and effective based on large randomised controlled trials, COVID-19 vaccines will be subject to post-marketing safety studies, including both analyses of spontaneous reports (pharmacovigilance) as well as longitudinal analyses in the form of post-authorisation safety studies.</p>
 <p>The ENCEPP (European Network of Centres for Pharmacoepidemiology and Pharmacovigilance) methodological guidelines, in their 8th revision,<span class="citation">[<a href="#ref-encepp2010" role="doc-biblioref">11</a>]</span> mention a few documents that set out standards for the conducting of vaccine safety studies.
 Specific aspects related to vaccine safety research are discussed in detail in different materials, including the Report of the CIOMS/WHO Working Group on Definition and Application of Terms for Vaccine Pharmacovigilance (2012), the CIOMS Guide to Active Vaccine Safety Surveillance (2017), the CIOMS Guide to Vaccine Safety Communication (2018), the Brighton Collaboration resources, the Module 4 (Surveillance) of the e-learning training course Vaccine Safety Basics by the World Health Organization (WHO), or the recommendations on vaccine-specific aspects of the EU pharmacovigilance system outlined in the Module P.I: Vaccines for prophylaxis against infectious diseases of the Good pharmacovigilance practices (GVP).
@@ -3642,15 +3659,17 @@ Manual review of this list by clinical experts created the final list of 93 nega
 The full list of negative control outcomes can be found in Appendix <a href="#negative-controls">B</a></p>
 <p>Negative control outcomes are defined as the first occurrence of the negative control concept or any of its descendants.</p>
 </div>
-<div id="synthetic-positive-control-outcomes" class="section level3" number="8.1.3">
-<h3><span class="header-section-number">8.1.3</span> Synthetic positive control outcomes</h3>
+<div id="imputed-positive-control-outcomes" class="section level3" number="8.1.3">
+<h3><span class="header-section-number">8.1.3</span> Imputed positive control outcomes</h3>
 <p>Positive controls are outcomes known to be caused by vaccines, and ideally would be detected as signals by a safety surveillance system as early as possible.
 For various reasons, real positive controls are problematic.<span class="citation">[<a href="#ref-Schuemie2018-zi" role="doc-biblioref">3</a>]</span>
-Instead, here we will rely on synthetic positive controls,<span class="citation">[<a href="#ref-Schuemie2020-he" role="doc-biblioref">1</a>,<a href="#ref-Schuemie2018-hq" role="doc-biblioref">5</a>]</span> created by modifying a negative control through injection of additional, simulated occurrences of the outcome.
-To preserve (measured) confounding, simulated outcome occurrences are sampled from the probability distribution derived from a predictive model fitted on the data.
-Target true hazard ratios for the positive control synthesis are 1.5, 2, and 4, so using the 93 negative controls we are able to construct 93 <span class="math inline">\(\times\)</span> 3 = 279 positive control outcomes.
-The hazard for the outcome is simulated to be increased by the target ratio for the period starting 1 day after vaccination until 28 days after vaccinations, with a constant hazard ratio during that time.
-This increased risk is applied both for the first and second injection of multi-dose vaccines.</p>
+Instead, here we will rely on imputed positive controls, created by shifting the estimated effect sizes for the negative controls.
+We assume the negative controls have a true effect size of 1, so to simulate the estimated effect size when the true effect size is <span class="math inline">\(\theta\)</span> we multiply the estimate by <span class="math inline">\(\theta\)</span>.
+For example, if for a negative control a method produces an effect size estimate of 1.1, for a positive control with true effect size of 2 the estimated effect size becomes 1.1 x 2 = 2.2.
+This approach makes strong assumptions on the nature of the systematic error, most importantly that systematic error does not change as a function of the true effect size.
+Although this assumption is likely not to hold in the real world, imputing positive controls allows us to provide some indication of what type 2 error to expect for various true effect sizes.
+For each negative control we will impute positive controls with true effect sizes of 1.5, 2, and 4, so using the 93 negative controls we are able to construct 93 <span class="math inline">\(\times\)</span> 3 = 279 positive control outcomes.
+This increased true effect is applied both for the first and second injection of multi-dose vaccines.</p>
 </div>
 </div>
 <div id="data-sources" class="section level2" number="8.2">
@@ -3793,7 +3812,7 @@ Clinical information, prescriptions, lab results, vital signs, body measurements
 We will evaluate two variations:</p>
 <ul>
 <li>Unadjusted, entire year. Using a single rate computed across the entire historic year for the entire population.</li>
-<li>Age and sex adjusted, entire year. Using a rate stratifying by age (in 5 year increments) and sex, computed across the entire historic year. This allows the expected rate to be adjusted for the demographics of the vaccinated.</li>
+<li>Age and sex adjusted, entire year. Using a rate stratifying by age (in 10 year increments) and sex, computed across the entire historic year. This allows the expected rate to be adjusted for the demographics of the vaccinated.</li>
 <li>Unadjusted, time-at-risk relative to outpatient visit. Using a single rate computed during the time-at-risk relative to a random outpatient visit in the historic year.</li>
 <li>Age and sex adjusted, time-at-risk relative to outpatient visit. Using a rate stratifying by age and sex, computed during the time-at-risk relative to a random outpatient visit in the historic year.</li>
 </ul>
