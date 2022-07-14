@@ -72,3 +72,4 @@ addImputedPositiveControls(connectionDetails = connectionDetails, schema = schem
 addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "IBM_MDCR")
 addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "CCAE")
 addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "OptumEhr")
+addImputedPositiveControls(connectionDetails = connectionDetails, schema = schema, databaseId = "OptumDod")

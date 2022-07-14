@@ -16,17 +16,6 @@ addImputedPositiveControls <- function(connectionDetails, schema, databaseId) {
                                                           database_id = databaseId,
                                                           snakeCaseToCamelCase = TRUE)
   
-  # Find all controls that have some data in this database
-  # poweredControls <- estimates %>%
-  #   group_by(.data$databaseId, .data$exposureId, .data$outcomeId) %>%
-  #   summarize(maxExposureOutcomes = max(.data$exposureOutcomes), .groups = "drop")
-  # 
-  # # Add missing estimates so every analysis has full set of controls 
-  # estimates <- estimates %>%
-  #   distinct(.data$method, .data$analysisId, .data$exposureId) %>%
-  #   inner_join(estimates %>% distinct(.data$periodId), by = character()) %>%
-  #   inner_join(poweredControls, by = "exposureId") %>%
-  #   left_join(estimates, by = c("databaseId", "method", "analysisId", "exposureId", "outcomeId", "periodId"))
   estimates <- imputePositiveControls(estimates)
   
   imputedPositiveControlOutcome <- estimates %>%
@@ -35,24 +24,6 @@ addImputedPositiveControls <- function(connectionDetails, schema, databaseId) {
 
   estimates <- estimates %>%
     select(-.data$outcomeName, -.data$effectSize, -.data$negativeControlId)
-  
-  
-  
-  
-  #   sql <- "
-  # 
-  # CREATE TABLE @schema.imputed_positive_control_outcome (
-  # 			outcome_id INTEGER NOT NULL,
-  # 			outcome_name VARCHAR(255) NOT NULL,
-  # 			exposure_id INTEGER NOT NULL,
-  # 			negative_control_id INTEGER NOT NULL,
-  # 			effect_size NUMERIC NOT NULL,
-  # 			PRIMARY KEY(outcome_id)
-  # );"
-  #   DatabaseConnector::renderTranslateExecuteSql(connection = connection,
-  #                                                sql = sql,
-  #                                                schema = schema,
-  #                                                database_id = databaseId)
   
   sql <- "SELECT exposure_id, outcome_id
     FROM @schema.imputed_positive_control_outcome;"
@@ -98,8 +69,8 @@ imputePositiveControls <- function(estimates, effectSizesToImpute = c(1.5, 2, 4)
   imputedPositiveControls <- estimates %>%
     full_join(tibble(effectSize = effectSizesToImpute), by = character()) %>%
     rename(negativeControlId = .data$outcomeId,) %>%
-    mutate(rr = .data$rr * .data$effectSize,
-           logRr = log(.data$rr * .data$effectSize),
+    mutate(rr = .data$rr * .data$effectSize) %>%
+    mutate(logRr = log(.data$rr),
            outcomeId = .data$effectSize*1000000 + .data$exposureId*999 + .data$negativeControlId,
            outcomeName = sprintf("%s, RR=%s", .data$outcomeName, .data$effectSize)) %>%
     mutate(ci95Lb = exp(.data$logRr + qnorm(0.025) * .data$seLogRr),
