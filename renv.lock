@@ -11,10 +11,9 @@
   "Packages": {
     "Andromeda": {
       "Package": "Andromeda",
-      "Version": "0.4.0",
+      "Version": "0.5.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "82bb353ad62826fb68d8a2244b7dc0b4"
+      "Repository": "CRAN"
     },
     "BH": {
       "Package": "BH",
@@ -31,7 +30,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "CaseControl",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "develop"
+      "RemoteRef": "v3.2.0"
     },
     "CohortDiagnostics": {
       "Package": "CohortDiagnostics",
@@ -52,17 +51,13 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "CohortMethod",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "develop"
+      "RemoteRef": "v4.2.0"
     },
     "Cyclops": {
       "Package": "Cyclops",
-      "Version": "3.1.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "Cyclops",
-      "RemoteUsername": "ohdsi",
-      "RemoteRef": "develop"
+      "Version": "3.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "DBI": {
       "Package": "DBI",
@@ -79,13 +74,9 @@
     },
     "EmpiricalCalibration": {
       "Package": "EmpiricalCalibration",
-      "Version": "2.2.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "EmpiricalCalibration",
-      "RemoteUsername": "ohdsi",
-      "RemoteRef": "develop"
+      "Version": "3.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "FeatureExtraction": {
       "Package": "FeatureExtraction",
@@ -177,10 +168,9 @@
     },
     "RJSONIO": {
       "Package": "RJSONIO",
-      "Version": "1.3-1.4",
+      "Version": "1.3-1.6",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "5465553c5320701393a2daaa42ed58f9"
+      "Repository": "CRAN"
     },
     "ROhdsiWebApi": {
       "Package": "ROhdsiWebApi",
@@ -202,10 +192,9 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.6",
+      "Version": "1.0.9",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "dbb5e436998a7eba5a9d682060533338"
+      "Repository": "CRAN"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -222,7 +211,7 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "SelfControlledCaseSeries",
       "RemoteUsername": "ohdsi",
-      "RemoteRef": "develop"
+      "RemoteRef": "v3.1.0"
     },
     "Sequential": {
       "Package": "Sequential",
@@ -373,10 +362,9 @@
     },
     "curl": {
       "Package": "curl",
-      "Version": "4.3",
+      "Version": "4.3.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "2b7d10581cc730804e9ed178c8374bd6"
+      "Repository": "CRAN"
     },
     "dbplyr": {
       "Package": "dbplyr",
@@ -457,10 +445,9 @@
     },
     "gdtools": {
       "Package": "gdtools",
-      "Version": "0.2.3",
+      "Version": "0.2.4",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "12a524de5a491ff39debb9311fc0763f"
+      "Repository": "CRAN"
     },
     "generics": {
       "Package": "generics",
@@ -534,10 +521,9 @@
     },
     "httr": {
       "Package": "httr",
-      "Version": "1.4.2",
+      "Version": "1.4.3",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "a525aba14184fec243f9eaec62fbed43"
+      "Repository": "CRAN"
     },
     "isoband": {
       "Package": "isoband",
@@ -631,10 +617,9 @@
     },
     "openssl": {
       "Package": "openssl",
-      "Version": "1.4.3",
+      "Version": "2.0.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "a399e4773075fc2375b71f45fca186c4"
+      "Repository": "CRAN"
     },
     "openxlsx": {
       "Package": "openxlsx",
@@ -673,10 +658,9 @@
     },
     "pkgload": {
       "Package": "pkgload",
-      "Version": "1.1.0",
+      "Version": "1.3.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "b6b150cd4709e0c0c9b5d51ac4376282"
+      "Repository": "CRAN"
     },
     "plogr": {
       "Package": "plogr",
@@ -743,10 +727,9 @@
     },
     "readr": {
       "Package": "readr",
-      "Version": "1.4.0",
+      "Version": "2.1.2",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "2639976851f71f330264a9c9c3d43a61"
+      "Repository": "CRAN"
     },
     "rematch2": {
       "Package": "rematch2",
@@ -806,17 +789,15 @@
     },
     "stringi": {
       "Package": "stringi",
-      "Version": "1.5.3",
+      "Version": "1.7.8",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "a063ebea753c92910a4cca7b18bc1f05"
+      "Repository": "CRAN"
     },
     "stringr": {
       "Package": "stringr",
       "Version": "1.4.0",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "0759e6b6c0957edb1311028a49a35e76"
+      "Repository": "CRAN"
     },
     "survival": {
       "Package": "survival",
@@ -834,7 +815,7 @@
     },
     "systemfonts": {
       "Package": "systemfonts",
-      "Version": "1.0.1",
+      "Version": "1.0.4",
       "Source": "Repository",
       "Repository": "CRAN"
     },
@@ -924,10 +905,9 @@
     },
     "xml2": {
       "Package": "xml2",
-      "Version": "1.3.2",
+      "Version": "1.3.3",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "d4d71a75dd3ea9eb5fa28cc21f9585e2"
+      "Repository": "CRAN"
     },
     "yaml": {
       "Package": "yaml",

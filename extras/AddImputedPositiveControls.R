@@ -99,7 +99,7 @@ imputePositiveControls <- function(estimates, effectSizesToImpute = c(1.5, 2, 4)
     mutate(effectSize = 1) %>%
     bind_rows(imputedPositiveControls) 
   
-  cluster <- ParallelLogger::makeCluster(min(10, maxCores))
+  cluster <- ParallelLogger::makeCluster(min(20, maxCores))
   ParallelLogger::clusterRequire(cluster, "dplyr")
   subsets <- split(estimates, paste(estimates$databaseId, 
                                     estimates$method, 
