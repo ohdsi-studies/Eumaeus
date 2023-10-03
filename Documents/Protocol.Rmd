@@ -145,6 +145,8 @@ parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file
   Marc A. Suchard; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
 ")
 
+<!-- TODO Add new authors -->
+
 tab <- kable(parties, booktabs = TRUE, linesep = "") %>% 
   column_spec(1, width = "10em") %>%
   column_spec(2, width = "30em") %>%
@@ -178,13 +180,14 @@ To study the comparative performance (bias, precision, and timeliness) of differ
 **Study Description**
 
 * Design: Cohort, self-controlled, and case-control studies 
-* Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV), and Varicella-Zoster.
+* Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV), and Varicella-Zoster. <!-- TODO -->
 * Outcomes: selected adverse events of special interest; negative control outcomes; imputed positive control outcomes
 * Analyses: 
     1) Historical rate comparisons. 
     2) Cohort analyses using a contemporary non-user comparator, with large-scale propensity score matching
     3) Self-controlled case series with variations
     4) Case-control analyses
+    5) Concurrent comparator (NEW)
 * Metrics:
     - Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size. Will be stratified by true effect size of the positive controls.
     - Coverage. How often the true effect size is within the 95% confidence interval.
@@ -427,6 +430,10 @@ We will evaluate five variations:
 
 The case-control design compares cases (those with the outcome) to controls (those that do not have the outcome), and looks back in time for exposures to a vaccine. 
 We will evaluate two variants:
+
+**Concurrent comparator**
+
+TODO
 
 - Using up to four age and sex matched controls per case. For age we will use a two-year caliper.
 - By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model. The control sample will be four times the number of controls. Age will be modeled as one variable per 5-year age category.
