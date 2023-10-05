@@ -68,16 +68,16 @@ if (!knitr::is_latex_output() && !knitr::is_html_output()) {
   options(knitr.table.format = "simple")
 }
 
-pdf2png <- function(path) {
-  # only do the conversion for non-LaTeX output
-  if (knitr::is_latex_output()) {
-    return(path)
-  }
-  path2 <- xfun::with_ext(path, "png")
-  img <- magick::image_read_pdf(path)
-  magick::image_write(img, path2, format = "png")
-  path2
-}
+# pdf2png <- function(path) {
+#   # only do the conversion for non-LaTeX output
+#   if (knitr::is_latex_output()) {
+#     return(path)
+#   }
+#   path2 <- xfun::with_ext(path, "png")
+#   img <- magick::image_read_pdf(path)
+#   magick::image_write(img, path2, format = "png")
+#   path2
+# }
 
 
 latex_table_font_size <- 8
@@ -136,7 +136,9 @@ if (knitr::is_latex_output()) {
 ```{r parties, echo=FALSE, results="asis", warning=FALSE}
 parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Investigator; Institution/Affiliation
-  Thamir M Alshammari; College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia  
+  Thamir M Alshammari; College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia
+  Fan Bu; Department of Biostatistics, University of Michigan, Ann Arbor, MI, USA
+  Shounak Chattopadhyay; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA  
   George Hripcsak; Department of Biomedical Informatics, Columbia University, New York, NY, USA
   Nicole Pratt ; Quality Use of Medicines and Pharmacy Research Centre, University of South Australia   
   Dani Prieto-Alhambra; Centre for Statistics in Medicine, NDORMS, University of Oxford, Oxford, UK
@@ -145,7 +147,7 @@ parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file
   Marc A. Suchard; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
 ")
 
-<!-- TODO Add new authors -->
+# <!-- CHANGE Added new authors -->
 
 tab <- kable(parties, booktabs = TRUE, linesep = "") %>% 
   column_spec(1, width = "10em") %>%
@@ -208,7 +210,12 @@ amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, f
   Number; Date; Section of study protocol; Amendment or update; Reason
   1.1.0;2021-04-09;Methods to evaluate;Added historic comparator, cohort method, and SCCS variations;The historic comparator variation was based on initial EMAEUS results showing (preventable) outliers. The cohort method and SCCS variants are based on 3rd-party protocols for COVID-19 vaccine safety surveillance.
   1.2.0;2021-06-29;Exposure-outcome pairs;Switched from synthetic to imputed positive controls;Positive control synthesis requires a minimum number of outcomes in the data, precluding many negative controls and leading to only ‘highly’ powered positive controls. This limited the ability to measure performance of methods in low-power settings. Positive control imputation is more simplistic but can be applied in low-power settings.
+  2.0.0;2023-10-05; Investigators; Added new authors; Second EUMAEUS study.
+  2.0.0;2023-10-05; Exposure-outcome pairs; TODO COVID vaccines and myocarditis/pericarditis
+  2.0.0;2023-10-05; Methods to evaluation; TODO Added concurrent comparator design;  Second EUMAEUS study.
 ")
+
+# <!-- TODO All all amendments -->
 
 tab <- kable(amendments, booktabs = TRUE, linesep = "", caption = "Protocol amendments")
 
@@ -279,6 +286,8 @@ Specific aims:
 
 The evaluation will center on six existing (groups of) vaccines, for specific time periods (start date to end date), as shown in Table \@ref(tab:exposures-of-interest).
 
+<!-- TODO Add two COVID vaccines to `ExposuresOfInterest.csv` file -->
+
 ```{r exposures-of-interest, echo=FALSE, warning=FALSE}
 eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
   select(exposureName, startDate, endDate, historyStartDate, historyEndDate)
@@ -311,7 +320,7 @@ The formal cohort definitions of each exposure can be found in Appendix \@ref(ex
 Negative controls are outcomes believed not to be caused by any of the vaccines, and therefore ideally would not be flagged as a signal by a safety surveillance system. 
 Any effect size estimates for negative control ideally should be close to the null. 
 
-A single set of negative control outcomes is defined for all four vaccine groups.
+A single set of negative control outcomes is defined for all six vaccine groups.
 To identify negative control outcomes that match the severity and prevalence of suspected vaccine adverse effects, a candidate list of negative controls was generated based on similarity of prevalence and percent of diagnoses that were recorded in an inpatient setting (as a proxy for severity). 
 Manual review of this list by clinical experts created the final list of `r numberOfNcs` negative control outcomes. 
 The full list of negative control outcomes can be found in Appendix \@ref(negative-controls)
@@ -329,6 +338,12 @@ This approach makes strong assumptions on the nature of the systematic error, mo
 Although this assumption is likely not to hold in the real world, imputing positive controls allows us to provide some indication of what type 2 error to expect for various true effect sizes. 
 For each negative control we will impute positive controls with true effect sizes of 1.5, 2, and 4, so using the `r numberOfNcs` negative controls we are able to construct `r numberOfNcs` $\times$ 3 = `r numberOfNcs*3` positive control outcomes.
 This increased true effect is applied both for the first and second injection of multi-dose vaccines.
+
+### Real-world positive control outcomes
+
+TODO: to state that one outcome identified and labeled for COVID vaccines: myocarditis/pericarditis, will be used as a positive control to evaluate each method’s ability and timeliness to detect an increased association.
+
+<!-- TODO -->
 
 ## Data sources
 
@@ -431,12 +446,12 @@ We will evaluate five variations:
 The case-control design compares cases (those with the outcome) to controls (those that do not have the outcome), and looks back in time for exposures to a vaccine. 
 We will evaluate two variants:
 
-**Concurrent comparator**
-
-TODO
-
 - Using up to four age and sex matched controls per case. For age we will use a two-year caliper.
 - By sampling controls from the general non-case population, and adjusting for age and sex in the outcome model. The control sample will be four times the number of controls. Age will be modeled as one variable per 5-year age category.
+
+**Concurrent comparator**
+
+TODO ABCD
 
 ### Time-at-risk
 
