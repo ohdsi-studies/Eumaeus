@@ -1,5 +1,5 @@
 ---
-title: "| RESEARCH PROTOCOL\n| \n| EUMAEUS: Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)\n"
+title: "| RESEARCH PROTOCOL (DRAFT)\n| \n| EUMAEUS: Evaluating Use of Methods for Adverse Event Under Surveillance (for vaccines)\n"
 fontsize: 12pt
 geometry: margin=1in
 output:
@@ -50,15 +50,15 @@ longtable: yes
 mainfont: Arial
 bibliography: Protocol.bib
 params:
-  date: '2021-04-09'
-  version: 1.2.0
+  date: '2023-11-06'
+  version: 2.0.0
 subtitle: 'Version: `r params$version`'
 link-citations: true
 csl: jamia.csl
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.pos = "H")
 options(kableExtra.latex.load_packages = FALSE)
 library(kableExtra)
 #knitr::knit_hooks$set(document = function(x) {sub('\\usepackage[]{color}', '\\usepackage[table]{xcolor}', x, fixed = TRUE)})
@@ -123,7 +123,8 @@ abbreviations <- readr::read_delim(col_names = FALSE, delim = ";", trim_ws = TRU
 tab <- kable(abbreviations, col.names = NULL, linesep = "", booktabs = TRUE)
 
 if (knitr::is_latex_output()) {
-  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
 } 
@@ -135,16 +136,13 @@ if (knitr::is_latex_output()) {
 
 ```{r parties, echo=FALSE, results="asis", warning=FALSE}
 parties <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
-  Investigator; Institution/Affiliation
-  Thamir M Alshammari; College of Pharmacy, Riyadh Elm University, Riyadh, Saudi Arabia
+  Version 2.0 Investigator; Institution/Affiliation
   Fan Bu; Department of Biostatistics, University of Michigan, Ann Arbor, MI, USA
   Shounak Chattopadhyay; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA  
   George Hripcsak; Department of Biomedical Informatics, Columbia University, New York, NY, USA
-  Nicole Pratt ; Quality Use of Medicines and Pharmacy Research Centre, University of South Australia   
-  Dani Prieto-Alhambra; Centre for Statistics in Medicine, NDORMS, University of Oxford, Oxford, UK
   Patrick B. Ryan; Observational Health Data Analytics, Janssen Research and Development, Titusville, NJ, USA
-  Martijn J. Schuemie *; Observational Health Data Analytics, Janssen Research and Development, Titusville, NJ, USA
-  Marc A. Suchard; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
+  Martijn J. Schuemie; Observational Health Data Analytics, Janssen Research and Development, Titusville, NJ, USA
+  Marc A. Suchard *; Department of Biostatistics, University of California, Los Angeles, Los Angeles, CA, USA
 ")
 
 # <!-- CHANGE Added new authors -->
@@ -155,7 +153,8 @@ tab <- kable(parties, booktabs = TRUE, linesep = "") %>%
   footnote(general = "* Principal Investigator", general_title = "")
 
 if (knitr::is_latex_output()) {
-  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
 }
@@ -166,7 +165,6 @@ if (knitr::is_latex_output()) {
 This study is undertaken within Observational Health Data Sciences and Informatics (OHDSI), an open collaboration.
 **GH** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration.
 **PBR** and **MJS** are employees of Janssen Research and Development and shareholders in John & Johnson.
-**DPA** reports grants and other from Amgen, grants, non-financial support and other from UCB Biopharma, grants from Les Laboratoires Servier,  outside the submitted work;  and Janssen, on behalf of IMI-funded EHDEN and EMIF consortiums, and Synapse Management Partners have supported training programmes organised by DPA's department and open for external participants.
 **MAS** receives grant funding from the US National Institutes of Health and the US Food & Drug Administration and contracts from the US Department of Veterans Affairs and Janssen Research and Development.
 
 # Abstract
@@ -182,14 +180,14 @@ To study the comparative performance (bias, precision, and timeliness) of differ
 **Study Description**
 
 * Design: Cohort, self-controlled, and case-control studies 
-* Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV), and Varicella-Zoster. <!-- TODO -->
-* Outcomes: selected adverse events of special interest; negative control outcomes; imputed positive control outcomes
+* Exposures: previous viral vaccines including 2017-2018 flu, H1N1pdm flu, Human Papillomavirus (HPV) and Varicella-Zoster, and BNT162b2 and mRNA-1273 mRNA vaccines against COVID-19.
+* Outcomes: selected adverse events of special interest (e.g., myocarditis or pericarditis); negative control outcomes; imputed positive control outcomes
 * Analyses: 
     1) Historical rate comparisons. 
     2) Cohort analyses using a contemporary non-user comparator, with large-scale propensity score matching
     3) Self-controlled case series with variations
     4) Case-control analyses
-    5) Concurrent comparator (NEW)
+    5) Concurrent comparator
 * Metrics:
     - Area Under the receiver-operator Curve (AUC). The ability to discriminate between positive controls and negative controls based on the point estimate of the effect size. Will be stratified by true effect size of the positive controls.
     - Coverage. How often the true effect size is within the 95% confidence interval.
@@ -210,12 +208,18 @@ amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, f
   Number; Date; Section of study protocol; Amendment or update; Reason
   1.1.0;2021-04-09;Methods to evaluate;Added historic comparator, cohort method, and SCCS variations;The historic comparator variation was based on initial EMAEUS results showing (preventable) outliers. The cohort method and SCCS variants are based on 3rd-party protocols for COVID-19 vaccine safety surveillance.
   1.2.0;2021-06-29;Exposure-outcome pairs;Switched from synthetic to imputed positive controls;Positive control synthesis requires a minimum number of outcomes in the data, precluding many negative controls and leading to only ‘highly’ powered positive controls. This limited the ability to measure performance of methods in low-power settings. Positive control imputation is more simplistic but can be applied in low-power settings.
-  2.0.0;2023-10-05; Investigators; Added new authors; Second EUMAEUS study.
-  2.0.0;2023-10-05; Exposure-outcome pairs; TODO COVID vaccines and myocarditis/pericarditis
-  2.0.0;2023-10-05; Methods to evaluation; TODO Added concurrent comparator design;  Second EUMAEUS study.
+  2.0.0;2023-11-06; Abstract; Added BNT162b2 and mRNA-1273 vaccines and concurrent comparator design; Second EUMAEUS study (EUMAEUS v2) to evaluate concurrent comparator design using negative and imputed positive control outcomes and myocarditis or pericarditisis real-world positive control outcome.
+  2.0.0;2023-11-06; Investigators; Updated authors; EUMAEUS v2
+  2.0.0;2023-11-06; Milestones; Added new milestone dates; EUMAEUS v2
+  2.0.0;2023-11-06; Exposure-outcome pairs; Added BNT1262b2 and mRNA-1273 COVID-19 vaccines; EUMAEUS v2
+  2.0.0;2023-11-06; Real-world positive control outcome; Added myocarditisis or pericarditisis for COVID-19 vaccines; EUMAEUS v2
+  2.0.0;2023-11-06; Methods to evaluation; Added concurrent comparator with three target/comparator design choices; EUMAEUS v2
+  2.0.0;2023-11-06; Time-at-risk; Added concurrent comparator time-at-risk definitions for consistency with method use-cases and EUMAEUS v1 choices; EUMAEUS v2
+  2.0.0;2023-11-06; Exposure cohort definitions; Added BNT162b2 and mRNA-1273 COVID-19 vaccine cohort definitions; EUMAEUS v2
+  2.0.0;2023-11-06; Real-world outcome cohort definition; Added myocarditis or pericarditis outcome cohort defintion; EUMAEUS v2
 ")
 
-# <!-- TODO All all amendments -->
+# <!-- TODO All amendments -->
 
 tab <- kable(amendments, booktabs = TRUE, linesep = "", caption = "Protocol amendments")
 
@@ -226,7 +230,8 @@ if (knitr::is_latex_output()) {
     column_spec(3, width = "10em") %>%
     column_spec(4, width = "15em") %>%
     column_spec(5, width = "15em") %>%
-    kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+    kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
@@ -240,16 +245,20 @@ Table \@ref(tab:dates) lists the study milestones.
 ```{r dates, echo=FALSE, results="asis", warning=FALSE}
 dates <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Milestone; Planned / actual date
-  EU PAS Registration;2021-03-23
-  Start of analysis;2021-03-23
-  End of analysis;2021-05-01
-  Results presentation;2021-05-01
+  EU PAS Registration;2021-03-23 / 2021-03-23
+  Start of analysis;2021-03-23 / 2021-03-25
+  End of analysis;2021-05-01 / 2021-05-31
+  Results presentation;2021-05-01 / 2021-06-29
+  Start of 2nd analysis; 2024-02-12
+  End of 2nd analysis; 2024-04-23
+  Results presentation; 2024-05-21
 ")
 
 tab <- kable(dates, booktabs = TRUE, linesep = "", caption = "Study milestones") 
 
 if (knitr::is_latex_output()) {
-  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size)
+  tab %>% kable_styling(latex_options = "striped", font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab %>% kable_styling(bootstrap_options = "striped")
 }
@@ -286,7 +295,6 @@ Specific aims:
 
 The evaluation will center on six existing (groups of) vaccines, for specific time periods (start date to end date), as shown in Table \@ref(tab:exposures-of-interest).
 
-<!-- TODO Add two COVID vaccines to `ExposuresOfInterest.csv` file -->
 
 ```{r exposures-of-interest, echo=FALSE, warning=FALSE}
 eois <- readr::read_csv(system.file("settings", "ExposuresOfInterest.csv", package = "Eumaeus"), col_types = readr::cols()) %>%
@@ -305,7 +313,8 @@ if (knitr::is_latex_output()) {
     column_spec(3, width = "8em") %>%
     column_spec(4, width = "8em") %>%
     column_spec(5, width = "8em") %>%
-    kable_styling(font_size = latex_table_font_size)
+    kable_styling(font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab
 }
@@ -339,11 +348,14 @@ Although this assumption is likely not to hold in the real world, imputing posit
 For each negative control we will impute positive controls with true effect sizes of 1.5, 2, and 4, so using the `r numberOfNcs` negative controls we are able to construct `r numberOfNcs` $\times$ 3 = `r numberOfNcs*3` positive control outcomes.
 This increased true effect is applied both for the first and second injection of multi-dose vaccines.
 
-### Real-world positive control outcomes
+### Real-world positive control outcome for COVID-19 vaccines
 
-TODO: to state that one outcome identified and labeled for COVID vaccines: myocarditis/pericarditis, will be used as a positive control to evaluate each method’s ability and timeliness to detect an increased association.
+In addition to the negative control and imputed positive control outcomes, we will further investigate the risk of myocarditis or pericarditis following COVID-19 vaccination as a real-world positive control outcome [@Wong2022-qt,@Goddard2022-uk].
+Lee et al. used a historical comparator design and demonstrated an increased risk after vaccination across several administrative claims data sources.
+Goddard et al. used a concurrent comparator design and found an elevated risk ratio 0 - 7 days post vaccination of 3.3 (95% confidence interval, 1.5 - 7.0) summing across both BNT162b2 and mRNA-1273 vaccines.
+We will use this positive control to evaluate each method's detection statistical performance and timeliness to detect an increased association.
+Our cohort definition (see Appendix) for myocarditis or pericarditis was developed and validated across 26 data sources [@Li2021-yw,@Voss2023-nc]
 
-<!-- TODO -->
 
 ## Data sources
 
@@ -375,7 +387,8 @@ if (knitr::is_latex_output()) {
     column_spec(1, width = "10em") %>%
     column_spec(2, width = "10em") %>%
     column_spec(5, width = "25em") %>%
-    kable_styling(font_size = latex_table_font_size)
+    kable_styling(font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab
 }
@@ -451,13 +464,20 @@ We will evaluate two variants:
 
 **Concurrent comparator**
 
-TODO ABCD
+Risk of confounding and biased estimation due to differences between patients who choose to receive a vaccine or when they choose to obtain the vaccine remain.  
+The concurrent comparator method aims to control for this bias by predefining a risk interval and designating patients in the exposure target cohort as vaccinated patients who were more recently vaccinated at the time of observation and patients in the control group as vaccinated comparators who had been vaccinated at an earlier time [@Klein2021-kx].
+We will evaluate three variants that cover two different uses of the concurrent comparator method in the literature [@Klein2021-kx,@Goddard2022-uk] and have a time-at-risk equal to our prior methods comparison [@Schuemie2022-wj]:
+
+- Using a target patients who had been vaccinated 0 - 7 days prior as compared to comparator patients on the same day who had been vaccinated 1 - 21 days
+- Target: 1 - 21 days vs comparator: 22 - 42 days
+- Target: 1 - 28 days vs comparator: 29 - 56 days
 
 ### Time-at-risk
 
-The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination. 
-Time-at-risk windows will be constructed both for the first and second dose. 
-The time-at-risk for one dose will be censored at the time of the next dose. 
+The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination for the historical rates, cohort, SCCS and case-control methods.  For the concurrent comparator method we define 0 - 7, 1 - 21 and 1 - 28 time-at-risk windows for greater comparability with the literature.
+Time-at-risk windows will be constructed both for the first and second dose for the historical rates, cohort, SCCS and case-control methods.
+The time-at-risk for one dose will be censored at the time of the next dose.
+For the concurrent comparator method, we only consider the first dose due to second doses often overlapping with the risk periods. 
 
 ### Statistic
 
@@ -531,7 +551,7 @@ This will be computed for each database.
 - Cohort studies allow direct estimation of incidence rates following exposure of interest, and the new-user design can capture early events following treatment exposures while avoiding confounding from previous treatment effects; new use allows for a clear exposure index date.
 - Large-scale propensity score matching and stratification create balance on a large number of baseline potential confounders and have been found in the past to balance unmeasured confounders.
 - Systematic processes including a pre-specified selection of covariates avoids investigator-specific biases in variable selection.
-- Use of real negative and synthetic positive control outcomes provides an independent estimate of residual bias in the experiment.
+- Use of real negative and imputed positive control outcomes provides an independent estimate of residual bias in the experiment.
 - The fully specified study protocol is being published before analysis begins.
 - Dissemination of the results will not depend on estimated effects, avoiding publication bias.
 - All analytic methods have previously been verified on real data.
@@ -575,7 +595,8 @@ if (knitr::is_latex_output()) {
   tab %>%
     column_spec(1, width = "15em") %>%
     column_spec(2, width = "40em") %>%
-    kable_styling(font_size = latex_table_font_size)
+    kable_styling(font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab
 }
@@ -687,6 +708,37 @@ printCohortDefinitionFromNameAndJson(name = "Zoster Vaccines",
                                      json = baseCohortJson)
 ```
 
+```{r comirnaty-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "ComirnatyCovid19FirstDose.json", package = "Eumaeus"))
+baseCohort <- RJSONIO::fromJSON(baseCohortJson)
+
+baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
+
+printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (BNT162b2), first dose",
+                                     json = baseCohortJson)
+```
+
+```{r spikevax-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "SpikevaxCovid19FirstDose.json", package = "Eumaeus"))
+baseCohort <- RJSONIO::fromJSON(baseCohortJson)
+
+baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
+
+printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (mRNA-1273), first dose",
+                                     json = baseCohortJson)
+```
+
+# Real-world outcome cohort definition for COVID-19 vaccines
+
+```{r guillainBarre-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "MyocarditisPericarditis.json", package = "Eumaeus"))
+baseCohort <- RJSONIO::fromJSON(baseCohortJson)
+
+baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
+
+printCohortDefinitionFromNameAndJson(name = "Adverse event outcome - myocarditis or pericarditis",
+                                     json = baseCohortJson)
+```
 
 # Negative controls
 
@@ -702,7 +754,8 @@ if (knitr::is_latex_output()) {
   tab %>%
     column_spec(1, width = "15em") %>%
     column_spec(2, width = "40em") %>%
-    kable_styling(font_size = latex_table_font_size)
+    kable_styling(font_size = latex_table_font_size) %>%
+    kable_styling(latex_options = "HOLD_position")
 } else {
   tab
 }
