@@ -474,10 +474,11 @@ We will evaluate three variants that cover two different uses of the concurrent 
 
 ### Time-at-risk
 
-The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine. We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination for the historical rates, cohort, SCCS and case-control methods.  For the concurrent comparator method we define 0 - 7, 1 - 21 and 1 - 28 time-at-risk windows for greater comparability with the literature.
-Time-at-risk windows will be constructed both for the first and second dose for the historical rates, cohort, SCCS and case-control methods.
+The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine.
+We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination for the historical rates, cohort, SCCS and case-control methods.
+For the concurrent comparator method we define 0 - 7, 1 - 21 and 1 - 28 time-at-risk windows for greater comparability with the literature.
+Time-at-risk windows will be constructed both for the first and second dose.
 The time-at-risk for one dose will be censored at the time of the next dose.
-For the concurrent comparator method, we only consider the first dose due to second doses often overlapping with the risk periods. 
 
 ### Statistic
 
@@ -520,7 +521,7 @@ For each month the methods will be executed using the data that had accumulated 
 
 ### Multiple doses
 
-For those vaccines requiring multiple doses (zoster, HPV), metrics will be computed three times: 
+For the zoster and HPV vaccines requiring multiple doses, metrics will be computed three times: 
 
 - Treating all doses the same, so computing statistics using both doses without distinguishing between first and second.
 - Using the first dose only
@@ -714,7 +715,7 @@ baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
 
-printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (BNT162b2), first dose",
+printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (BNT162b2)",
                                      json = baseCohortJson)
 ```
 
@@ -724,7 +725,7 @@ baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
 
-printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (mRNA-1273), first dose",
+printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (mRNA-1273)",
                                      json = baseCohortJson)
 ```
 
