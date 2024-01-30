@@ -11,8 +11,6 @@ output:
     number_sections: yes
     number_tables: yes
     css: "style.css"
-  bookdown::word_document2:
-    toc: yes
   bookdown::pdf_document2:
     keep_tex: yes
     latex_engine: xelatex
@@ -21,6 +19,9 @@ output:
     # citation_package: natbib
     includes:
       before_body: title.tex
+  bookdown::word_document2:
+    toc: yes
+    reference_docx: "template.docx"
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
