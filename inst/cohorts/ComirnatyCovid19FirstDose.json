@@ -771,14 +771,14 @@
   },
   "InclusionRules": [
     {
-      "name": "age >= 18 with start after 11Dec2020 (EUA date)",
+      "name": "age >= 16 with start after 11Dec2020 (EUA date)",
       "expression": {
         "Type": "ALL",
         "CriteriaList": [],
         "DemographicCriteriaList": [
           {
             "Age": {
-              "Value": 18,
+              "Value": 16,
               "Op": "gte"
             },
             "OccurrenceStartDate": {

@@ -3,16 +3,6 @@ title: "| RESEARCH PROTOCOL (DRAFT)\n| \n| EUMAEUS: Evaluating Use of Methods fo
 fontsize: 12pt
 geometry: margin=1in
 output:
-  bookdown::pdf_document2:
-    keep_tex: yes
-    latex_engine: xelatex
-    md_extensions: +raw_attribute
-    number_sections: yes
-    # citation_package: natbib
-    includes:
-      before_body: title.tex
-  bookdown::word_document2:
-    toc: yes
   bookdown::html_document2:
     df_print: paged
     toc: yes
@@ -21,6 +11,16 @@ output:
     number_sections: yes
     number_tables: yes
     css: "style.css"
+  bookdown::word_document2:
+    toc: yes
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +raw_attribute
+    number_sections: yes
+    # citation_package: natbib
+    includes:
+      before_body: title.tex
 header-includes:
 - \usepackage[numbers,sort&compress]{natbib}
 - \usepackage{booktabs}
@@ -217,6 +217,8 @@ amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, f
   2.0.0;2023-11-06; Time-at-risk; Added concurrent comparator time-at-risk definitions for consistency with method use-cases and EUMAEUS v1 choices; EUMAEUS v2
   2.0.0;2023-11-06; Exposure cohort definitions; Added BNT162b2 and mRNA-1273 COVID-19 vaccine cohort definitions; EUMAEUS v2
   2.0.0;2023-11-06; Real-world outcome cohort definition; Added myocarditis or pericarditis outcome cohort defintion; EUMAEUS v2
+  2.0.0;2024-01-30; Overview of analyses; Updated total number of estimates to include real-world positive control outcome; EUMAEUS v2
+  2.0.0;2024-01-30; Appendix; Corrected age restriction for BNT162b2 and EUA date for mRNA-1273; EUMAEUS v2
 ")
 
 # <!-- TODO All amendments -->
@@ -371,7 +373,7 @@ All data sources will receive institutional review board approval or exemption f
 data_sources <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, file = "
   Data source ; Population ; Patients ; History ; Data capture process and short description
   IBM MarketScan Commercial Claims and Encounters (CCAE) ; Commercially insured, < 65 years ; 142M ; 2000 -- ; Adjudicated health insurance claims (e.g. inpatient, outpatient, and outpatient pharmacy)  from large employers and health plans who provide private healthcare coverage to employees, their spouses and dependents.
-  IBM MarketScan Medicare Supplemental Database (MDCR)  ; Commercially insured, 65$+$ years ; 10M ; 2000 -- ; Adjudicated health insurance claims of retirees with primary or Medicare supplemental coverage through privately insured fee-for-service, point-of-service or capitated health plans.
+  IBM MarketScan Medicare Supplemental Database (MDCR)  ; Commercially insured, 65+ years ; 10M ; 2000 -- ; Adjudicated health insurance claims of retirees with primary or Medicare supplemental coverage through privately insured fee-for-service, point-of-service or capitated health plans.
   IBM MarketScan Multi-State Medicaid Database (MDCD) ; Medicaid enrollees, racially diverse ; 26M ; 2006 -- ; Adjudicated health insurance claims for Medicaid enrollees from multiple states and includes hospital discharge diagnoses, outpatient diagnoses and procedures, and outpatient pharmacy claims.
   Optum Clinformatics Data Mart (Optum) ; Commercially or Medicare insured ; 85M ; 2000 -- ; Inpatient and outpatient healthcare insurance claims.
   Optum Electronic Health Records (OptumEHR) ; US, general ; 93M ; 2006 -- ; Clinical information, prescriptions, lab results, vital signs, body measurements, diagnoses and procedures derived from clinical notes using natural language processing. 
@@ -468,15 +470,15 @@ Risk of confounding and biased estimation due to differences between patients wh
 The concurrent comparator method aims to control for this bias by predefining a risk interval and designating patients in the exposure target cohort as vaccinated patients who were more recently vaccinated at the time of observation and patients in the control group as vaccinated comparators who had been vaccinated at an earlier time [@Klein2021-kx].
 We will evaluate three variants that cover two different uses of the concurrent comparator method in the literature [@Klein2021-kx,@Goddard2022-uk] and have a time-at-risk equal to our prior methods comparison [@Schuemie2022-wj]:
 
-- Using a target patients who had been vaccinated 0 - 7 days prior as compared to comparator patients on the same day who had been vaccinated 1 - 21 days
-- Target: 1 - 21 days vs comparator: 22 - 42 days
-- Target: 1 - 28 days vs comparator: 29 - 56 days
+- Using target patients who had been vaccinated 0-7 days prior as compared to comparator patients on the same day who had been vaccinated 22-42 days
+- Target: 1-21 days vs comparator: 22-42 days
+- Target: 1-28 days vs comparator: 29-56 days
 
 ### Time-at-risk
 
 The time-at-risk is the time window, relative to the vaccination date, when outcomes will potentially be attributed to the vaccine.
 We define three time-at-risk windows: 1-28 days, 1-42 days, and 0-1 days after vaccination for the historical rates, cohort, SCCS and case-control methods.
-For the concurrent comparator method we define 0 - 7, 1 - 21 and 1 - 28 time-at-risk windows for greater comparability with the literature.
+For the concurrent comparator method we define 0-7 days, 1-21 days and 1-28 days time-at-risk windows for greater comparability with the literature.
 Time-at-risk windows will be constructed both for the first and second dose.
 The time-at-risk for one dose will be censored at the time of the next dose.
 
@@ -521,7 +523,7 @@ For each month the methods will be executed using the data that had accumulated 
 
 ### Multiple doses
 
-For the zoster and HPV vaccines requiring multiple doses, metrics will be computed three times: 
+For the zoster and HPV vaccines requiring multiple doses separated by multiple months, metrics will be computed three times: 
 
 - Treating all doses the same, so computing statistics using both doses without distinguishing between first and second.
 - Using the first dose only
@@ -532,15 +534,16 @@ For the zoster and HPV vaccines requiring multiple doses, metrics will be comput
 In total, we will evaluate:
 
 - 14 counterfactuals
-- 3 times at risk (0-1, 1-28, and 1-42 days)
+- 3 times at risk (0-1, 1-28 and 1-42 days, or 0-7, 1-21, 1-28 days for the concurrent comparator)
 - 6 vaccines, with a total of 9 + 9 + 9 + 9 + 12 + 12 = 60 time periods
 - `r numberOfNcs` negative controls
-- 3 $\times$ `r numberOfNcs` = `r 3*numberOfNcs` positive controls
-- 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1pdm and seasonal flu.
+- 3 $\times$ `r numberOfNcs` = `r 3*numberOfNcs` synthetic positive controls
+- 1 real-world positive control outcome
+- 3 dose definitions (both, first, second) for the zoster and HPV vaccines, 1 for H1N1pdm, seasonal flu, the two COVID-19 vaccines
 
-Resulting in a total of 14 $\times$ 3 $\times$ [(9 + 9 + 9 + 9) $\times$ 1 + (12 + 12) $\times$ 3]  $\times$ (`r numberOfNcs` + `r numberOfNcs*3`) = `r format(14 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3) * numberOfNcs * (numberOfNcs*3), scientific = FALSE, big.mark = ",")` effect-size estimates. Each estimate will contain:
+Resulting in a total of 14 $\times$ 3 $\times$ [(9 + 9 + 9 + 9) $\times$ 1 + (12 + 12) $\times$ 3]  $\times$ (`r numberOfNcs` + `r numberOfNcs*3` + 1) = `r format(14 * 3 * ((9 + 9 + 9 + 9) * 1 + (12 + 12) * 3) * numberOfNcs * (numberOfNcs*3+1), scientific = FALSE, big.mark = ",")` effect-size estimates. Each estimate will contain:
 
-- The effect-size estimate (e.g. hazard ratio, odds ratio) with 95% confidence interval and p-value.
+- The effect-size estimate (e.g. hazard ratio, incidence rate ratio, odds ratio) with 95% confidence interval and p-value.
 - The empirically calibrated effect-size estimate and p-value
 - The LLR
 
@@ -582,10 +585,8 @@ Data source & Statement
 IBM MarketScan Commercial Claims and Encounters (CCAE) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 IBM MarketScan Medicare Supplemental Database (MDCR)  & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 IBM MarketScan Multi-State Medicaid Database (MDCD) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-Japan Medical Data Center (JMDC) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 Optum Clinformatics Data Mart (Optum) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
 Optum Electronic Health Records (OptumEHR) & New England Institutional Review Board and was determined to be exempt from broad IRB approval, as this research project did not involve human subject research.
-Clinical Practice Research Datalink (CPRD) GOLD & Independent Scientific Advisory Committee will review the protocol prior to study execution.
 ")
 
 tab <- kable(data_sources, booktabs = TRUE, linesep = "",
