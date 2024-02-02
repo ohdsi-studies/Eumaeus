@@ -712,7 +712,7 @@ printCohortDefinitionFromNameAndJson(name = "Zoster Vaccines",
 ```
 
 ```{r comirnaty-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-baseCohortJson <- SqlRender::readSql(system.file("cohorts", "ComirnatyCovid19FirstDose.json", package = "Eumaeus"))
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "ComirnatyCovid19.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
@@ -722,7 +722,7 @@ printCohortDefinitionFromNameAndJson(name = "COVID-19 mRNA vaccine (BNT162b2)",
 ```
 
 ```{r spikevax-cohort, echo=FALSE, results="asis", warning=FALSE, message=FALSE}
-baseCohortJson <- SqlRender::readSql(system.file("cohorts", "SpikevaxCovid19FirstDose.json", package = "Eumaeus"))
+baseCohortJson <- SqlRender::readSql(system.file("cohorts", "SpikevaxCovid19.json", package = "Eumaeus"))
 baseCohort <- RJSONIO::fromJSON(baseCohortJson)
 
 baseCohortJson <- RJSONIO::toJSON(baseCohort, digits = 50)
