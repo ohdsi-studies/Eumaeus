@@ -220,6 +220,7 @@ amendments <- readr::read_delim(col_names = TRUE, delim = ";", trim_ws = TRUE, f
   2.0.0;2023-11-06; Real-world outcome cohort definition; Added myocarditis or pericarditis outcome cohort defintion; EUMAEUS v2
   2.0.0;2024-01-30; Overview of analyses; Updated total number of estimates to include real-world positive control outcome; EUMAEUS v2
   2.0.0;2024-01-30; Appendix; Corrected age restriction for BNT162b2 and EUA date for mRNA-1273; EUMAEUS v2
+  2.0.0;2024-02-05; Appendix; Corrected all COVID vaccines concept set; EUMAEUS v2
 ")
 
 # <!-- TODO All amendments -->

@@ -1,141 +1,6 @@
 {
   "ConceptSets": [
     {
-      "id": 0,
-      "name": "COMIRNATY Pfizer mRNA COVID-19 vaccine for adults",
-      "expression": {
-        "items": [
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2468232",
-              "CONCEPT_ID": 37003433,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.1 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2583742",
-              "CONCEPT_ID": 702117,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.05 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2623380",
-              "CONCEPT_ID": 742039,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.0075 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2603832",
-              "CONCEPT_ID": 779947,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.015 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2621899",
-              "CONCEPT_ID": 742008,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.025 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2621898",
-              "CONCEPT_ID": 742007,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.025 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2610346",
-              "CONCEPT_ID": 1525544,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.05 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          },
-          {
-            "concept": {
-              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
-              "CONCEPT_CODE": "2623381",
-              "CONCEPT_ID": 742040,
-              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.0075 MG/ML",
-              "DOMAIN_ID": "Drug",
-              "INVALID_REASON": "V",
-              "INVALID_REASON_CAPTION": "Valid",
-              "STANDARD_CONCEPT": "S",
-              "STANDARD_CONCEPT_CAPTION": "Standard",
-              "VOCABULARY_ID": "RxNorm"
-            },
-            "isExcluded": true,
-            "includeDescendants": true
-          }
-        ]
-      }
-    },
-    {
       "id": 1,
       "name": "All COVID-19 vaccines",
       "expression": {
@@ -649,6 +514,186 @@
               "VOCABULARY_ID": "RxNorm Extension"
             },
             "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2468231",
+              "CONCEPT_ID": 37003432,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA spike protein",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2479831",
+              "CONCEPT_ID": 739902,
+              "CONCEPT_NAME": "SARS-COV-2 (COVID-19) vaccine, vector non-replicating",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2606074",
+              "CONCEPT_ID": 780152,
+              "CONCEPT_NAME": "SARS-COV-2 (COVID-19) vaccine, subunit, recombinant spike protein",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "Comirnaty Pfizer  COVID-19 vaccine for initial dose adult",
+      "expression": {
+        "items": [
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2468232",
+              "CONCEPT_ID": 37003433,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.1 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2583742",
+              "CONCEPT_ID": 702117,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.05 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2623380",
+              "CONCEPT_ID": 742039,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.0075 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2603832",
+              "CONCEPT_ID": 779947,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.015 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2621899",
+              "CONCEPT_ID": 742008,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 0.025 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2623381",
+              "CONCEPT_ID": 742040,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.0075 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2610346",
+              "CONCEPT_ID": 1525544,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.05 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Clinical Drug Comp",
+              "CONCEPT_CODE": "2621898",
+              "CONCEPT_ID": 742007,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA-BNT162b2 OMICRON (BA.4/BA.5) 0.025 MG/ML",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "isExcluded": true,
+            "includeDescendants": true
           }
         ]
       }
@@ -687,7 +732,7 @@
             "DemographicCriteriaList": [],
             "Groups": []
           },
-          "CodesetId": 0,
+          "CodesetId": 3,
           "First": true
         }
       },
@@ -728,7 +773,8 @@
                       "DemographicCriteriaList": [],
                       "Groups": []
                     },
-                    "CodesetId": 0
+                    "CodesetId": 3,
+                    "First": true
                   }
                 },
                 "StartWindow": {
@@ -746,12 +792,63 @@
                   "Type": 2,
                   "Count": 1
                 }
+              },
+              {
+                "Criteria": {
+                  "DrugExposure": {
+                    "CorrelatedCriteria": {
+                      "Type": "ALL",
+                      "CriteriaList": [
+                        {
+                          "Criteria": {
+                            "DrugExposure": {
+                              "CodesetId": 3,
+                              "First": true
+                            }
+                          },
+                          "StartWindow": {
+                            "Start": {
+                              "Days": 48,
+                              "Coeff": -1
+                            },
+                            "End": {
+                              "Days": 14,
+                              "Coeff": -1
+                            },
+                            "UseEventEnd": false
+                          },
+                          "Occurrence": {
+                            "Type": 2,
+                            "Count": 1
+                          }
+                        }
+                      ],
+                      "DemographicCriteriaList": [],
+                      "Groups": []
+                    },
+                    "CodesetId": 3
+                  }
+                },
+                "StartWindow": {
+                  "Start": {
+                    "Coeff": -1
+                  },
+                  "End": {
+                    "Days": 1,
+                    "Coeff": -1
+                  },
+                  "UseEventEnd": false
+                },
+                "Occurrence": {
+                  "Type": 0,
+                  "Count": 0
+                }
               }
             ],
             "DemographicCriteriaList": [],
             "Groups": []
           },
-          "CodesetId": 0
+          "CodesetId": 3
         }
       }
     ],

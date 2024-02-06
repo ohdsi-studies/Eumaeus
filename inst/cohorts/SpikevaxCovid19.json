@@ -514,6 +514,51 @@
               "VOCABULARY_ID": "RxNorm Extension"
             },
             "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2468231",
+              "CONCEPT_ID": 37003432,
+              "CONCEPT_NAME": "SARS-CoV-2 (COVID-19) vaccine, mRNA spike protein",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2479831",
+              "CONCEPT_ID": 739902,
+              "CONCEPT_NAME": "SARS-COV-2 (COVID-19) vaccine, vector non-replicating",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
+          },
+          {
+            "concept": {
+              "CONCEPT_CLASS_ID": "Ingredient",
+              "CONCEPT_CODE": "2606074",
+              "CONCEPT_ID": 780152,
+              "CONCEPT_NAME": "SARS-COV-2 (COVID-19) vaccine, subunit, recombinant spike protein",
+              "DOMAIN_ID": "Drug",
+              "INVALID_REASON": "V",
+              "INVALID_REASON_CAPTION": "Valid",
+              "STANDARD_CONCEPT": "S",
+              "STANDARD_CONCEPT_CAPTION": "Standard",
+              "VOCABULARY_ID": "RxNorm"
+            },
+            "includeDescendants": true
           }
         ]
       }
@@ -711,7 +756,8 @@
                       "DemographicCriteriaList": [],
                       "Groups": []
                     },
-                    "CodesetId": 2
+                    "CodesetId": 2,
+                    "First": true
                   }
                 },
                 "StartWindow": {
@@ -728,6 +774,57 @@
                 "Occurrence": {
                   "Type": 2,
                   "Count": 1
+                }
+              },
+              {
+                "Criteria": {
+                  "DrugExposure": {
+                    "CorrelatedCriteria": {
+                      "Type": "ALL",
+                      "CriteriaList": [
+                        {
+                          "Criteria": {
+                            "DrugExposure": {
+                              "CodesetId": 2,
+                              "First": true
+                            }
+                          },
+                          "StartWindow": {
+                            "Start": {
+                              "Days": 48,
+                              "Coeff": -1
+                            },
+                            "End": {
+                              "Days": 14,
+                              "Coeff": -1
+                            },
+                            "UseEventEnd": false
+                          },
+                          "Occurrence": {
+                            "Type": 2,
+                            "Count": 1
+                          }
+                        }
+                      ],
+                      "DemographicCriteriaList": [],
+                      "Groups": []
+                    },
+                    "CodesetId": 2
+                  }
+                },
+                "StartWindow": {
+                  "Start": {
+                    "Coeff": -1
+                  },
+                  "End": {
+                    "Days": 1,
+                    "Coeff": -1
+                  },
+                  "UseEventEnd": false
+                },
+                "Occurrence": {
+                  "Type": 0,
+                  "Count": 0
                 }
               }
             ],
